@@ -1,0 +1,94 @@
+import asyncio
+import time
+from typing import Iterator, List
+
+import httpx
+from httpx import Response
+
+from search.utilities.logging import logger
+from search.parsers.html_parser import BaseHTMLParser
+from random import choice
+from search.scrapers.options.settings import USER_AGENTS
+
+
+class BaseCrawler:
+    """
+    Base class for all crawler logic.
+    Contains basic methods for requesting URLs.
+    """
+
+    def __init__(self, start_url, workers=10, proxy='socks5://127.0.0.1:9050'):
+
+        self._client = None
+        self.start_url = start_url
+        self.workers = workers
+        self.proxy = proxy
+        self.start = int(time.time())
+        self.logger = logger
+        self.queue = asyncio.Queue()
+        self.parser = BaseHTMLParser
+
+    def get_proxy(self):
+        pass
+
+    @staticmethod
+    def get_random_user_agent(user_agent_list: List[str]) -> str:
+        """
+        Return str with random User-Agent.
+        - :arg user_agent_list: List of strings with User Agents.
+        """
+        agent = choice(user_agent_list)
+        return agent
+
+    @property
+    def user_agent(self) -> str:
+        agent = self.get_random_user_agent(USER_AGENTS)
+        return agent
+
+    def prepare_headers(self):
+        pass
+
+    @property
+    def client(self):
+        if self._client is None:
+            self._client = httpx.AsyncClient(proxies=self.proxy)
+            return self._client
+
+    async def async_get(self, url: str) -> Response | None:
+        """
+        Requests specified URL.
+        Returns response object.
+c
+        :param url: Requested URL.
+        """
+        headers = {"User-Agent": f"{self.user_agent}"}
+        try:
+            res = await self.client.get(url, headers=headers)
+            return res
+        except Exception as e:
+            self.logger.error(f'(async_get) Some other exception: {e}')
+            return None
+
+    async def async_get_urls(self, iterator_of_urls: Iterator):
+        """
+        Sends requests to iterator of urls asynchronously.
+
+        :param iterator_of_urls: Iterator of Product URLS
+            that will be used while sending requests.
+        """
+
+        tasks = []
+        try:
+            for url in iterator_of_urls:
+                tasks.append(
+                    asyncio.create_task(
+                        self.async_get(
+                            url,
+                        )
+                    )
+                )
+            responses = await asyncio.gather(*tasks)
+            return responses
+        except Exception as e:
+            self.logger.error(f'(async_get_urls) Some other exception: {e}')
+            raise

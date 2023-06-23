@@ -13,9 +13,9 @@ class BaseHTMLParser:
         if isinstance(response_text, str):
             self.response_text = response_text
         else:
-            raise ValueError('No valid response to parse.')
+            raise ValueError(f'No valid response to parse. Received type: {type(response_text)}')
         self.logger = logger
-        self.logger.info('Starting parser.')
+
 
     def generate_html_element(self) -> Union[HtmlElement, None]:
         """

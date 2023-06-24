@@ -46,7 +46,7 @@ class BaseURLParser:
 
     def drop_query_params(self, url) -> str:
         """
-        Cleans URL of any query params.
+        Removes all query params from URL.
         Returns cleaned URL.
 
         :arg url: String with URL addres to check.
@@ -55,6 +55,32 @@ class BaseURLParser:
         if result.query:
             return urljoin(url, result.path)
         return url
+
+    def drop_fragments(self, url) -> str:
+        """
+        Removes all fragments from URL.
+        Returns cleaned URL.
+
+        :arg url: String with URL addres to check.
+        """
+        result = urlsplit(url)
+        if result.fragment:
+            return urljoin(url, result.path)
+        return url
+
+    def clean_url(self, url):
+        """
+        Cleanes URL of any query parameters and fragments.
+
+        :arg url: String with URL addres to check.
+        """
+        after_params = self.drop_query_params(url=url)
+        after_fragments = self.drop_fragments(url=after_params)
+        return after_fragments
+
+
+
+# TODO:
 
     def fix_paths(self, url) -> str | None:
         """

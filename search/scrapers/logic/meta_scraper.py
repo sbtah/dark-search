@@ -3,7 +3,7 @@ from typing import Callable, Dict, Iterator, List, Union
 from lxml.html import HtmlElement
 from selenium.webdriver.remote.webelement import WebElement
 
-from search.scrapers.logic.base_scraper import BaseSeleniumScraper
+from search.scrapers.logic.base import BaseSeleniumScraper
 
 
 class MetaSeleniumScraper(BaseSeleniumScraper):

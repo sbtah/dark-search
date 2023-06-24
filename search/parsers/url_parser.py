@@ -70,7 +70,7 @@ class BaseURLParser:
 
     def clean_url(self, url):
         """
-        Cleanes URL of any query parameters and fragments.
+        Cleans URL of any query parameters and fragments.
 
         :arg url: String with URL addres to check.
         """

@@ -4,7 +4,7 @@ import re
 from urllib.parse import urlsplit, urlparse, urljoin
 import re
 
-
+test_url = 'http://bbzzzsvqcrqtki6umym6itiixfhni37ybtt7mkbjyxn2pgllzxf2qgyd.onion/?referrer=14977&utm_source=tor_66&utm_medium=banner&utm_campaign=tor66_jun23'
 urls = ["http://tor66sewebgixwhcqfnp5inzp5x5uohhdy3kvtnyfxc2e5mxiuh34iid.onion",]
 proxy = 'socks5://127.0.0.1:9050'
 proxy_2 = 'http://tor-privoxy:9050'
@@ -12,7 +12,8 @@ proxy_2 = 'http://tor-privoxy:9050'
 
 
 
-
+result = urlsplit(test_url)
+print(urljoin(test_url, result.path))
 
 # crawler = BaseCrawler(proxy=proxy, start_url=urls[0])
 # responses_iterator = asyncio.run(crawler.async_get_urls(iterator_of_urls=urls))
@@ -32,28 +33,28 @@ proxy_2 = 'http://tor-privoxy:9050'
 #                 print(f'Fixed: {urljoin(crawler.start_url, raw_url)}')
 
 
-crawler = BaseCrawler(proxy=proxy, start_url=urls[0])
-res = crawler.get(url=crawler.start_url)
+# crawler = BaseCrawler(proxy=proxy, start_url=urls[0])
+# res = crawler.get(url=crawler.start_url)
 
-html_parser = crawler.html_parser(response_text=res.text)
-url_parser = crawler.url_parser(url=urls[0], start_domain=urls[0])
+# html_parser = crawler.html_parser(response_text=res.text)
+# url_parser = crawler.url_parser(url=urls[0], start_domain=urls[0])
 
-html_element = html_parser.generate_html_element()
+# html_element = html_parser.generate_html_element()
 
-if html_element is not None:
-    a_tags = html_parser.find_all_elements(html_element=html_element, xpath_to_search='.//a[@href and not(@href="")]')
+# if html_element is not None:
+#     a_tags = html_parser.find_all_elements(html_element=html_element, xpath_to_search='.//a[@href and not(@href="")]')
 
-    for tag in a_tags:
+#     for tag in a_tags:
 
-        raw_url = tag.get('href')
-        if url_parser.is_valid_url(url=raw_url):
-            print(raw_url)
-        else:
-            fixed = url_parser.fix_url(url=raw_url)
-            if fixed is not None:
-                print(fixed)
-            else:
-                print(raw_url)
+#         raw_url = tag.get('href')
+#         if url_parser.is_valid_url(url=raw_url):
+#             print(raw_url)
+#         else:
+#             fixed = url_parser.fix_url(url=raw_url)
+#             if fixed is not None:
+#                 print(fixed)
+#             else:
+#                 print(raw_url)
 
 
         # if url.is_valid_url(url=raw_url):

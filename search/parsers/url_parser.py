@@ -44,23 +44,28 @@ class BaseURLParser:
             self.logger.error(f'(is_onion) Some other Exception: {e}')
             raise
 
-    def drop_query_params(self, url):
-        """"""
-        pass
-
-
-    def fix_url(self, url) -> str | None:
+    def drop_query_params(self, url) -> str:
         """
-        Fixes path URL by joining with domain.
+        Cleans URL of any query params.
+        Returns cleaned URL.
+
+        :arg url: String with URL addres to check.
+        """
+        result = urlsplit(url)
+        if result.query:
+            return urljoin(url, result.path)
+        return url
+
+    def fix_paths(self, url) -> str | None:
+        """
+        Fixes path URL by joining it with domain.
+        Returns proper URL.
 
         :arg url: String with URL addres to check.
         """
         if self.start_domain is not None:
-            self.logger.info(f'JOINING: {self.start_domain} + {url}')
             fixed_url = urljoin(self.start_domain, url)
-            self.logger.info(f'OUTCOME: {fixed_url}')
             if self.is_valid_url(url=fixed_url):
-
                 return fixed_url
             else:
                 self.logger.info('Failed while fixing URL.')

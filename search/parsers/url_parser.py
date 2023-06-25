@@ -1,25 +1,20 @@
-from lxml.html import HtmlElement, HTMLParser, fromstring
-from typing import List, Union
-from search.utilities.logging import logger
-from urllib.parse import urlsplit, urlparse, urljoin
 import re
+from urllib.parse import urljoin, urlsplit
+
+from search.utilities.logging import logger
 
 
 class BaseURLParser:
 
-    def __init__(self, url, start_url=None):
-        if isinstance(url, str):
-            self.url = url
-        else:
-            raise ValueError('Please provide a string with an URL.')
-        self.start_url = start_url
+    def __init__(self, current_page_url=None):
+        self.current_page_url = current_page_url
         self.logger = logger
 
     def get_domain(self, url) -> str:
         """
-        Extracts domain from given URL.
+        Extracts domain from parsed URL.
 
-        :arg url: String with URL address to parse.
+        :arg url: String with URL address to extract domain from.
         """
         try:
             domain = urlsplit(url).netloc
@@ -28,11 +23,11 @@ class BaseURLParser:
             self.logger.error(f'(get_domain) Some other exception: {e}')
             raise
 
-    def is_onion(self, url) -> bool:
+    def is_onion(self, url: str) -> bool:
         """
         Checks if given URL is an onion URL.
 
-        :arg url: String with URL addres to check.
+        :arg url: String with URL address to check.
         """
         try:
             domain = urlsplit(url)
@@ -44,62 +39,47 @@ class BaseURLParser:
             self.logger.error(f'(is_onion) Some other Exception: {e}')
             raise
 
-    def drop_query_params(self, url) -> str:
+    def clean_url(self, url: str) -> str:
         """
-        Removes all query params from URL.
+        Cleans URL of all query params or fragments.
         Returns cleaned URL.
 
-        :arg url: String with URL addres to check.
+        :arg url: String with URL address to clean.
         """
-        result = urlsplit(url)
-        if result.query:
-            return urljoin(url, result.path)
-        return url
+        try:
+            result = urlsplit(url)
+            if result.query or result.fragment:
+                return urljoin(url, result.path)
+            else:
+                return url
+        except Exception as e:
+            self.logger.error(f'(clean_url) Some other Exception: {e}')
+            raise
 
-    def drop_fragments(self, url) -> str:
-        """
-        Removes all fragments from URL.
-        Returns cleaned URL.
-
-        :arg url: String with URL addres to check.
-        """
-        result = urlsplit(url)
-        if result.fragment:
-            return urljoin(url, result.path)
-        return url
-
-    def clean_url(self, url):
-        """
-        Cleans URL of any query parameters and fragments.
-
-        :arg url: String with URL addres to check.
-        """
-        after_params = self.drop_query_params(url=url)
-        after_fragments = self.drop_fragments(url=after_params)
-        return after_fragments
-
-
-
-# TODO:
-
-    def fix_paths(self, url) -> str | None:
+    def fix_paths(self, url: str) -> str:
         """
         Fixes path URL by joining it with domain.
-        Returns proper URL.
+        Returns proper URL on success.
 
-        :arg url: String with URL addres to check.
+        :arg url: String with URL address to fix.
         """
-        if self.start_domain is not None:
-            fixed_url = urljoin(self.start_domain, url)
-            if self.is_valid_url(url=fixed_url):
-                return fixed_url
-            else:
-                self.logger.info('Failed while fixing URL.')
-                return None
+        try:
+            if self.current_page_url is not None:
+                fixed_url = urljoin(self.current_page_url, url)
+                if self.is_valid_url(url=fixed_url):
+                    return fixed_url
+                else:
+                    self.logger.info('Failed while fixing URL.')
+                    return url
+        except Exception as e:
+            self.logger.error(f'(fix_paths) Some other Exception: {e}')
+            raise
 
-
-    def is_valid_url_parse(self, url):
+    def is_valid_url_parse(self, url: str) -> bool:
         """
+        Validates URL by parsing it with urlsplit.
+
+        :arg url: String with URL address to check.
         """
         try:
             result = urlsplit(url)
@@ -107,11 +87,16 @@ class BaseURLParser:
         except ValueError:
             return False
 
-    def is_onion(self, url):
-        """"""
+    def is_onion(self, url: str) -> bool:
+        """
+        Checks if given URL address is an onion URL.
+        Returns bool.
+
+        :arg url: String with URL address to check.
+        """
         try:
             domain = urlsplit(url)
-            if 'onion' in domain:
+            if 'onion' in domain.netloc:
                 return True
             else:
                 return False
@@ -119,8 +104,12 @@ class BaseURLParser:
             self.logger.error(f'(is_onion) Some other Exception: {e}')
             raise
 
-    def is_valid_url_regex(self, url):
-        """"""
+    def is_valid_url_regex(self, url: str) -> bool:
+        """
+        Validates URL by Regex.
+
+        :arg url: String with URL address to check.
+        """
         try:
             pattern = re.compile(
                 r'^(?:http|ftp)s?://'
@@ -134,10 +123,38 @@ class BaseURLParser:
             self.logger.error(f'(is_valid_url_regex) Some other Exception: {e}')
             raise
 
+    def is_valid_url(self, url: str) -> bool:
+        """
+        Validates URL by parsing and Regex.
+        Returns bool.
 
-    def is_valid_url(self, url):
+        :arg url: String with URL address to check.
         """
-        """
-        if self.is_valid_url_parse(url) == True and self.is_valid_url_regex(url) == True:
+        if self.is_valid_url_parse(url) is True and self.is_valid_url_regex(url) is True:
             return True
         return False
+
+    def process_found_url(self, url: str) -> str:
+        """
+        Processes found URL in many ways.
+        First of all this method is cleaning URL of any query parameters and fragments.
+        Then it tries to fix any paths by joining found urls with requested url.
+        Lastly it checks validity of found URL and is URL an onion.
+
+        Returns processed and cleaned URL.
+
+        :arg url: String with URL address to check.
+        """
+
+        cleaned = self.clean_url(url=url)
+        if self.is_valid_url(url=cleaned):
+            if self.is_onion(url=cleaned):
+                return cleaned
+            else:
+                pass
+        else:
+            fixed = self.fix_paths(url=cleaned)
+            if self.is_onion(url=fixed):
+                return fixed
+            else:
+                pass

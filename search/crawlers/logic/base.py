@@ -37,10 +37,10 @@ class BaseCrawler:
     def html_parser(self, response_text):
         return BaseHTMLParser(response_text=response_text)
 
-    def url_parser(self, url, start_url):
-        return BaseURLParser(url=url, start_url=start_url)
+    def url_parser(self, current_page_url):
+        return BaseURLParser(current_page_url=current_page_url)
 
-    def get_proxy(self):
+    async def get_proxy(self):
         pass
 
     @staticmethod
@@ -57,7 +57,7 @@ class BaseCrawler:
         agent = self.get_random_user_agent(USER_AGENTS)
         return agent
 
-    def prepare_headers(self):
+    async def prepare_headers(self):
         pass
 
     @property
@@ -131,3 +131,18 @@ class BaseCrawler:
         except Exception as e:
             self.logger.error(f'(async_get_urls) Some other exception: {e}')
             raise
+
+    async def search_for_urls(self, response_text):
+        """
+        Search for all <a> tags withing the page.
+        Return generator of processed urls.
+
+        :param response_text: Text from response object.
+        """
+        html_parser = self.html_parser(response_text=response_text)
+        html_element = html_parser.generate_html_element()
+        a_tags = html_parser.find_all_elements(
+            html_element=html_element, xpath_to_search='.//a[@href and not(@href="")]/@href'
+        )
+        url_parser = self.url_parser(self.start_url)
+        return url_parser.process_found_urls(a_tags)

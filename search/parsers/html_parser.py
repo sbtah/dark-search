@@ -16,7 +16,6 @@ class BaseHTMLParser:
             raise ValueError(f'No valid response to parse. Received type: {type(response_text)}')
         self.logger = logger
 
-
     def generate_html_element(self) -> Union[HtmlElement, None]:
         """
         Parses text response and produces a HTMLElement from it.

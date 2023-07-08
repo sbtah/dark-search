@@ -134,27 +134,28 @@ class BaseURLParser:
             return True
         return False
 
-    def process_found_url(self, url: str) -> str:
+    def process_found_urls(self, urls_list: str) -> str:
         """
-        Processes found URL in many ways.
+        Processes found URLS in many ways.
         First of all this method is cleaning URL of any query parameters and fragments.
         Then it tries to fix any paths by joining found urls with requested url.
         Lastly it checks validity of found URL and is URL an onion.
 
-        Returns processed and cleaned URL.
+        Yields processed and cleaned URL.
 
-        :arg url: String with URL address to check.
+        :arg urls_list: List with URL addresses to check.
         """
 
-        cleaned = self.clean_url(url=url)
-        if self.is_valid_url(url=cleaned):
-            if self.is_onion(url=cleaned):
-                return cleaned
+        for url in urls_list:
+            cleaned = self.clean_url(url=url)
+            if self.is_valid_url(url=cleaned):
+                if self.is_onion(url=cleaned):
+                    yield cleaned
+                else:
+                    pass
             else:
-                pass
-        else:
-            fixed = self.fix_paths(url=cleaned)
-            if self.is_onion(url=fixed):
-                return fixed
-            else:
-                pass
+                fixed = self.fix_paths(url=cleaned)
+                if self.is_onion(url=fixed):
+                    yield fixed
+                else:
+                    pass

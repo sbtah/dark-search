@@ -1,16 +1,17 @@
 import re
 from urllib.parse import urljoin, urlsplit
-
+from lxml.html import HtmlElement
 from utilities.logging import logger
 
 
-class BaseURLParser:
+class URLExtractor:
 
-    def __init__(self, current_page_url=None):
+    def __init__(self, iterator_of_urls, current_page_url=None):
+        self.iterator_of_urls = iterator_of_urls
         self.current_page_url = current_page_url
         self.logger = logger
 
-    def get_domain(self, url) -> str:
+    async def get_domain(self, url) -> str:
         """
         Extracts domain from parsed URL.
 
@@ -23,23 +24,10 @@ class BaseURLParser:
             self.logger.error(f'(get_domain) Some other exception: {e}')
             raise
 
-    def is_onion(self, url: str) -> bool:
-        """
-        Checks if given URL is an onion URL.
+    async def is_file(self, url):
+        pass
 
-        :arg url: String with URL address to check.
-        """
-        try:
-            domain = urlsplit(url)
-            if 'onion' in domain:
-                return True
-            else:
-                return False
-        except Exception as e:
-            self.logger.error(f'(is_onion) Some other Exception: {e}')
-            raise
-
-    def clean_url(self, url: str) -> str:
+    async def clean_url(self, url: str) -> str:
         """
         Cleans URL of all query params or fragments.
         Returns cleaned URL.
@@ -56,7 +44,7 @@ class BaseURLParser:
             self.logger.error(f'(clean_url) Some other Exception: {e}')
             raise
 
-    def fix_paths(self, url: str) -> str:
+    async def fix_paths(self, url: str) -> str:
         """
         Fixes path URL by joining it with domain.
         Returns proper URL on success.
@@ -75,7 +63,7 @@ class BaseURLParser:
             self.logger.error(f'(fix_paths) Some other Exception: {e}')
             raise
 
-    def is_valid_url_parse(self, url: str) -> bool:
+    async def is_valid_url_parse(self, url: str) -> bool:
         """
         Validates URL by parsing it with urlsplit.
 
@@ -87,24 +75,27 @@ class BaseURLParser:
         except ValueError:
             return False
 
-    def is_onion(self, url: str) -> bool:
+    async def is_onion(self, url: str) -> bool:
         """
         Checks if given URL address is an onion URL.
         Returns bool.
 
         :arg url: String with URL address to check.
         """
-        try:
-            domain = urlsplit(url)
-            if 'onion' in domain.netloc:
-                return True
-            else:
-                return False
-        except Exception as e:
-            self.logger.error(f'(is_onion) Some other Exception: {e}')
-            raise
+        if url is not None:
+            try:
+                domain = urlsplit(url)
+                if 'onion' in domain.netloc:
+                    return True
+                else:
+                    return False
+            except Exception as e:
+                self.logger.error(f'(is_onion) Some other Exception: {e}')
+                raise
+        else:
+            pass
 
-    def is_valid_url_regex(self, url: str) -> bool:
+    async def is_valid_url_regex(self, url: str) -> bool:
         """
         Validates URL by Regex.
 
@@ -123,18 +114,18 @@ class BaseURLParser:
             self.logger.error(f'(is_valid_url_regex) Some other Exception: {e}')
             raise
 
-    def is_valid_url(self, url: str) -> bool:
+    async def is_valid_url(self, url: str) -> bool:
         """
         Validates URL by parsing and Regex.
         Returns bool.
 
         :arg url: String with URL address to check.
         """
-        if self.is_valid_url_parse(url) is True and self.is_valid_url_regex(url) is True:
+        if await self.is_valid_url_parse(url) is True and await self.is_valid_url_regex(url) is True:
             return True
         return False
 
-    def process_found_urls(self, urls_list: str) -> str:
+    async def process_found_urls(self):
         """
         Processes found URLS in many ways.
         First of all this method is cleaning URL of any query parameters and fragments.
@@ -145,17 +136,19 @@ class BaseURLParser:
 
         :arg urls_list: List with URL addresses to check.
         """
-
-        for url in urls_list:
-            cleaned = self.clean_url(url=url)
-            if self.is_valid_url(url=cleaned):
-                if self.is_onion(url=cleaned):
-                    yield cleaned
+        processed_urls = []
+        if self.iterator_of_urls:
+            for url in self.iterator_of_urls:
+                cleaned = await self.clean_url(url=url.strip())
+                if await self.is_valid_url(url=cleaned):
+                    if await self.is_onion(url=cleaned):
+                        processed_urls.append(cleaned)
+                    else:
+                        pass
                 else:
-                    pass
-            else:
-                fixed = self.fix_paths(url=cleaned)
-                if self.is_onion(url=fixed):
-                    yield fixed
-                else:
-                    pass
+                    fixed = await self.fix_paths(url=cleaned)
+                    if await self.is_onion(url=fixed):
+                        processed_urls.append(cleaned)
+                    else:
+                        pass
+            return processed_urls

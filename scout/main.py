@@ -1,6 +1,8 @@
-from crawlers.logic.base import BaseCrawler
-from parsers.url_parser import BaseURLParser
-from parsers.html_parser import BaseHTMLParser
+from crawlers.logic.base_spider import BaseSpider
+from crawlers.logic.sync_spider import SyncSpider
+from crawlers.logic.async_spider import AsyncSpider
+from parsers.url import URLExtractor
+from parsers.html import HtmlExtractor
 import asyncio
 import re
 from urllib.parse import urlsplit, urlparse, urljoin
@@ -14,66 +16,20 @@ urls = [
     'http://mbrlkbtq5jonaqkurjwmxftytyn2ethqvbxfu4rgjbkkknndqwae6byd.onion/',
     'http://7ukmkdtyxdkdivtjad57klqnd3kdsmq6tp45rrsxqnu76zzv3jvitlqd.onion/'
 ]
+async def async_test():
+    crawler = AsyncSpider(initial_url=urls[0])
+    responses = await crawler.get_urls(iterator_of_urls=urls)
+    for element in responses:
+        print(element)
 
 
-# async def async_get(client: httpx.AsyncClient, url: str) -> str:
-#     """
-#     Requests specified URL asynchronously. Returns JSON.
-#     - :arg client: Asynchronous client.
-#     - :arg url: Requested URL.
-#     """
-#     try:
-#         res = await client.get(url)
-#         return res
-#     except Exception as e:
-#         return None
+def sync_test():
+    crawler = SyncSpider(initial_url=urls[0])
+    genex = crawler.get_urls(urls)
+    for element in genex:
+        print(element)
 
-# async def get_urls(urls_iterator):
-#     async with httpx.AsyncClient(proxies='socks5://127.0.0.1:9050') as client:
-#         tasks = []
-#         for url in urls_iterator:
-#             tasks.append(
-#                 asyncio.create_task(
-#                     async_get(client=client, url=url)
-#                 )
-#             )
-#         resps = await asyncio.gather(*tasks)
-#         return resps
-
-async def test_x():
-    crawler = BaseCrawler()
-    responses = await crawler.async_get_urls(iterator_of_urls=urls)
-    for res in responses:
-        print(type(res))
-        print(crawler.page(res))
 
 if __name__ == '__main__':
-    # outs = asyncio.run(get_urls(urls))
-    # print(outs)
-    resps = asyncio.run(test_x())
-
-
-    # async def get_products_by_ids(
-    #     self,
-    #     range_of_product_ids: Iterator[int],
-    #     single_product_by_id_url: str,
-    # ) -> Future[Dict]:
-    #     """
-    #     Sends requests to SINGLE_PRODUCT_BY_ID asynchronously.
-    #     - :arg range_of_product_ids: Iterator of integers (IDs)
-    #         that will be used while sending requests.
-    #     - :arg single_product_by_id_url: API Url for Product Endopoint.
-    #     """
-    #     async with httpx.AsyncClient() as client:
-    #         tasks = []
-    #         for num in range_of_product_ids:
-    #             tasks.append(
-    #                 asyncio.ensure_future(
-    #                     self.async_get(
-    #                         client,
-    #                         single_product_by_id_url.format(num),
-    #                     )
-    #                 )
-    #             )
-    #         products = await asyncio.gather(*tasks)
-    #         return products
+    # sync_test()
+    asyncio.run(async_test())

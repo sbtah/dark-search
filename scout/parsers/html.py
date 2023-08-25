@@ -3,36 +3,18 @@ from typing import List, Union
 from utilities.logging import logger
 
 
-class BaseHTMLParser:
+class HtmlExtractor:
     """
-    Html parser built with lxml.
-    Prepare HtmlElement from text response and find needed tags and attributes.
+    Html extractor built with lxml.
+    Extract needed values/data from received HtmlElement.
     """
 
-    def __init__(self, response_text):
-        if isinstance(response_text, str):
-            self.response_text = response_text
+    def __init__(self, html_element):
+        if isinstance(html_element, HtmlElement):
+            self.element = html_element
         else:
-            raise ValueError(f'No valid response to parse. Received type: {type(response_text)}')
+            raise ValueError(f'HtmlExtractor Error. Wrong object to parse, received type: {type(html_element)}')
         self.logger = logger
-
-    def generate_html_element(self) -> Union[HtmlElement, None]:
-        """
-        Parses text response and produces a HTMLElement from it.
-        """
-        try:
-            hp = HTMLParser(encoding='utf-8')
-            element = fromstring(
-                self.response_text,
-                parser=hp,
-            )
-            self.logger.debug(
-                'Parsing text reponse to HtmlElement.'  # noqa
-            )
-            return element
-        except Exception as e:
-            self.logger.error(f'Exception while generating HtmlElement: {e}')
-            return None
 
     def find_element(
             self,
@@ -72,7 +54,6 @@ class BaseHTMLParser:
         else:
             self.logger.error(f'(find_element) Element received is not of type HtmlElement.') # noqa
             return None
-
 
     def find_all_elements(
             self,

@@ -1,7 +1,7 @@
 import re
 from urllib.parse import urljoin, urlsplit
 
-from scout.utilities.logging import logger
+from utilities.logging import logger
 
 
 class BaseURLParser:

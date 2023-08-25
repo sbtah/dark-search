@@ -5,9 +5,9 @@ from typing import Iterator, List, Union
 import httpx
 from httpx import Response
 
-from scout.utilities.logging import logger
+from utilities.logging import logger
 from random import choice
-from scout.options.settings import USER_AGENTS
+from options.settings import USER_AGENTS
 from urllib.parse import urlsplit, urlparse, urljoin
 from lxml.html import fromstring, HTMLParser, HtmlElement
 
@@ -18,7 +18,7 @@ class BaseCrawler:
     Contains basic methods for requesting URLs.
     """
 
-    def __init__(self, page_url=None, workers=10, proxy='socks5://127.0.0.1:9050'):
+    def __init__(self, page_url=None, workers=10, proxy='socks5://tor-privoxy:9050'):
         self.page_url = page_url
         self._domain = None
         self.workers = workers

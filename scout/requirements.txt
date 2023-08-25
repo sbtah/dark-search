@@ -5,3 +5,4 @@ celery
 redis
 psycopg2
 flower
+httpx[socks]

@@ -1,6 +1,6 @@
-from scout.crawlers.logic.base import BaseCrawler
-from scout.parsers.url_parser import BaseURLParser
-from scout.parsers.html_parser import BaseHTMLParser
+from crawlers.logic.base import BaseCrawler
+from parsers.url_parser import BaseURLParser
+from parsers.html_parser import BaseHTMLParser
 import asyncio
 import re
 from urllib.parse import urlsplit, urlparse, urljoin

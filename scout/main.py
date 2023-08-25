@@ -42,8 +42,8 @@ urls = [
 
 async def test_x():
     crawler = BaseCrawler()
-    resps = await crawler.async_get_urls(iterator_of_urls=urls)
-    for res in resps:
+    responses = await crawler.async_get_urls(iterator_of_urls=urls)
+    for res in responses:
         print(type(res))
         print(crawler.page(res))
 

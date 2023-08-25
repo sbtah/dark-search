@@ -18,8 +18,8 @@ class BaseCrawler:
     Contains basic methods for requesting URLs.
     """
 
-    def __init__(self, page_url=None, workers=10, proxy='socks5://tor-privoxy:9050'):
-        self.page_url = page_url
+    def __init__(self, initial_url=None, workers=10, proxy='socks5://tor-privoxy:9050'):
+        self.initial_url = initial_url
         self._domain = None
         self.workers = workers
         self.proxy = proxy

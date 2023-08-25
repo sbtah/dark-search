@@ -1,0 +1,11 @@
+.git
+.gitignore
+.docker
+scout/__pycache__/
+scout/*/__pycache__/
+scout/*/*/__pycache__/
+scout/*/*/*/__pycache__/
+.env/
+.venv/
+venv/
+redis_data/

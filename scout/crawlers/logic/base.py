@@ -1,16 +1,15 @@
 import asyncio
 import time
-from typing import Iterator, List
+from typing import Iterator, List, Union
 
 import httpx
 from httpx import Response
 
-from search.utilities.logging import logger
-from search.parsers.html_parser import BaseHTMLParser
-from search.parsers.url_parser import BaseURLParser
+from scout.utilities.logging import logger
 from random import choice
-from search.options.settings import USER_AGENTS
+from scout.options.settings import USER_AGENTS
 from urllib.parse import urlsplit, urlparse, urljoin
+from lxml.html import fromstring, HTMLParser, HtmlElement
 
 
 class BaseCrawler:
@@ -19,11 +18,8 @@ class BaseCrawler:
     Contains basic methods for requesting URLs.
     """
 
-    def __init__(self, start_url, workers=10, proxy='socks5://127.0.0.1:9050'):
-
-        self._async_client = None
-        self._client = None
-        self.start_url = start_url
+    def __init__(self, page_url=None, workers=10, proxy='socks5://127.0.0.1:9050'):
+        self.page_url = page_url
         self._domain = None
         self.workers = workers
         self.proxy = proxy
@@ -34,11 +30,23 @@ class BaseCrawler:
         self.processed_urls = set()
         self.error_urls = set()
 
-    def html_parser(self, response_text):
-        return BaseHTMLParser(response_text=response_text)
-
-    def url_parser(self, current_page_url):
-        return BaseURLParser(current_page_url=current_page_url)
+    def page(self, response) -> Union[HtmlElement, None]:
+        if response is not None:
+            try:
+                hp = HTMLParser(encoding='utf-8')
+                self.logger.debug(
+                    'Parsing text response to HtmlElement.'
+                )
+                element = fromstring(
+                    response.text,
+                    parser=hp,
+                )
+                return element
+            except Exception as e:
+                self.logger.error(f'Exception while generating HtmlElement: {e}')
+                return None
+        else:
+            return None
 
     async def get_proxy(self):
         pass
@@ -62,21 +70,12 @@ class BaseCrawler:
 
     @property
     def domain(self):
-        if self._domain is None:
-            self._domain = urlsplit(self.start_url).netloc
-            return self._domain
-
-    @property
-    def async_client(self):
-        if self._async_client is None:
-            self._async_client = httpx.AsyncClient(proxies=self.proxy)
-            return self._async_client
-
-    @property
-    def client(self):
-        if self._client is None:
-            self._client = httpx.Client(proxies=self.proxy)
-            return self._client
+        if self._domain is None and self.page_url is not None:
+            try:
+                self._domain = urlsplit(self.start_url).netloc
+                return self._domain
+            except Exception as e:
+                raise e
 
     def get(self, url: str) -> Response | None:
         """
@@ -87,8 +86,9 @@ class BaseCrawler:
         """
         headers = {"User-Agent": f"{self.user_agent}"}
         try:
-            res = self.client.get(url, headers=headers)
-            return res
+            with httpx.Client(proxies=self.proxy) as client:
+                res = client(url, headers=headers)
+                return res
         except Exception as e:
             self.logger.error(f'(async_get) Some other exception: {e}')
             return None
@@ -102,8 +102,9 @@ class BaseCrawler:
         """
         headers = {"User-Agent": f"{self.user_agent}"}
         try:
-            res = await self.async_client.get(url, headers=headers)
-            return res
+            async with httpx.AsyncClient(proxies=self.proxy) as client:
+                res = await client.get(url, headers=headers)
+                return res
         except Exception as e:
             self.logger.error(f'(async_get) Some other exception: {e}')
             return None
@@ -132,17 +133,17 @@ class BaseCrawler:
             self.logger.error(f'(async_get_urls) Some other exception: {e}')
             raise
 
-    async def search_for_urls(self, response_text):
-        """
-        Search for all <a> tags withing the page.
-        Return generator of processed urls.
 
-        :param response_text: Text from response object.
-        """
-        html_parser = self.html_parser(response_text=response_text)
-        html_element = html_parser.generate_html_element()
-        a_tags = html_parser.find_all_elements(
-            html_element=html_element, xpath_to_search='.//a[@href and not(@href="")]/@href'
-        )
-        url_parser = self.url_parser(self.start_url)
-        return url_parser.process_found_urls(a_tags)
+    # async def search_for_urls(self, response_text):
+    #     """
+    #     Search for all <a> tags withing the page.
+    #     Return generator of processed urls.
+
+    #     :param response_text: Text from response object.
+    #     """
+    #     html_parser = self.html_parser(response_text=response_text)
+    #     html_element = html_parser.generate_html_element()
+    #     a_tags = html_parser.find_all_elements(
+    #         html_element=html_element, xpath_to_search='.//a[@href and not(@href="")]/@href'
+    #     )
+    #     return a_tags

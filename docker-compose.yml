@@ -1,10 +1,103 @@
-version: "3"
+version: '3.8'
 
 services:
+  tor-scout:
+    build:
+      context: .
+      dockerfile: ./compose/local/scout/Dockerfile
+      args:
+        - DEV=true
+    image: tor-scout
+    container_name: tor-scout
+    command: /start
+    volumes:
+      - ./scout:/scout
+    ports:
+      - "127.0.0.1:8012:8000"
+    env_file:
+      - .env-dev
+    depends_on:
+      - tor-redis
+      - tor-db
+
+  tor-celery:
+    image: tor-celery
+    container_name: tor-celery
+    build:
+      context: .
+      dockerfile: ./compose/local/scout/Dockerfile
+    restart: always
+    command: /cstart
+    volumes:
+      - ./scout:/scout
+    env_file:
+      - .env-dev
+    depends_on:
+      - tor-scout
+      - tor-db
+      - tor-redis
+
+  tor-beat:
+    build:
+      context: .
+      dockerfile: ./compose/local/scout/Dockerfile
+    image: tor-beat
+    container_name: tor-beat
+    command: /bstart
+    volumes:
+      - ./scout:/scout
+    env_file:
+      - .env-dev
+    depends_on:
+      - tor-scout
+      - tor-db
+      - tor-redis
+
+  tor-flower:
+    build:
+      context: .
+      dockerfile: ./compose/local/scout/Dockerfile
+    image: tor-flower
+    container_name: tor-flower
+    command: /fstart
+    volumes:
+      - ./scout:/scout
+    env_file:
+      - .env-dev
+    ports:
+      - "127.0.0.1:5559:5555"
+    depends_on:
+      - tor-scout
+      - tor-db
+      - tor-redis
+
+  tor-redis:
+    image: redis:7.2.0-alpine
+    container_name: tor-redis
+    volumes:
+      - tor-redis-data-dev:/data
+
+  tor-db:
+    image: postgres:15.3
+    container_name: tor-db
+    volumes:
+      - tor-db-data-dev:/var/lib/postgresql/data/
+    ports:
+      - 35432:5432
+    environment:
+      - POSTGRES_DB=hello_django
+      - POSTGRES_USER=hello_django
+      - POSTGRES_PASSWORD=hello_django
+
   tor-privoxy:
     restart: always
     image: dockage/tor-privoxy:latest
+    container_name: tor-privoxy
     ports:
-      - "9050:9050" # Tor proxy
-      - "9051:9051" # Tor control port
-      - "8118:8118" # Privoxy
+      - "127.0.0.1:9050:9050" # Tor proxy
+      - "127.0.0.1:9051:9051" # Tor control port
+      - "127.0.0.1:8118:8118" # Privoxy
+
+volumes:
+  tor-redis-data-dev:
+  tor-db-data-dev:

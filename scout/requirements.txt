@@ -1,0 +1,7 @@
+django
+httpx
+lxml
+celery
+redis
+psycopg2
+flower

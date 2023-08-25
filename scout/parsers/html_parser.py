@@ -1,6 +1,6 @@
 from lxml.html import HtmlElement, HTMLParser, fromstring
 from typing import List, Union
-from search.utilities.logging import logger
+from scout.utilities.logging import logger
 
 
 class BaseHTMLParser:

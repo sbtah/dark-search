@@ -102,7 +102,7 @@ services:
     volumes:
       - tor-task-db-data-dev:/var/lib/postgresql/data/
     ports:
-      - 35432:5432
+      - "127.0.0.1:35432:5432"
     environment:
       - POSTGRES_DB=hello_django
       - POSTGRES_USER=hello_django
@@ -114,7 +114,7 @@ services:
     volumes:
       - tor-websites-db-data-dev:/var/lib/postgresql/data/
     ports:
-      - 45432:5432
+      - "127.0.0.1:45432:5432"
     environment:
       - POSTGRES_DB=hello_django
       - POSTGRES_USER=hello_django

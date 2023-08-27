@@ -1,6 +1,6 @@
-from logic.crawlers.spiders.base_spider import BaseSpider
-from logic.crawlers.spiders.sync_spider import SyncSpider
-from logic.crawlers.spiders.async_spider import AsyncSpider
+from logic.spiders.base_spider import BaseSpider
+from logic.spiders.sync_spider import SyncSpider
+from logic.spiders.async_spider import AsyncSpider
 from logic.parsers.url import URLExtractor
 from logic.parsers.html import HtmlExtractor
 import asyncio

@@ -13,11 +13,11 @@ import sys
 import psycopg2
 try:
     psycopg2.connect(
-        dbname="${SCOUT_DATABASE}",
-        user="${SCOUT_USER}",
-        password="${SCOUT_PASSWORD}",
-        host="${SCOUT_HOST}",
-        port="${SCOUT_PORT}",
+        dbname="${API_DATABASE}",
+        user="${API_USER}",
+        password="${API_PASSWORD}",
+        host="${API_HOST}",
+        port="${API_PORT}",
     )
 except psycopg2.OperationalError:
     sys.exit(-1)
@@ -25,9 +25,9 @@ sys.exit(0)
 END
 }
 until postgres_ready; do
-  >&2 echo 'Waiting for tor-tasks-db to become available...'
+  >&2 echo 'Waiting for tor-websites-db to become available...'
   sleep 1
 done
->&2 echo 'Success, tor-tasks-db is available!'
+>&2 echo 'Success, tor-websites-db is available!'
 
 exec "$@"

@@ -18,7 +18,26 @@ services:
       - .env-dev
     depends_on:
       - tor-redis
-      - tor-db
+      - tor-tasks-db
+      - tor-scout-api
+
+  tor-scout-api:
+    build:
+      context: .
+      dockerfile: ./compose/local/api/Dockerfile
+      args:
+        - DEV=true
+    image: tor-scout-api
+    container_name: tor-scout-api
+    command: /start
+    volumes:
+      - ./api:/api
+    ports:
+      - "127.0.0.1:8013:8000"
+    env_file:
+      - .env-dev
+    depends_on:
+      - tor-websites-db
 
   tor-celery:
     image: tor-celery
@@ -34,7 +53,7 @@ services:
       - .env-dev
     depends_on:
       - tor-scout
-      - tor-db
+      - tor-tasks-db
       - tor-redis
 
   tor-beat:
@@ -50,7 +69,7 @@ services:
       - .env-dev
     depends_on:
       - tor-scout
-      - tor-db
+      - tor-tasks-db
       - tor-redis
 
   tor-flower:
@@ -68,7 +87,7 @@ services:
       - "127.0.0.1:5559:5555"
     depends_on:
       - tor-scout
-      - tor-db
+      - tor-tasks-db
       - tor-redis
 
   tor-redis:
@@ -77,13 +96,25 @@ services:
     volumes:
       - tor-redis-data-dev:/data
 
-  tor-db:
-    image: postgres:15.3
-    container_name: tor-db
+  tor-tasks-db:
+    image: postgres:15.4
+    container_name: tor-tasks-db
     volumes:
-      - tor-db-data-dev:/var/lib/postgresql/data/
+      - tor-task-db-data-dev:/var/lib/postgresql/data/
     ports:
       - 35432:5432
+    environment:
+      - POSTGRES_DB=hello_django
+      - POSTGRES_USER=hello_django
+      - POSTGRES_PASSWORD=hello_django
+
+  tor-websites-db:
+    image: postgres:15.4
+    container_name: tor-websites-db
+    volumes:
+      - tor-websites-db-data-dev:/var/lib/postgresql/data/
+    ports:
+      - 45432:5432
     environment:
       - POSTGRES_DB=hello_django
       - POSTGRES_USER=hello_django
@@ -100,4 +131,5 @@ services:
 
 volumes:
   tor-redis-data-dev:
-  tor-db-data-dev:
+  tor-task-db-data-dev:
+  tor-websites-db-data-dev:

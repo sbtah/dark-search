@@ -3,7 +3,8 @@ from typing import Iterator, Union, Dict
 import httpx
 from lxml.html import HtmlElement, HTMLParser, fromstring
 
-from crawlers.logic.base_spider import BaseSpider
+from logic.crawlers.spiders.base_spider import BaseSpider
+from logic.parsers.url import URLExtractor
 
 
 class SyncSpider(BaseSpider):
@@ -62,8 +63,16 @@ class SyncSpider(BaseSpider):
         """
         try:
             for url in iterator_of_urls:
-                element = self.get(url=url)
-                yield element
+                response = self.get(url=url)
+                yield response
         except Exception as e:
             self.logger.error(f'(get_urls) Some other exception: {e}')
             raise
+
+    def search_for_urls(self, response):
+        """"""
+        if response is not None:
+            urls = response['page'].xpath('.//body//a[@href and not(@href="")]/@href')
+            if urls:
+                extractor = URLExtractor(iterator_of_urls=urls, current_page_url=self._initial_url)
+                print(extractor.process_found_urls())

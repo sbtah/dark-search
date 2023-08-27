@@ -3,7 +3,7 @@ from random import choice
 from typing import List
 from urllib.parse import urlsplit
 
-from options.settings import USER_AGENTS
+from logic.options.settings import USER_AGENTS
 from utilities.logging import logger
 
 
@@ -59,3 +59,9 @@ class BaseSpider:
                 raise e
         else:
             return None
+
+    async def run(self):
+        """
+        Entrypoint for starting a spider.
+        """
+        raise NotImplementedError

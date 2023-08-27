@@ -4,7 +4,8 @@ from typing import Iterator, Union, Dict
 import httpx
 from lxml.html import HtmlElement, HTMLParser, fromstring
 
-from crawlers.logic.base_spider import BaseSpider
+from logic.crawlers.spiders.base_spider import BaseSpider
+from logic.parsers.url import URLExtractor
 
 
 class AsyncSpider(BaseSpider):
@@ -15,6 +16,7 @@ class AsyncSpider(BaseSpider):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._last_response = None
+        self._last_requested_url = None
 
     async def page(self, response) -> Union[HtmlElement, None]:
         if response is not None:
@@ -43,17 +45,31 @@ class AsyncSpider(BaseSpider):
         try:
             async with httpx.AsyncClient(proxies=self.proxy) as client:
                 res = await client.get(url, headers=headers, follow_redirects=True)
-                self._last_response = res
-                element = await self.page(res)
-                return {
-                    'status': res.status_code,
-                    'server': res.headers['server'],
-                    'elapsed': res.elapsed.total_seconds(),
-                    'page': element,
-                }
+                if res is not None:
+                    return res
+                else:
+                    return None
         except Exception as e:
             self.logger.error(f'(get) Some other exception: {e}')
             return None
+
+
+    async def request(self, url):
+        response = await self.get(url=url)
+        if response is not None:
+            self._last_response = response
+            self._last_requested_url = url
+            element = await self.page(response)
+            return {
+                'status': response.status_code,
+                'server': response.headers['server'],
+                'elapsed': response.elapsed.total_seconds(),
+                'file': True if response.headers.get('content-length') else False,
+                'raw_urls': await self.search_for_urls(html_element=element),
+            }
+        else:
+            self.logger.error('No response received. Quiting.')
+            return {}
 
     async def get_urls(self, iterator_of_urls: Iterator):
         """
@@ -66,13 +82,22 @@ class AsyncSpider(BaseSpider):
             for url in iterator_of_urls:
                 tasks.append(
                     asyncio.create_task(
-                        self.get(
+                        self.request(
                             url,
                         )
                     )
                 )
-            elements = await asyncio.gather(*tasks)
-            return elements
+            responses = await asyncio.gather(*tasks)
+            return responses
         except Exception as e:
             self.logger.error(f'(get_urls) Some other exception: {e}')
             raise
+
+    async def search_for_urls(self, html_element):
+        """"""
+        if html_element is not None:
+            urls = html_element.xpath('.//body//a[@href and not(@href="") and not(@href="#") and not(@href=".")]/@href')
+            if urls:
+                return urls
+            else:
+                print(f'NO URLS Found for : {self._last_requested_url}')

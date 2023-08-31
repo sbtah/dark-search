@@ -13,13 +13,15 @@ services:
     volumes:
       - ./scout:/scout
     ports:
-      - "127.0.0.1:8012:8000"
+      - "127.0.0.1:9002:8000"
     env_file:
       - .env-dev
     depends_on:
       - tor-redis
       - tor-tasks-db
       - tor-scout-api
+    networks:
+      - tor-scout
 
   tor-scout-api:
     build:
@@ -33,11 +35,14 @@ services:
     volumes:
       - ./api:/api
     ports:
-      - "127.0.0.1:8013:8000"
+      - "127.0.0.1:9003:8000"
     env_file:
       - .env-dev
     depends_on:
       - tor-websites-db
+    networks:
+      - tor-scout
+
 
   tor-celery:
     image: tor-celery
@@ -55,6 +60,8 @@ services:
       - tor-scout
       - tor-tasks-db
       - tor-redis
+    networks:
+      - tor-scout
 
   tor-beat:
     build:
@@ -71,6 +78,8 @@ services:
       - tor-scout
       - tor-tasks-db
       - tor-redis
+    networks:
+      - tor-scout
 
   tor-flower:
     build:
@@ -89,12 +98,16 @@ services:
       - tor-scout
       - tor-tasks-db
       - tor-redis
+    networks:
+      - tor-scout
 
   tor-redis:
     image: redis:7.2.0-alpine
     container_name: tor-redis
     volumes:
       - tor-redis-data-dev:/data
+    networks:
+      - tor-scout
 
   tor-tasks-db:
     image: postgres:15.4
@@ -107,6 +120,8 @@ services:
       - POSTGRES_DB=hello_django
       - POSTGRES_USER=hello_django
       - POSTGRES_PASSWORD=hello_django
+    networks:
+      - tor-scout
 
   tor-websites-db:
     image: postgres:15.4
@@ -119,6 +134,8 @@ services:
       - POSTGRES_DB=hello_django
       - POSTGRES_USER=hello_django
       - POSTGRES_PASSWORD=hello_django
+    networks:
+      - tor-scout
 
   tor-privoxy:
     restart: always
@@ -128,8 +145,18 @@ services:
       - "127.0.0.1:9050:9050" # Tor proxy
       - "127.0.0.1:9051:9051" # Tor control port
       - "127.0.0.1:8118:8118" # Privoxy
+    networks:
+      - tor-scout
 
 volumes:
   tor-redis-data-dev:
   tor-task-db-data-dev:
   tor-websites-db-data-dev:
+
+networks:
+  tor-scout:
+    name: tor-scout
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.95.0/24

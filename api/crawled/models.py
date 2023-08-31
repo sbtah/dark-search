@@ -7,6 +7,7 @@ class Website(models.Model):
 
     domain = models.URLField(max_length=200, unique=True)
     title = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True)
     created = models.IntegerField(blank=True, null=True)
     # If all pages are inactive.
     is_active = models.BooleanField(default=False)
@@ -26,9 +27,10 @@ class Webpage(models.Model):
     url = models.URLField(max_length=255, unique=True)
     title = models.CharField(max_length=255, blank=True, null=True)
     created = models.IntegerField(blank=True, null=True)
-    number_of_references = models.IntegerField(blank=True, null=True)
     last_found = models.IntegerField(blank=True, null=True)
+    # If this url is active.
     is_active = models.BooleanField(default=False)
+    number_of_references = models.IntegerField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.created = int(time.time())

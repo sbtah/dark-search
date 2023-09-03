@@ -9,18 +9,36 @@ from urllib.parse import urlsplit, urlparse, urljoin
 import time
 import httpx
 from lxml.html import tostring
+from logic.crawlers.base import BaseCrawler
 
 
-urls = [
-    'http://blogvl7tjyjvsfthobttze52w36wwiz34hrfcmorgvdzb6hikucb7aqd.onion/',
+urls = set([
     'http://mbrlkbtq5jonaqkurjwmxftytyn2ethqvbxfu4rgjbkkknndqwae6byd.onion/',
-    'http://7ukmkdtyxdkdivtjad57klqnd3kdsmq6tp45rrsxqnu76zzv3jvitlqd.onion/',
-]
-async def async_test():
-    crawler = AsyncSpider(initial_url=urls[0])
-    responses = await crawler.get_urls(iterator_of_urls=urls)
-    return responses
+    'http://omegalock5zxwbhswbisc42o2q2i54vdulyvtqqbudqousisjgc7j7yd.onion/',
+    'http://tor66sewebgixwhcqfnp5inzp5x5uohhdy3kvtnyfxc2e5mxiuh34iid.onion/',
+])
 
+test_urls = ['http://mbrlkbtq5jonaqkurjwmxftytyn2ethqvbxfu4rgjbkkknndqwae6byd.onion/' for number in range(1000)]
+
+# async def crawl_page(iterator_of_urls=None):
+#     crawler = AsyncSpider()
+#     responses = await crawler.get_urls(iterator_of_urls=iterator_of_urls)
+#     for response in responses:
+#         if response.get('raw_urls') is not None:
+#             processor = URLExtractor(iterator_of_urls=response['raw_urls'], current_page_url=response['requested_url'])
+#             processed_urls = await processor.process_found_urls()
+#             print(processed_urls)
+#             await crawl_page(iterator_of_urls=processed_urls)
+#         # raw_urls = response.get('raw_urls')
+#         # if raw_urls is not None:
+#         #     # TODO:
+#         #     # All list to set in one go
+#         #     extractor = URLExtractor(iterator_of_urls=raw_urls)
+#         #     processed = await extractor.process_found_urls()
+
+async def crawler_test():
+    crawl = BaseCrawler(urls)
+    await crawl.crawl()
 
 def sync_test():
     crawler = SyncSpider(initial_url=urls[0])
@@ -32,5 +50,5 @@ def sync_test():
 
 if __name__ == '__main__':
     #sync_test()
-    out = asyncio.run(async_test())
-    print(out)
+    # out = asyncio.run(crawl_page(iterator_of_urls=urls))
+    asyncio.run(crawler_test())

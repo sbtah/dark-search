@@ -8,7 +8,9 @@ from client.api import TorScoutApiClient
 
 #     return response.json()
 
-
+urls = {
+    'urls': [],
+}
 
 # res = get_home_response()
 
@@ -16,5 +18,4 @@ from client.api import TorScoutApiClient
 # print(res)
 
 client = TorScoutApiClient()
-print(client.key)
-print(client.url)
+print(client.post_urls(urls))

@@ -6,6 +6,7 @@ from lxml.html import HtmlElement, HTMLParser, fromstring
 
 from logic.spiders.base_spider import BaseSpider
 from logic.parsers.url import URLExtractor
+import lxml
 
 
 class AsyncSpider(BaseSpider):
@@ -15,8 +16,6 @@ class AsyncSpider(BaseSpider):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._last_response = None
-        self._last_requested_url = None
 
     async def page(self, response) -> Union[HtmlElement, None]:
         if response is not None:
@@ -30,6 +29,10 @@ class AsyncSpider(BaseSpider):
                     parser=hp,
                 )
                 return element
+            except lxml.etree.ParserError:
+                return None
+            except ValueError:
+                return None
             except Exception as e:
                 self.logger.error(f'Exception while generating HtmlElement: {e}')
                 raise e
@@ -45,6 +48,7 @@ class AsyncSpider(BaseSpider):
         try:
             async with httpx.AsyncClient(proxies=self.proxy) as client:
                 res = await client.get(url, headers=headers, follow_redirects=True)
+                await asyncio.sleep(0.1)
                 if res is not None:
                     return res
                 else:
@@ -54,21 +58,34 @@ class AsyncSpider(BaseSpider):
             return None
 
     async def request(self, url):
+        """
+        Requests specified url asynchronously.
+        Returns dictionary with needed data.
+        """
         response = await self.get(url=url)
         if response is not None:
-            self._last_response = response
-            self._last_requested_url = url
             element = await self.page(response)
-            return {
-                'status': response.status_code,
-                'server': response.headers['server'],
-                'elapsed': response.elapsed.total_seconds(),
-                'file': True if response.headers.get('content-length') else False,
-                'raw_urls': await self.search_for_urls(html_element=element, current_url=url),
-            }
+            if element is not None:
+                return {
+                    'requested_url': url,
+                    'responsed_url': str(response.url),
+                    'status': response.status_code,
+                    'server': response.headers.get('server'),
+                    'elapsed': response.elapsed.total_seconds(),
+                    'is_file': True if response.headers.get('content-length') else False,
+                    'raw_urls': await self.search_for_urls(html_element=element, current_url=url),
+                }
+            else:
+                return {
+                    'requested_url': url,
+                    'status': None,
+                }
         else:
             self.logger.error(f'No response received from: {url}')
-            return {'status': None}
+            return {
+                'requested_url': url,
+                'status': None,
+            }
 
     async def get_urls(self, iterator_of_urls: Iterator) -> Dict:
         """

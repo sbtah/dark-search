@@ -12,21 +12,14 @@ class BaseSpider:
     Base class for all crawlers.
     """
 
-    def __init__(self, initial_url=None, proxy='socks5://tor-privoxy:9050'):
+    def __init__(self, proxy='socks5://tor-privoxy:9050'):
         # Url of page that we requested initially.
         # This is for grouping of urls to: internal/external
-        self._initial_url = initial_url
         self._domain = None
         self.proxy = proxy
         self.start_time = int(time.time())
         self.end_time = None
         self.logger = logger
-        self.found_urls = set()
-        self.internal_urls = set()
-        self.external_urls = set()
-        self.processed_urls = set()
-        self.error_urls = set()
-
     async def get_proxy(self):
         pass
 

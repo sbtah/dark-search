@@ -1,5 +1,5 @@
-from libraries.adapters.base import BaseAdapter
 from crawled.models import Webpage, Website
+from libraries.adapters.base import BaseAdapter
 
 
 class WebpageAdapter(BaseAdapter):
@@ -37,7 +37,7 @@ class WebpageAdapter(BaseAdapter):
             if is_active is not None:
                 webpage_object.is_active = is_active
             webpage_object.save()
-            self.logger.info(f'Created new Webpage: {webpage_object}')
+            self.logger.info(f'Updated Webpage: {webpage_object}')
             return webpage_object
         except Webpage.DoesNotExist:
             creation_data = {
@@ -57,5 +57,5 @@ class WebpageAdapter(BaseAdapter):
             if is_active is not None:
                 creation_data['is_active'] = last_visit
             webpage_object = self.webpage.objects.create(**creation_data)
-            self.logger.info(f'Updated Webpage: {webpage_object}')
+            self.logger.info(f'Created new Webpage: {webpage_object}')
             return webpage_object

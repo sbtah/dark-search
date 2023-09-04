@@ -17,7 +17,7 @@ class Website(models.Model):
     title = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     created = models.IntegerField(blank=True, null=True)
-    website_map = models.JSONField(blank=True, null=True)
+    # website_map = models.JSONField(blank=True, null=True)
     description_tags = models.ManyToManyField(Tag)
 
     def save(self, *args, **kwargs):

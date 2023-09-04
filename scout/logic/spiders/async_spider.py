@@ -37,7 +37,7 @@ class AsyncSpider(BaseSpider):
                 self.logger.error(f'Exception while generating HtmlElement: {e}')
                 raise e
         else:
-            raise ValueError(f'Received bad response of type: {type(response)}')
+            raise ValueError('Received no response')
 
     async def get(self, url: str) -> Dict | None:
         """

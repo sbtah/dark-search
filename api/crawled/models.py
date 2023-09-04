@@ -3,7 +3,9 @@ import time
 
 
 class Tag(models.Model):
+
     value = models.CharField(max_length=25, unique=True)
+
     def __str__(self):
         return self.value
 
@@ -29,7 +31,7 @@ class Website(models.Model):
 class Webpage(models.Model):
     """Class for Url objects."""
 
-    parrent_website = models.ForeignKey(Website, on_delete=models.CASCADE)
+    parent_website = models.ForeignKey(Website, on_delete=models.CASCADE)
     url = models.URLField(max_length=255, unique=True)
     created = models.IntegerField(blank=True, null=True)
 

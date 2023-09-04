@@ -34,7 +34,8 @@ class BaseCrawler:
                         processor = self.url_extractor(iterator_of_urls=response['raw_urls'], current_page_url=response['responsed_url'])
                         new_found_urls = await processor.process_found_urls()
 
-                        # Todo create new urls in db.
+                        # TODO:
+                        # Create new urls in db right here.
                         self.found_urls.update(new_found_urls)
                         self.found_urls = self.found_urls.difference(self.requested_urls)
                         print(self.found_urls)

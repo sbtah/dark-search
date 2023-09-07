@@ -7,5 +7,5 @@ app_name = 'api'
 
 urlpatterns = [
     path('', views.api_home, name='home'),
-    path('process/', views.process_urls, name='process-urls'),
+    path('process/', views.process_response, name='process-response'),
 ]

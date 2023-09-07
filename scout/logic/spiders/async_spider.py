@@ -1,12 +1,12 @@
 import asyncio
-from typing import Iterator, Union, Dict, List
-
+from typing import Iterator, Union, Dict, List, Any, Tuple
+import time
 import httpx
 from lxml.html import HtmlElement, HTMLParser, fromstring
 
 from logic.spiders.base_spider import BaseSpider
-from logic.parsers.url import URLExtractor
-import lxml
+from lxml.etree import ParserError
+from httpx import Response
 
 
 class AsyncSpider(BaseSpider):
@@ -16,6 +16,16 @@ class AsyncSpider(BaseSpider):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    @staticmethod
+    async def extract_meta_data(html_element: HtmlElement):
+        """"""
+        if html_element is not None:
+            meta_data = {
+                'title': html_element.xpath('/html/head/title/text()')[0].strip() if html_element.xpath('/html/head/title/text()') else '',
+                'description': html_element.xpath('/html/head/meta[@name="description"]/@content')[0].strip() if html_element.xpath('./html/head/meta[@name="description"]/@content') else ''
+            }
+            return meta_data
 
     async def page(self, response) -> Union[HtmlElement, None]:
         if response is not None:
@@ -29,7 +39,7 @@ class AsyncSpider(BaseSpider):
                     parser=hp,
                 )
                 return element
-            except lxml.etree.ParserError:
+            except ParserError:
                 return None
             except ValueError:
                 return None
@@ -39,7 +49,7 @@ class AsyncSpider(BaseSpider):
         else:
             raise ValueError('Received no response')
 
-    async def get(self, url: str) -> Dict | None:
+    async def get(self, url: str) -> Response | None:
         """
         Requests specified URL. Returns HtmlElement on successful response.
         :arg url: Requested URL.
@@ -57,37 +67,7 @@ class AsyncSpider(BaseSpider):
             self.logger.error(f'(get) Some other exception: {e}')
             return None
 
-    async def request(self, url):
-        """
-        Requests specified url asynchronously.
-        Returns dictionary with needed data.
-        """
-        response = await self.get(url=url)
-        if response is not None:
-            element = await self.page(response)
-            if element is not None:
-                return {
-                    'requested_url': url,
-                    'responsed_url': str(response.url),
-                    'status': response.status_code,
-                    'server': response.headers.get('server'),
-                    'elapsed': response.elapsed.total_seconds(),
-                    'is_file': True if response.headers.get('content-length') else False,
-                    'raw_urls': await self.search_for_urls(html_element=element, current_url=url),
-                }
-            else:
-                return {
-                    'requested_url': url,
-                    'status': None,
-                }
-        else:
-            self.logger.error(f'No response received from: {url}')
-            return {
-                'requested_url': url,
-                'status': None,
-            }
-
-    async def get_urls(self, iterator_of_urls: Iterator) -> Dict:
+    async def get_requests(self, iterator_of_urls: Iterator) -> Tuple[Any]:
         """
         Sends requests to iterator of urls asynchronously.
         :param iterator_of_urls: Iterator of Product URLS
@@ -109,7 +89,39 @@ class AsyncSpider(BaseSpider):
             self.logger.error(f'(get_urls) Some other exception: {e}')
             raise
 
-    async def search_for_urls(self, html_element: HtmlElement, current_url: str) -> List[str|None]:
+    async def request(self, url) -> Dict:
+        """
+        Requests specified url asynchronously.
+        Returns dictionary with needed data.
+        """
+        response = await self.get(url=url)
+        if response is not None:
+            element = await self.page(response)
+            if element is not None:
+                return {
+                    'requested_url': str(url),
+                    'responded_url': str(response.url),
+                    'status': str(response.status_code),
+                    'server': response.headers.get('server', None),
+                    'elapsed': str(response.elapsed.total_seconds()),
+                    'visited': int(time.time()) if (str(response.status_code).startswith('2') or str(response.status_code).startswith('3')) else None,
+                    'is_file': False, #True if response.headers.get('content-length') else False,
+                    'meta_data': await self.extract_meta_data(html_element=element),
+                    'raw_urls': await self.search_for_urls(html_element=element, current_url=url),
+                }
+            else:
+                return {
+                    'requested_url': url,
+                    'status': None,
+                }
+        else:
+            self.logger.error(f'No response received from: {url}')
+            return {
+                'requested_url': url,
+                'status': None,
+            }
+
+    async def search_for_urls(self, html_element: HtmlElement, current_url: str) -> List | None:
         """
         Search for urls in body of provided HtmlElement.
         :param html_element: Lxml HtmlElement.
@@ -122,3 +134,5 @@ class AsyncSpider(BaseSpider):
             else:
                 self.logger.info(f'No urls found at: {current_url}')
                 return None
+        else:
+            return None

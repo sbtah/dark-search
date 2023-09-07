@@ -20,6 +20,7 @@ class BaseSpider:
         self.start_time = int(time.time())
         self.end_time = None
         self.logger = logger
+
     async def get_proxy(self):
         pass
 
@@ -38,7 +39,7 @@ class BaseSpider:
         return agent
 
     # TODO:
-    # Prepere proper header to mimic browser.
+    # Prepare proper header to mimic browser.
     async def prepare_headers(self):
         pass
 

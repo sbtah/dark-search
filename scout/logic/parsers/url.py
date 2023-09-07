@@ -120,11 +120,15 @@ class URLExtractor:
         """
         if url is not None:
             try:
-                domain = urlsplit(url)
-                if '.onion' in domain.netloc:
-                    return True
+                domain = urlsplit(url).netloc
+                if domain:
+                    match = re.search(r'\S+\.onion$', domain)
+                    if match:
+                        return True
+                    else:
+                        return False
                 else:
-                    return False
+                    pass
             except Exception as e:
                 self.logger.error(f'(is_onion) Some other Exception: {e}')
                 raise

@@ -7,16 +7,22 @@ from logic.options.settings import USER_AGENTS
 from utilities.logging import logger
 
 
+from client.api import TorScoutApiClient
+from libraries.adapters.domain import DomainAdapter
+from libraries.adapters.task import TaskAdapter
+
+
+
 class BaseSpider:
     """
     Base class for all crawlers.
     """
 
     def __init__(self, proxy='socks5://tor-privoxy:9050'):
-        # Url of page that we requested initially.
-        # This is for grouping of urls to: internal/external
-        self._domain = None
         self.proxy = proxy
+        self.client = TorScoutApiClient()
+        self.domain_adapter = DomainAdapter()
+        self.task_adapter = TaskAdapter()
         self.start_time = int(time.time())
         self.end_time = None
         self.logger = logger
@@ -42,17 +48,6 @@ class BaseSpider:
     # Prepare proper header to mimic browser.
     async def prepare_headers(self):
         pass
-
-    @property
-    def domain(self):
-        if self._domain is None and self._initial_url is not None:
-            try:
-                self._domain = urlsplit(self._initial_url).netloc
-                return self._domain
-            except Exception as e:
-                raise e
-        else:
-            return None
 
     async def run(self):
         """

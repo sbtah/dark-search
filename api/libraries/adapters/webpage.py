@@ -1,4 +1,4 @@
-from crawled.models import Webpage, Website
+from crawled.models import Webpage, Domain
 from libraries.adapters.base import BaseAdapter
 
 
@@ -35,27 +35,26 @@ class WebpageAdapter(BaseAdapter):
     def calculate_response_time(webpage: Webpage, last_elapsed_seconds: str):
         """"""
         if webpage.average_response_time is not None:
-            webpage.average_response_time = (webpage.average_response_time + float(last_elapsed_seconds)) / (webpage.number_of_successful_requests)
+            webpage.average_response_time = (webpage.average_response_time + float(last_elapsed_seconds)) / (webpage.number_of_successful_requests if webpage.number_of_successful_requests is not None else 1)
         else:
             webpage.average_response_time = float(last_elapsed_seconds)
         return webpage
 
     def update_or_create_webpage(
         self,
-        parent_website: Website,
+        parent_domain: Domain,
         url: str,
         url_after_request: str = None,
         last_http_status: str = None,
         last_elapsed: str = None,
         title: str = None,
         meta_description: str = None,
-        is_file: bool = None,
         visited: int = None,
     ):
         """"""
         try:
             webpage_object = self.webpage.objects.get(
-                parent_website=parent_website,
+                parent_domain=parent_domain,
                 url=url,
             )
             if url_after_request is not None:
@@ -67,8 +66,6 @@ class WebpageAdapter(BaseAdapter):
                 webpage_object.title = title
             if meta_description is not None:
                 webpage_object.meta_description = meta_description
-            if is_file is not None:
-                webpage_object.is_file = is_file
             if visited is not None:
                 webpage_object.last_visit = visited
             if last_elapsed is not None:
@@ -81,7 +78,7 @@ class WebpageAdapter(BaseAdapter):
         except Webpage.DoesNotExist:
 
             creation_data = {
-                'parent_website': parent_website,
+                'parent_domain': parent_domain,
                 'url': url,
                 'number_of_references': 1,
             }
@@ -101,8 +98,6 @@ class WebpageAdapter(BaseAdapter):
                 creation_data['title'] = title
             if meta_description is not None:
                 creation_data['meta_description'] = meta_description
-            if is_file is not None:
-                creation_data['is_file'] = is_file
             if visited is not None:
                 creation_data['last_visit'] = visited
 

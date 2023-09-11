@@ -15,7 +15,6 @@ class URLExtractor:
     async def get_domain(self, url) -> str:
         """
         Extracts domain from parsed URL.
-
         :arg url: String with URL address to extract domain from.
         """
         try:
@@ -50,6 +49,10 @@ class URLExtractor:
             '.tar.xz',
             '.txz',
             '.tar.zst',
+            '.png',
+            '.jpg',
+            '.jpeg',
+            '.png',
         )
         try:
             path = urlsplit(url).path
@@ -93,7 +96,7 @@ class URLExtractor:
                 if await self.is_valid_url(url=fixed_url):
                     return fixed_url
                 else:
-                    self.logger.info('Failed while fixing URL.')
+                    self.logger.info(f'Failed while fixing URL: RAW:{url}: FIXED: {fixed_url}')
                     return url
         except Exception as e:
             self.logger.error(f'(fix_paths) Some other Exception: {e}')
@@ -186,4 +189,4 @@ class URLExtractor:
                         pass
             return processed_urls
         else:
-            return processed_urls
+            return None

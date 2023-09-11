@@ -1,5 +1,6 @@
 import httpx
 from client.api import TorScoutApiClient
+import asyncio
 
 # def get_home_response():
 
@@ -13,9 +14,12 @@ urls = {
 }
 
 # res = get_home_response()
-
-
+data = {
+    'requested_url': 'http://wclekwrf2aclunlmuikf2bopusjfv66jlhwtgbiycy5nw524r6ngioid.onion/#upvote-aDh5ekZjaG9vRjBxVzUwNWJxWE5DZz09OjqJY1W8Y9dop30uTEEPWx3m',
+    'status': None,
+}
 # print(res)
 
 client = TorScoutApiClient()
-print(client.post_urls(urls))
+# print(asyncio.run(client.get_home()))
+print(asyncio.run(client.get_website_to_crawl()))

@@ -7,6 +7,7 @@ from lxml.html import HtmlElement, HTMLParser, fromstring
 from logic.spiders.base_spider import BaseSpider
 from lxml.etree import ParserError
 from httpx import Response
+from logic.parsers.url import URLExtractor
 
 
 class AsyncSpider(BaseSpider):
@@ -14,8 +15,9 @@ class AsyncSpider(BaseSpider):
     Asynchronous base spider.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self,*args, **kwargs):
         super().__init__(*args, **kwargs)
+
 
     @staticmethod
     async def extract_meta_data(html_element: HtmlElement):
@@ -39,13 +41,9 @@ class AsyncSpider(BaseSpider):
                     parser=hp,
                 )
                 return element
-            except ParserError:
-                return None
-            except ValueError:
-                return None
             except Exception as e:
                 self.logger.error(f'Exception while generating HtmlElement: {e}')
-                raise e
+                return None
         else:
             raise ValueError('Received no response')
 
@@ -58,7 +56,7 @@ class AsyncSpider(BaseSpider):
         try:
             async with httpx.AsyncClient(proxies=self.proxy) as client:
                 res = await client.get(url, headers=headers, follow_redirects=True)
-                await asyncio.sleep(0.1)
+                # await asyncio.sleep(0.1)
                 if res is not None:
                     return res
                 else:
@@ -98,6 +96,9 @@ class AsyncSpider(BaseSpider):
         if response is not None:
             element = await self.page(response)
             if element is not None:
+                meta_data = await self.extract_meta_data(html_element=element)
+                raw_urls = await self.extract_urls(html_element=element, current_url=url)
+                processed_urls = await URLExtractor(iterator_of_urls=raw_urls, current_page_url=url).process_found_urls()
                 return {
                     'requested_url': str(url),
                     'responded_url': str(response.url),
@@ -105,9 +106,9 @@ class AsyncSpider(BaseSpider):
                     'server': response.headers.get('server', None),
                     'elapsed': str(response.elapsed.total_seconds()),
                     'visited': int(time.time()) if (str(response.status_code).startswith('2') or str(response.status_code).startswith('3')) else None,
-                    'is_file': False, #True if response.headers.get('content-length') else False,
-                    'meta_data': await self.extract_meta_data(html_element=element),
-                    'raw_urls': await self.search_for_urls(html_element=element, current_url=url),
+                    'meta_data': meta_data,
+                    'raw_urls': raw_urls,
+                    'processed_urls': list(processed_urls) if processed_urls is not None else None,
                 }
             else:
                 return {
@@ -115,20 +116,19 @@ class AsyncSpider(BaseSpider):
                     'status': None,
                 }
         else:
-            self.logger.error(f'No response received from: {url}')
             return {
                 'requested_url': url,
                 'status': None,
             }
 
-    async def search_for_urls(self, html_element: HtmlElement, current_url: str) -> List | None:
+    async def extract_urls(self, html_element: HtmlElement, current_url: str) -> List | None:
         """
         Search for urls in body of provided HtmlElement.
         :param html_element: Lxml HtmlElement.
         :param current_url: Currently requested URL.
         """
         if html_element is not None:
-            urls = html_element.xpath('.//body//a[@href and not(@href="") and not(@href="#") and not(@href=".")]/@href')
+            urls = html_element.xpath('.//body//a[@href and not(@href="") and not(starts-with(@href, "#")) and not(@href=".") and not(starts-with(@href, "mailto:")) and not(starts-with(@href , "javascript:"))]/@href')
             if urls:
                 return urls
             else:

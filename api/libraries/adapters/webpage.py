@@ -30,6 +30,7 @@ class WebpageAdapter(BaseAdapter):
             webpage.number_of_references += 1
         else:
             webpage.number_of_references = 1
+        return webpage
 
     @staticmethod
     def calculate_response_time(webpage: Webpage, last_elapsed_seconds: str):
@@ -61,7 +62,7 @@ class WebpageAdapter(BaseAdapter):
                 webpage_object.url_after_request = url_after_request
             if last_http_status is not None:
                 webpage_object.last_http_status = last_http_status
-                self.calculate_requests(webpage_object, last_http_status)
+                webpage_object = self.calculate_requests(webpage_object, last_http_status)
             if title is not None:
                 webpage_object.title = title
             if meta_description is not None:
@@ -69,9 +70,9 @@ class WebpageAdapter(BaseAdapter):
             if visited is not None:
                 webpage_object.last_visit = visited
             if last_elapsed is not None:
-                self.calculate_response_time(webpage=webpage_object, last_elapsed_seconds=last_elapsed)
+                webpage_object = self.calculate_response_time(webpage=webpage_object, last_elapsed_seconds=last_elapsed)
 
-            self.calculate_references(webpage_object)
+            webpage_object = self.calculate_references(webpage_object)
             webpage_object.save()
             self.logger.info(f'Updated Webpage: {webpage_object}')
             return webpage_object

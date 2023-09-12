@@ -1,16 +1,12 @@
 import time
 from random import choice
 from typing import List
-from urllib.parse import urlsplit
-
-from logic.options.settings import USER_AGENTS
-from utilities.logging import logger
-
 
 from client.api import TorScoutApiClient
 from libraries.adapters.domain import DomainAdapter
 from libraries.adapters.task import TaskAdapter
-
+from logic.options.settings import USER_AGENTS
+from utilities.logging import logger
 
 
 class BaseSpider:
@@ -22,9 +18,6 @@ class BaseSpider:
         self.proxy = proxy
         self.client = TorScoutApiClient()
         self.domain_adapter = DomainAdapter()
-        self.task_adapter = TaskAdapter()
-        self.start_time = int(time.time())
-        self.end_time = None
         self.logger = logger
 
     async def get_proxy(self):

@@ -1,5 +1,5 @@
 from urllib.parse import urlsplit
-
+import time
 from logic.spiders.async_spider import AsyncSpider
 
 
@@ -23,7 +23,7 @@ class Crawler(AsyncSpider):
         """
         Crawling process that just discovers all urls on specified domain.
         """
-        self.logger.info(f'Found: {len(self.found_urls)} new URLs to crawl at: {self.initial_domain}.')
+        self.logger.info(f'CRAWLING: {len(self.found_urls)} new URLs to crawl at: {self.initial_domain}.')
         lists_of_urls_list = self.ratelimit_urls(list(self.found_urls))
 
         for list_of_urls in lists_of_urls_list:
@@ -51,7 +51,8 @@ class Crawler(AsyncSpider):
         if self.found_urls:
             await self.crawl()
         else:
-            self.logger.info(f'Found {len(self.found_urls)} new URLs to crawl at: {self.initial_domain}. Quiting.')
+            self.logger.info(f'FINISHED: No more URLs to crawl at: {self.initial_domain}.')
+            return
 
 
     def ratelimit_urls(self, urls):

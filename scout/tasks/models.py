@@ -23,7 +23,11 @@ class Task(models.Model):
         default=Status.idle,
     )
     importance = models.IntegerField(default=1)
+    number_of_runs = models.IntegerField(default=0)
+    last_crawl_time = models.IntegerField(default=0)
+    average_time_to_crawl = models.IntegerField(blank=True, null=True)
     last_run = models.IntegerField(blank=True, null=True)
+    last_error_message = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f'{self.type}: {self.owner}'

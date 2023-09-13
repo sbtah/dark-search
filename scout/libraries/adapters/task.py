@@ -15,7 +15,7 @@ class TaskAdapter(BaseAdapter):
 
     def calculate_average_time_to_crawl(self, task_object: Task, last_crawl_time: int):
         if task_object.average_time_to_crawl is not None:
-            task_object.average_time_to_crawl = int((task_object.average_time_to_crawl + last_crawl_time) / (task_object.number_of_successful_runs if task_object.number_of_successful_runs != 0 else 1))
+            task_object.average_time_to_crawl = int((task_object.average_time_to_crawl + last_crawl_time) / task_object.number_of_runs)
             return task_object
         else:
             task_object.average_time_to_crawl = last_crawl_time

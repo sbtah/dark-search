@@ -11,7 +11,6 @@ def api_home(request, *args, **kwargs):
     return JsonResponse(message)
 
 
-
 @api_view(["POST"])
 def process_response(request, *args, **kwargs):
 

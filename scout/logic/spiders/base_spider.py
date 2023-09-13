@@ -42,7 +42,7 @@ class BaseSpider:
     async def prepare_headers(self):
         pass
 
-    async def run(self):
+    async def crawl(self):
         """
         Entrypoint for starting a spider.
         """

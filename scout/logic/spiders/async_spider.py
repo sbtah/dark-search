@@ -1,13 +1,12 @@
 import asyncio
-from typing import Iterator, Union, Dict, List, Any, Tuple
 import time
-import httpx
-from lxml.html import HtmlElement, HTMLParser, fromstring
+from typing import Any, Dict, Iterator, List, Tuple, Union
 
-from logic.spiders.base_spider import BaseSpider
-from lxml.etree import ParserError
+import httpx
 from httpx import Response
 from logic.parsers.url import URLExtractor
+from logic.spiders.base_spider import BaseSpider
+from lxml.html import HtmlElement, HTMLParser, fromstring
 
 
 class AsyncSpider(BaseSpider):
@@ -18,18 +17,11 @@ class AsyncSpider(BaseSpider):
     def __init__(self,*args, **kwargs):
         super().__init__(*args, **kwargs)
 
-
-    @staticmethod
-    async def extract_meta_data(html_element: HtmlElement):
-        """"""
-        if html_element is not None:
-            meta_data = {
-                'title': html_element.xpath('/html/head/title/text()')[0].strip() if html_element.xpath('/html/head/title/text()') else '',
-                'description': html_element.xpath('/html/head/meta[@name="description"]/@content')[0].strip() if html_element.xpath('./html/head/meta[@name="description"]/@content') else ''
-            }
-            return meta_data
-
-    async def page(self, response) -> Union[HtmlElement, None]:
+    async def page(self, response: Response) -> Union[HtmlElement, None]:
+        """
+        Parses response object and returns HtmlElement on success.
+        - :arg response: httpx Response object.
+        """
         if response is not None:
             try:
                 hp = HTMLParser(encoding='utf-8')
@@ -49,8 +41,8 @@ class AsyncSpider(BaseSpider):
 
     async def get(self, url: str) -> Response | None:
         """
-        Requests specified URL. Returns HtmlElement on successful response.
-        :arg url: Requested URL.
+        Requests specified URL. Returns Response object on success.
+        - :arg url: Requested URL.
         """
         headers = {"User-Agent": f"{self.user_agent}"}
         try:
@@ -67,9 +59,8 @@ class AsyncSpider(BaseSpider):
 
     async def get_requests(self, iterator_of_urls: Iterator) -> Tuple[Any]:
         """
-        Sends requests to iterator of urls asynchronously.
-        :param iterator_of_urls: Iterator of Product URLS
-            that will be used while sending requests.
+        Sends requests to many urls.
+        - :arg iterator_of_urls: Iterator of URLs.
         """
         tasks = []
         try:
@@ -84,10 +75,10 @@ class AsyncSpider(BaseSpider):
             responses = await asyncio.gather(*tasks)
             return responses
         except Exception as e:
-            self.logger.error(f'(get_urls) Some other exception: {e}')
-            raise
+            self.logger.error(f'(get_requests) Some other exception: {e}')
+            return None
 
-    async def request(self, url) -> Dict:
+    async def request(self, url: str) -> Dict:
         """
         Requests specified url asynchronously.
         Returns dictionary with needed data.
@@ -124,8 +115,8 @@ class AsyncSpider(BaseSpider):
     async def extract_urls(self, html_element: HtmlElement, current_url: str) -> List | None:
         """
         Search for urls in body of provided HtmlElement.
-        :param html_element: Lxml HtmlElement.
-        :param current_url: Currently requested URL.
+        - :arg html_element: Lxml HtmlElement.
+        - :arg current_url: Currently requested URL, used only to generate log.
         """
         if html_element is not None:
             urls = html_element.xpath('.//body//a[@href and not(@href="") and not(starts-with(@href, "#")) and not(@href=".") and not(starts-with(@href, "mailto:")) and not(starts-with(@href , "javascript:"))]/@href')
@@ -136,3 +127,18 @@ class AsyncSpider(BaseSpider):
                 return None
         else:
             return None
+
+
+    @staticmethod
+    async def extract_meta_data(html_element: HtmlElement):
+        """
+        Takes HtmlElement as an input,
+            returns title and meta description from requested Webpage.
+        - :arg html_element: Lxml HtmlElement.
+        """
+        if html_element is not None:
+            meta_data = {
+                'title': html_element.xpath('/html/head/title/text()')[0].strip() if html_element.xpath('/html/head/title/text()') else '',
+                'description': html_element.xpath('/html/head/meta[@name="description"]/@content')[0].strip() if html_element.xpath('./html/head/meta[@name="description"]/@content') else ''
+            }
+            return meta_data

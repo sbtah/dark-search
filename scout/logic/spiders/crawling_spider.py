@@ -1,5 +1,4 @@
 from urllib.parse import urlsplit
-import time
 from logic.spiders.async_spider import AsyncSpider
 
 
@@ -45,18 +44,13 @@ class Crawler(AsyncSpider):
                         processed_urls = response['processed_urls']
                         # Filtering urls to internal/external_domains.
                         filtered = await self.filter_found_urls(processed_urls=processed_urls)
-
+                        #
                         new_external_domains = filtered['external_domains']
                         internal_urls = filtered['internal_urls']
-                        # Here we push newly found internal urls to queue.
-                        self.found_urls.update(internal_urls)
-                        # External domains are processed here.
-                        if new_external_domains:
-                            for domain in new_external_domains:
-                                if domain not in self.external_domains:
-                                    self.logger.info(f'SAVING: Potential new domain found: {domain}')
-                                    await self.domain_adapter.get_or_create_domain(domain=domain)
-                            self.external_domains.update(new_external_domains)
+                        await self.process_filtered_urls(
+                            internal_urls=internal_urls,
+                            external_domains=new_external_domains,
+                        )
                 else:
                     self.logger.info(f"PASSING: Received no response from: {response['requested_url']}")
         if self.found_urls:
@@ -71,7 +65,6 @@ class Crawler(AsyncSpider):
         I'm simply splitting received iterator of urls to list of list with length of self.max_requests.
         Generate list of urls lists.
         """
-        self.max_requests
         if len(urls) > self.max_requests:
             return [
                 urls[x : x + self.max_requests] for x in range(0, len(urls), self.max_requests)
@@ -81,7 +74,8 @@ class Crawler(AsyncSpider):
 
     async def filter_found_urls(self, processed_urls: list):
         """
-        Takes list of proccesed url
+        Takes list of processed urls and filters in into 2 sets:
+        internal_urls and external_domains.
         """
         filtered = {'internal_urls': set(), 'external_domains': set()}
         for url in processed_urls:
@@ -90,3 +84,15 @@ class Crawler(AsyncSpider):
             elif self.initial_domain not in url and url not in self.requested_urls:
                 filtered['external_domains'].add(urlsplit(url).netloc)
         return filtered
+
+    async def process_filtered_urls(self, internal_urls: set, external_domains: set = None):
+        """"""
+        # Here we push newly found internal urls to queue.
+        self.found_urls.update(internal_urls)
+        # External domains are processed here.
+        if external_domains:
+            for domain in external_domains:
+                if domain not in self.external_domains:
+                    self.logger.info(f'SAVING: Potential new domain found: {domain}')
+                    await self.domain_adapter.get_or_create_domain(domain=domain)
+            self.external_domains.update(external_domains)

@@ -8,11 +8,11 @@ Current focus is to find and identify domains with content related to: Hacking, 
 
 ## Features
 
-+ Done:
+### Done:
 - Crawl tor domain and find new domains to crawl in process.
 - Display detailed information about each domain, including its title, description, and last update.
 
-+ WIP:
+### WIP:
 - Automated launching of crawlers using Celery.
 - User-friendly web interface for easy interaction.
 - Customizable and extensible codebase for further development.

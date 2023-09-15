@@ -1,7 +1,7 @@
-from django.db import models
-from urllib.parse import urlsplit
 import time
+
 from django.contrib.postgres.fields import ArrayField
+from django.db import models
 
 
 class Tag(models.Model):
@@ -49,12 +49,22 @@ class Webpage(models.Model):
     title = models.CharField(max_length=2000, blank=True, null=True)
     meta_description = models.TextField(blank=True, null=True)
     last_visit = models.IntegerField(blank=True, null=True)
-    on_page_raw_urls = ArrayField(models.URLField(max_length=2000), null=True, blank=True)
-    on_page_processed_urls = ArrayField(models.URLField(max_length=2000), null=True, blank=True)
-
+    on_page_raw_urls = ArrayField(models.URLField(
+        max_length=2000),
+        null=True,
+        blank=True,
+    )
+    on_page_processed_urls = ArrayField(models.URLField(
+        max_length=2000),
+        null=True,
+        blank=True,
+    )
     # How many times we successfully requested this url?
     number_of_successful_requests = models.IntegerField(blank=True, null=True)
-    number_of_unsuccessful_requests = models.IntegerField(blank=True, null=True)
+    number_of_unsuccessful_requests = models.IntegerField(
+        blank=True,
+        null=True,
+    )
     is_active = models.BooleanField(default=False)
     number_of_references = models.IntegerField(blank=True, null=True)
     created = models.IntegerField(blank=True, null=True)

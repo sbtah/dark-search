@@ -3,7 +3,7 @@
 
 
 Welcome to the Tor Scout!
-This is a python-based crawler service/project. Built with Django and Celery, it allows users to search for Tor domains while providing information and statistics about them.
+This is a python-asyncio crawler service/project. Built with Django and Celery, it allows users to search for Tor domains while providing information and statistics about them.
 Current focus is to find and identify domains with content related to: Hacking, data bases, selling credentials etc.
 
 ## Features
@@ -11,9 +11,9 @@ Current focus is to find and identify domains with content related to: Hacking, 
 ### Done:
 - Crawl tor domain and find new domains to crawl in process.
 - Display detailed information about each domain, including its title, description, and last update.
+- Automated launching of crawlers using Celery.
 
 ### WIP:
-- Automated launching of crawlers using Celery.
 - User-friendly web interface for easy interaction.
 - Customizable and extensible codebase for further development.
 

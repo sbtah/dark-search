@@ -128,7 +128,7 @@ CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", "redis://school-redis:6
 CELERY_BEAT_SCHEDULE = {
     'crawl-task' : {
         'task': 'tasks.tasks.crawl',
-        'schedule': timedelta(seconds=30)
+        'schedule': timedelta(seconds=5)
     }
 
 }

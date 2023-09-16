@@ -9,6 +9,7 @@ class TaskAdmin(admin.ModelAdmin):
         'type',
         'status',
         'importance',
+        'average_time_to_crawl',
         'last_run',
     )
     list_filter = (

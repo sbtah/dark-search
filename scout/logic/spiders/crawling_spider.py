@@ -35,7 +35,7 @@ class Crawler(AsyncSpider):
                 self.found_urls.remove(response['requested_url'])
                 # Sending prepared successful response data to API.
                 await self.client.post_response_data(data=response)
-                self.logger.info(f'PROCESSING: Received response from: {response["requested_url"]}')
+                # self.logger.info(f'PROCESSING: Received response from: {response["requested_url"]}')
 
                 if response['status'] is not None:
                     # Filter found urls found on requested page.
@@ -52,9 +52,11 @@ class Crawler(AsyncSpider):
                             external_domains=new_external_domains,
                         )
                     else:
-                        self.logger.info(f"PASSING: No processed urls at: {response['requested_url']}")
+                        # self.logger.info(f"PASSING: No processed urls at: {response['requested_url']}")
+                        continue
                 else:
-                    self.logger.info(f"PASSING: Received no response from: {response['requested_url']}")
+                    # self.logger.info(f"PASSING: Received no response from: {response['requested_url']}")
+                    continue
         if self.found_urls:
             await self.crawl()
         else:
@@ -74,10 +76,6 @@ class Crawler(AsyncSpider):
         else:
             return [urls, ]
 
-    # TODO:
-    # This logic should be moved to URLExtractor. 
-    # Spider should have a simple responsibility requests page return response.
-    # 
     async def filter_found_urls(self, processed_urls: list):
         """
         Takes list of processed urls and filters in into 2 sets:

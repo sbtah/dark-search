@@ -30,9 +30,10 @@ class DomainAdapter(BaseAdapter):
                 existing_domain.server = server
 
             existing_domain.save()
-            self.logger.info(f'API: Updated Domain: {existing_domain}')
+            self.logger.debug(f'API: Updated Domain: {existing_domain}')
             return existing_domain
-        except Domain.DoesNotExist:
+        # ?
+        except self.domain.DoesNotExist:
             creation_data = {
                 'value': domain,
             }
@@ -44,5 +45,5 @@ class DomainAdapter(BaseAdapter):
                 creation_data['server'] = server
 
             new_domain = self.domain.objects.create(**creation_data)
-            self.logger.info(f'API: Created new Domain: {new_domain}')
+            self.logger.debug(f'API: Created new Domain: {new_domain}')
             return new_domain

@@ -46,7 +46,7 @@ python3 manage.py createsuperuser
 5. Current start method:
  - Just watch the logs. Tasks are scheduled each 5 seconds.
 
-6. Create super user for scout service.
+6. Create super user for api service.
 ```bash
 docker exec -it tor-scout-api /bin/sh
 python3 manage.py createsuperuser

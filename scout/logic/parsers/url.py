@@ -94,7 +94,6 @@ class URLExtractor:
                 if await self.is_valid_url(url=fixed_url):
                     return fixed_url
                 else:
-                    self.logger.info(f'Failed while fixing URL: RAW:{url}: FIXED: {fixed_url}')
                     return url
         except Exception as e:
             self.logger.error(f'(fix_paths) Some other Exception: {e}')
@@ -184,7 +183,7 @@ class URLExtractor:
                     if await self.is_onion(url=fixed) and await self.is_valid_url(url=fixed) and not await self.is_file(url=fixed):
                         processed_urls.add(fixed)
                     else:
-                        pass
+                        continue
             return processed_urls
         else:
             return None

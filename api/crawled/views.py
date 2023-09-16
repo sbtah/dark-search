@@ -23,7 +23,7 @@ def process_response(request, *args, **kwargs):
     webpage_adapter = WebpageAdapter()
 
     response_data = json.loads(request.data)
-    print(f'DEBUG DATA: {response_data}')
+
     # Extracting domain from requested url.
     requested_domain = webpage_adapter.get_domain(
         response_data['requested_url'],
@@ -34,7 +34,6 @@ def process_response(request, *args, **kwargs):
         description=response_data.get('meta_data').get('description') if response_data.get('meta_data') is not None else None,
         server=response_data.get('server'),
     )
-    print(f'DEBUG API DOMAIN OBJECT: {domain}')
 
     if response_data['status'] is not None:
         webpage = webpage_adapter.update_or_create_webpage(

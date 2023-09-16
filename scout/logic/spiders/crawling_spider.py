@@ -1,6 +1,7 @@
 from urllib.parse import urlsplit
 import time
 from logic.spiders.async_spider import AsyncSpider
+from recognizer.matcher import PatternMatcher
 
 
 class Crawler(AsyncSpider):
@@ -17,6 +18,7 @@ class Crawler(AsyncSpider):
         self.sleep_time = 10
         self.site_structure = {}
         self.logger.info(f'Starting crawler for: {initial_url}')
+        self.matcher = PatternMatcher()
 
     async def crawl(self):
         """
@@ -32,6 +34,11 @@ class Crawler(AsyncSpider):
 
             for response in responses:
 
+                # # Match response content with any pattern
+                content = response.content.decode('utf-8')
+                t = await self.matcher.match_pattern(content)
+                self.logger.info(f'Best matched pattern alias {t}')
+
                 self.requested_urls.add(response['requested_url'])
                 self.found_urls.remove(response['requested_url'])
 
@@ -39,6 +46,9 @@ class Crawler(AsyncSpider):
                     self.logger.info(f'PROCESSING: Received response from: {response["requested_url"]}')
                     # Sending prepared successful response data to API.
                     await self.client.post_response_data(data=response)
+
+
+
                     # Filter found urls found on requested page.
                     if response.get('processed_urls') is not None:
                         # Schedule and save urls accordingly.

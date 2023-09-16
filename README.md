@@ -22,34 +22,35 @@ Current focus is to find and identify domains with content related to: Hacking, 
 To set up this project locally, follow these steps:
 
 1. Clone the repository:
-
 ```bash
 git clone https://github.com/yourusername/tor-domain-search.git
 cd tor-domain-search
 ```
 
 2. Build Images:
-
 ```bash
 docker compose build
 docker compose up
 ```
 
-3. Create super user.
-
+3. Create super user for scout service.
 ```bash
 docker exec -it tor-scout /bin/sh
 python3 manage.py createsuperuser
 ```
 
-4. Navigate to: `http://localhost:9002/`
+4. Navigate to: `http://localhost:9002/admin`
  - Create a TOR domain
  - Create related Task.
 
-
 5. Current start method:
+ - Just watch the logs. Tasks are scheduled each 5 seconds.
 
+6. Create super user for scout service.
 ```bash
-docker exec -it tor-scout /bin/sh
-python3 manage.py crawl
+docker exec -it tor-scout-api /bin/sh
+python3 manage.py createsuperuser
 ```
+
+7. Navigate to: `http://localhost:9003/admin`
+ - Enjoy.

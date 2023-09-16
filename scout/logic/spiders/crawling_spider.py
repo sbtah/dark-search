@@ -33,11 +33,11 @@ class Crawler(AsyncSpider):
 
                 self.requested_urls.add(response['requested_url'])
                 self.found_urls.remove(response['requested_url'])
+                # Sending prepared successful response data to API.
+                await self.client.post_response_data(data=response)
+                self.logger.info(f'PROCESSING: Received response from: {response["requested_url"]}')
 
                 if response['status'] is not None:
-                    self.logger.info(f'PROCESSING: Received response from: {response["requested_url"]}')
-                    # Sending prepared successful response data to API.
-                    await self.client.post_response_data(data=response)
                     # Filter found urls found on requested page.
                     if response.get('processed_urls') is not None:
                         # Schedule and save urls accordingly.
@@ -51,6 +51,8 @@ class Crawler(AsyncSpider):
                             internal_urls=internal_urls,
                             external_domains=new_external_domains,
                         )
+                    else:
+                        self.logger.info(f"PASSING: No processed urls at: {response['requested_url']}")
                 else:
                     self.logger.info(f"PASSING: Received no response from: {response['requested_url']}")
         if self.found_urls:
@@ -72,6 +74,10 @@ class Crawler(AsyncSpider):
         else:
             return [urls, ]
 
+    # TODO:
+    # This logic should be moved to URLExtractor. 
+    # Spider should have a simple responsibility requests page return response.
+    # 
     async def filter_found_urls(self, processed_urls: list):
         """
         Takes list of processed urls and filters in into 2 sets:
@@ -93,6 +99,5 @@ class Crawler(AsyncSpider):
         if external_domains:
             for domain in external_domains:
                 if domain not in self.external_domains:
-                    self.logger.info(f'SAVING: Potential new domain found: {domain}')
                     await self.domain_adapter.get_or_create_domain(domain=domain)
             self.external_domains.update(external_domains)

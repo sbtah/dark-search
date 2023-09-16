@@ -22,6 +22,9 @@ class Task(models.Model):
         choices=Status.choices,
         default=Status.idle,
     )
+    # AKA priority
+    # TODO:
+    # Change to choice field 0 to 9.
     importance = models.IntegerField(default=1)
     number_of_runs = models.IntegerField(default=0)
     last_crawl_time = models.IntegerField(default=0)

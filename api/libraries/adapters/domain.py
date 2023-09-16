@@ -11,9 +11,9 @@ class DomainAdapter(BaseAdapter):
     def update_or_create_domain(
         self,
         domain: str,
-        title:str = None,
-        description:str = None,
-        server:str = None,
+        title: str = None,
+        description: str = None,
+        server: str = None,
     ):
         """
         Create or update existing Domain object.
@@ -30,7 +30,7 @@ class DomainAdapter(BaseAdapter):
                 existing_domain.server = server
 
             existing_domain.save()
-            self.logger.info(f'Updated Domain: {existing_domain}')
+            self.logger.info(f'API: Updated Domain: {existing_domain}')
             return existing_domain
         except Domain.DoesNotExist:
             creation_data = {
@@ -44,5 +44,5 @@ class DomainAdapter(BaseAdapter):
                 creation_data['server'] = server
 
             new_domain = self.domain.objects.create(**creation_data)
-            self.logger.info(f'Created new Domain: {new_domain}')
+            self.logger.info(f'API: Created new Domain: {new_domain}')
             return new_domain

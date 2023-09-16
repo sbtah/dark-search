@@ -98,7 +98,7 @@ class AsyncSpider(BaseSpider):
                     'elapsed': str(response.elapsed.total_seconds()),
                     'visited': int(time.time()) if (str(response.status_code).startswith('2') or str(response.status_code).startswith('3')) else None,
                     'meta_data': meta_data,
-                    'raw_urls': raw_urls,
+                    'raw_urls': raw_urls if raw_urls else None,
                     'processed_urls': list(processed_urls) if processed_urls is not None else None,
                 }
             else:

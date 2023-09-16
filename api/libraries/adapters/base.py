@@ -8,7 +8,7 @@ class BaseAdapter:
         self.logger = logger
 
     @staticmethod
-    def get_domain(url):
+    def get_domain(url: str):
         domain = urlsplit(url).netloc
         if domain:
             return domain

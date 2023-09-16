@@ -64,8 +64,6 @@ class URLExtractor:
             self.logger.error(f'(get_domain) Some other exception: {e}')
             raise
 
-
-
     async def clean_url(self, url: str) -> str:
         """
         Cleans URL of all query params or fragments.

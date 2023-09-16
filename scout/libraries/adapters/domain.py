@@ -18,7 +18,7 @@ class DomainAdapter(BaseAdapter):
         except Domain.DoesNotExist:
             new_domain = await self.domain.objects.acreate(value=domain)
             related_task = await self.task.objects.acreate(owner=new_domain)
-            self.logger.info(f'Created new Domain: {new_domain}')
+            # self.logger.info(f'Created new Domain: {new_domain}')
             return new_domain
 
     async def create_domain(self, domain):
@@ -26,7 +26,7 @@ class DomainAdapter(BaseAdapter):
         try:
             new_domain = await self.domain.objects.acreate(value=domain)
             related_task = await self.task.objects.acreate(owner=new_domain)
-            self.logger.info(f'Created new Domain: {new_domain} and related Task: {related_task}')
+            # self.logger.info(f'Created new Domain: {new_domain} and related Task: {related_task}')
             return new_domain
         except Exception as e:
             self.logger.error(f'(update_or_create_domain) Some other exception: {e}')

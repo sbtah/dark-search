@@ -47,10 +47,13 @@ class WebpageAdapter(BaseAdapter):
         url: str,
         url_after_request: str = None,
         last_http_status: str = None,
+        # For calculating average_response_time
         last_elapsed: str = None,
         title: str = None,
         meta_description: str = None,
         visited: int = None,
+        on_page_raw_urls: list = None,
+        on_page_processed_urls: list = None,
     ):
         """"""
         try:
@@ -71,10 +74,14 @@ class WebpageAdapter(BaseAdapter):
                 webpage_object.last_visit = visited
             if last_elapsed is not None:
                 webpage_object = self.calculate_response_time(webpage=webpage_object, last_elapsed_seconds=last_elapsed)
+            if on_page_raw_urls is not None:
+                webpage_object.on_page_raw_urls = on_page_raw_urls
+            if on_page_processed_urls is not None:
+                webpage_object.on_page_processed_urls = on_page_processed_urls
 
             webpage_object = self.calculate_references(webpage_object)
             webpage_object.save()
-            self.logger.info(f'Updated Webpage: {webpage_object}')
+            self.logger.debug(f'Updated Webpage: {webpage_object}')
             return webpage_object
         except Webpage.DoesNotExist:
 
@@ -101,7 +108,11 @@ class WebpageAdapter(BaseAdapter):
                 creation_data['meta_description'] = meta_description
             if visited is not None:
                 creation_data['last_visit'] = visited
+            if on_page_raw_urls is not None:
+                creation_data['on_page_raw_urls'] = on_page_raw_urls
+            if on_page_processed_urls is not None:
+                creation_data['on_page_processed_urls'] = on_page_processed_urls
 
             webpage_object = self.webpage.objects.create(**creation_data)
-            self.logger.info(f'Created new Webpage: {webpage_object}')
+            self.logger.debug(f'Created new Webpage: {webpage_object}')
             return webpage_object

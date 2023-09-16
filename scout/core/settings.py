@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from celery.schedules import crontab
+from datetime import timedelta
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -127,7 +128,7 @@ CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", "redis://school-redis:6
 CELERY_BEAT_SCHEDULE = {
     'crawl-task' : {
         'task': 'tasks.tasks.crawl',
-        'schedule': crontab(minute='*/2')
+        'schedule': timedelta(seconds=30)
     }
 
 }

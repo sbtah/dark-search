@@ -1,12 +1,14 @@
-import time
 from random import choice
 from typing import List
-
+import os
 from client.api import TorScoutApiClient
 from libraries.adapters.domain import DomainAdapter
-from libraries.adapters.task import TaskAdapter
 from logic.options.settings import USER_AGENTS
 from utilities.logging import logger
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 
 class BaseSpider:
@@ -14,7 +16,7 @@ class BaseSpider:
     Base class for all crawlers.
     """
 
-    def __init__(self, proxy='socks5://tor-privoxy:9050'):
+    def __init__(self, proxy=os.environ.get('PROXY')):
         self.proxy = proxy
         self.client = TorScoutApiClient()
         self.domain_adapter = DomainAdapter()

@@ -23,6 +23,8 @@ class CrawlingTask:
         Simply grab 1st free Task in database and run crawler for it's owner.
         """
         task = self.task_adapter.get_free_task()
+        if task is None:
+            raise ValueError('No Task found. Initial Task must be created manually.')
         self.task_adapter.mark_task(task)
         crawler = self.crawler(crawl_type=task.type, initial_url=task.owner.url, initial_domain=task.owner.value)
         try:

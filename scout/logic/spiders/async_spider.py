@@ -100,6 +100,7 @@ class AsyncSpider(BaseSpider):
                     'meta_data': meta_data,
                     'raw_urls': raw_urls,
                     'processed_urls': list(processed_urls) if processed_urls is not None else None,
+                    'content': response.content.decode('utf-8')
                 }
             else:
                 return {

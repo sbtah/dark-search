@@ -34,7 +34,7 @@ class Crawler(AsyncSpider):
             for response in responses:
 
                 # # Match response content with any pattern
-                content = response.content.decode('utf-8')
+                content = response['content']
                 t = await self.matcher.match_pattern(content)
                 self.logger.info(f'Best matched pattern alias {t}')
 
@@ -45,8 +45,6 @@ class Crawler(AsyncSpider):
                     self.logger.info(f'PROCESSING: Received response from: {response["requested_url"]}')
                     # Sending prepared successful response data to API.
                     await self.client.post_response_data(data=response)
-
-
 
                     # Filter found urls found on requested page.
                     if response.get('processed_urls') is not None:

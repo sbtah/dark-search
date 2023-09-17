@@ -7,16 +7,9 @@ class TaskAdmin(admin.ModelAdmin):
     list_display = (
         'owner',
         'type',
-        'status',
         'importance',
-        'average_time_to_crawl',
-        'last_run',
-    )
-    list_filter = (
-        'type',
-        'status',
-        'importance',
-        'last_run'
-    )
+        'number_of_launches',
+        'last_crawl_start',
 
+    )
 admin.site.register(Task, TaskAdmin)

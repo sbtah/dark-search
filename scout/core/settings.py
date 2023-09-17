@@ -123,12 +123,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Celery settings
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'redis://school-redis:6379/0')
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", "redis://school-redis:6379/0")
+tasks_acks_late = True
 
 
 CELERY_BEAT_SCHEDULE = {
-    'crawl-task' : {
+    'crawl-task': {
         'task': 'tasks.tasks.crawl',
-        'schedule': timedelta(seconds=5)
+        'schedule': timedelta(seconds=30)
     }
 
 }

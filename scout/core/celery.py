@@ -4,6 +4,8 @@ from celery import Celery
 from celery.utils.log import get_task_logger
 from django.conf import settings
 from utilities.logging import logger
+from celery.signals import worker_shutdown
+
 
 # Set the default Django settings module for the celery app.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
@@ -19,12 +21,3 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Discover and load tasks from all registered Django apps.
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
-
-
-# Test task
-@app.task
-def divide(x, y):
-    import time
-
-    time.sleep(5)
-    return x // y

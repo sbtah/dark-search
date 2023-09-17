@@ -53,6 +53,7 @@ class URLExtractor:
             '.jpg',
             '.jpeg',
             '.png',
+            '.csv',
         )
         try:
             path = urlsplit(url).path

@@ -3,7 +3,7 @@ import asyncio
 from celery import chain, shared_task
 
 
-@shared_task(bind=True)
+@shared_task(bind=True, ignore_result=True,)
 def request_task_to_work(self):
     """"""
     from libraries.adapters.task import TaskAdapter
@@ -28,7 +28,6 @@ def start_crawler_for_task(self, task_id: None):
     bind=True, 
     autoretry_for=(Exception,),
     retry_backoff=60,
-    ignore_result=True,
     retry_jitter=True,
     retry_kwargs={'max_retries': 2},)
 def crawl(self):

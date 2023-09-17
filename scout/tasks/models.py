@@ -13,11 +13,7 @@ class Task(models.Model):
         choices=Type.choices,
         default=Type.domain,
     )
-    # AKA priority
-    # TODO:
-    # Change to choice field 0 to 9.
     importance = models.IntegerField(default=0)
-
     number_of_launches = models.IntegerField(default=0)
     last_crawl_start = models.IntegerField(default=0)
 

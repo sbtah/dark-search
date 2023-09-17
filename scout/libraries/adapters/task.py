@@ -21,8 +21,8 @@ class TaskAdapter(BaseAdapter):
             raise
 
     def get_free_task(self):
-        task_object = Task.objects.all().order_by('number_of_launches', 'last_crawl_start').first()
-        return task_object.id
+        task = Task.objects.all().order_by('number_of_launches').first()
+        return task.id
 
     def mark_task(self, task_object: Task):
         task_object.number_of_launches += 1

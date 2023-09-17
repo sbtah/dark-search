@@ -12,10 +12,12 @@ def request_task_to_work(self):
 
 
 @shared_task(bind=True)
-def start_crawler_for_task(self, task_id):
+def start_crawler_for_task(self, task_id: None):
     """"""
     from libraries.adapters.task import TaskAdapter
     from logic.spiders.crawling_spider import Crawler
+    if task_id is None:
+        raise ValueError('No Task to process.')
     task_object = TaskAdapter().get_task_by_id(task_id=task_id)
     task_object = TaskAdapter().mark_task(task_object)
     crawler = Crawler(crawl_type=task_object.type, initial_url=task_object.owner.url, initial_domain=task_object.owner.value)

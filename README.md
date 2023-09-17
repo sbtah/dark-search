@@ -23,8 +23,8 @@ To set up this project locally, follow these steps:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/tor-domain-search.git
-cd tor-domain-search
+git clone https://github.com/sbtah/tor-scout.git
+cd tor-scout
 ```
 
 2. Build Images:

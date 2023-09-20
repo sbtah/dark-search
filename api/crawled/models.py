@@ -29,7 +29,7 @@ class Domain(models.Model):
         if self.created is None:
             self.created = int(time.time())
         if self.url is None:
-            self.url = f'http://{self.value}'
+            self.url = f'http://{self.value}/'
         super().save(*args, **kwargs)
 
     def __str__(self):

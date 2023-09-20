@@ -31,7 +31,8 @@ class TorScoutApiClient:
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(url)
-                return response.json()
+                if response:
+                    return response.json()
         except Exception as e:
             self.logger.error(f'(API CLient Get) Some other exception: {e}')
             raise
@@ -45,7 +46,8 @@ class TorScoutApiClient:
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(url, json=json.dumps(data))
-                return response.json()
+                if response:
+                    return response.json()
         except Exception as e:
             self.logger.error(f'(API CLient Post) Some other exception: {e}')
             raise
@@ -59,7 +61,8 @@ class TorScoutApiClient:
                 self.get(self.HOME_ENDPOINT)
             )]
             responses = await asyncio.gather(*tasks)
-            return responses[0]
+            if responses:
+                return responses[0]
         except Exception as e:
             self.logger.error(f'(API CLient get_home) Some other exception: {e}')
             raise
@@ -73,7 +76,8 @@ class TorScoutApiClient:
                 self.post(self.RESPONSE_ENDPOINT, data=data)
             )]
             responses = await asyncio.gather(*tasks)
-            return responses[0]
+            if responses:
+                return responses[0]
         except Exception as e:
             self.logger.error(f'(API CLient post_response_data) Some other exception: {e}')
             raise

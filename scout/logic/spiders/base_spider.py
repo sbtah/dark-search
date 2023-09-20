@@ -2,7 +2,8 @@ from random import choice
 from typing import List
 import os
 from client.api import TorScoutApiClient
-from libraries.adapters.domain import DomainAdapter
+from logic.adapters.domain import DomainAdapter
+from logic.adapters.task import TaskAdapter
 from logic.options.settings import USER_AGENTS
 from utilities.logging import logger
 from dotenv import load_dotenv
@@ -16,10 +17,19 @@ class BaseSpider:
     Base class for all crawlers.
     """
 
-    def __init__(self, proxy=os.environ.get('PROXY')):
+    def __init__(self, initial_url, initial_domain, proxy=os.environ.get('PROXY')):
+        self.initial_url = initial_url
+        self.initial_domain = initial_domain
         self.proxy = proxy
         self.client = TorScoutApiClient()
         self.domain_adapter = DomainAdapter()
+        self.task_adapter = TaskAdapter()
+        self.found_internal_urls = set()
+        self.external_domains = set()
+        self.requested_urls = set()
+        self.max_requests = 10
+        self.sleep_time = 10
+        self.site_structure = {}
         self.logger = logger
 
     async def get_proxy(self):
@@ -43,9 +53,3 @@ class BaseSpider:
     # Prepare proper header to mimic browser.
     async def prepare_headers(self):
         pass
-
-    async def crawl(self):
-        """
-        Entrypoint for starting a spider.
-        """
-        raise NotImplementedError

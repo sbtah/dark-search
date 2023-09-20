@@ -1,34 +1,20 @@
-import asyncio
-
-from celery import chain, shared_task
+from celery import shared_task
 
 
 @shared_task(bind=True, ignore_result=True,)
-def request_task_to_work(self):
-    """"""
-    from libraries.adapters.task import TaskAdapter
-    task_id = TaskAdapter().get_free_task()
-    return task_id
+def crawling_task(self):
+    from logic.launcher.launcher import CrawlerLauncher
+    # print(f'DEBUG QUEUE: {self.request.delivery_info["routing_key"]}')
+    CrawlerLauncher().launch(task_id=self.request.id)
 
 
-@shared_task(bind=True)
-def start_crawler_for_task(self, task_id: None):
-    """"""
-    from libraries.adapters.task import TaskAdapter
-    from logic.spiders.crawling_spider import Crawler
-    if task_id is None:
-        raise ValueError('No Task to process.')
-    task_object = TaskAdapter().get_task_by_id(task_id=task_id)
-    task_object = TaskAdapter().mark_task(task_object)
-    crawler = Crawler(crawl_type=task_object.type, initial_url=task_object.owner.url, initial_domain=task_object.owner.value)
-    asyncio.run(crawler.crawl())
-    return task_object.id
+@shared_task(bind=True, ignore_result=True)
+def reactivate_finished(self):
+    from logic.organizers.organizer import TaskOrganizer
+    TaskOrganizer().process_finished_tasks()
 
-@shared_task(
-    bind=True, 
-    autoretry_for=(Exception,),
-    retry_backoff=60,
-    retry_jitter=True,
-    retry_kwargs={'max_retries': 2},)
-def crawl(self):
-    chain(request_task_to_work.s(), start_crawler_for_task.s()).apply_async()
+
+@shared_task(bind=True, ignore_result=True)
+def reactivate_taken(self):
+    from logic.organizers.organizer import TaskOrganizer
+    TaskOrganizer().process_taken_tasks()

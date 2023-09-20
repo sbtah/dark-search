@@ -1,11 +1,9 @@
-from logic.adapters.task import TaskAdapter
-from celery.result import AsyncResult
 import datetime
-from utilities.logging import logger
 import time
-from core.celery import app
-import json
 
+from core.celery import app
+from logic.adapters.task import TaskAdapter
+from utilities.logging import logger
 
 
 class BaseOrganizer:
@@ -15,7 +13,7 @@ class BaseOrganizer:
 
     def __init__(self, *args, **kwargs):
         self.task_adapter = TaskAdapter()
-        self.logger = logger 
+        self.logger = logger
 
     def generate_date_from_timestamp(self, timestamp: int):
         """
@@ -23,7 +21,7 @@ class BaseOrganizer:
         """
         date_object = datetime.datetime.fromtimestamp(timestamp)
         return date_object
-    
+
     def generate_timedelta_day(self, task_frequency: int):
         """
         Generate a timedelta from Task's frequency.

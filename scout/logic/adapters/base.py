@@ -1,8 +1,8 @@
 from utilities.logging import logger
-from urllib.parse import urlsplit
 
 
 class BaseAdapter:
-
+    """Base class for all Adapters."""
+    
     def __init__(self):
         self.logger = logger

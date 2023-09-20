@@ -55,7 +55,7 @@ class TaskOrganizer(BaseOrganizer):
             if current_date > (task_finished_launched_date + time_delta_frequency):
                 self.task_adapter.mark_task_active(task_object=task)
                 self.logger.info(
-                    (f'Marking FINISHED Task as ACTIVE: {task.owner.value}')
+                    f'Marking FINISHED Task as ACTIVE: {task.owner.value}'
                 )
 
     def get_celery_tasks(self) -> set:

@@ -20,7 +20,8 @@ class CrawlerLauncher:
         Entry for each task object.
         Simply grab 1st free Task in database and run crawler for its owner.
         """
-        task = self.task_adapter.get_free_task()
+        task = self.task_adapter.get_active_task()
+        print(task)
         if task:
             task = self.task_adapter.mark_task_taken(task)
             crawler = self.crawler(initial_url=task.owner.url, initial_domain=task.owner.value)

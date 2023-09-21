@@ -7,7 +7,7 @@ from typing import List
 
 class URLExtractor:
 
-    def __init__(self, iterator_of_urls=None, current_page_url=None):
+    def __init__(self, iterator_of_urls, current_page_url):
         self.iterator_of_urls = iterator_of_urls
         self.current_page_url = current_page_url
         self.logger = logger

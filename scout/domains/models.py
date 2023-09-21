@@ -8,7 +8,7 @@ class Domain(models.Model):
 
     def save(self, *args, **kwargs):
         if self.url is None:
-            self.url = f'http://{self.value}'
+            self.url = f'http://{self.value}/'
         super().save(*args, **kwargs)
 
 

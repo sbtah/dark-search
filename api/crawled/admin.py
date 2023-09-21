@@ -45,6 +45,12 @@ class DomainAdmin(admin.ModelAdmin):
         'last_crawl',
         'server',
     )
+    search_fields = [
+        'value',
+        'title',
+        'description',
+    ]
+
 
 
 

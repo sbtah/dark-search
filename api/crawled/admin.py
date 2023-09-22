@@ -10,7 +10,9 @@ class WebpageAdmin(admin.ModelAdmin):
         'url_after_request',
         'last_http_status',
         'average_response_time',
-        'title',
+        'raw_html',
+        'page_title',
+        'meta_title',
         'meta_description',
         'last_visit',
         'on_page_raw_urls',
@@ -18,36 +20,44 @@ class WebpageAdmin(admin.ModelAdmin):
         'number_of_successful_requests',
         'number_of_unsuccessful_requests',
         'is_active',
-        'number_of_references',
         'created',
     )
     list_select_related = ('parent_domain', )
     list_display = (
         'url',
         'created',
-        'title',
+        'page_title',
+        'meta_title',
         'meta_description',
         'last_visit',
         'is_active',
     )
-    list_filter = (
-        'parent_domain',
-    )
 
 
 class DomainAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        'value',
+        'created',
+        'last_crawl_date',
+        'average_crawl_time',
+        'server',
+        'description',
+        'number_of_crawls_finished',
+        'number_of_pages_found',
+        'site_structure',
+    )
     list_display = (
         'value',
-        'url',
-        'title',
-        'description',
         'created',
-        'last_crawl',
+        'last_crawl_date',
+        'average_crawl_time',
         'server',
+        'description',
+        'number_of_crawls_finished',
+        'number_of_pages_found',
     )
     search_fields = [
         'value',
-        'title',
         'description',
     ]
 

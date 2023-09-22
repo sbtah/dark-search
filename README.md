@@ -33,18 +33,19 @@ docker compose build
 docker compose up
 ```
 
-3. Create super user for scout service.
+3. Current start method:
+ - Just start the containers...
+
+
+4. Create super user for scout service.
 ```bash
 docker exec -it tor-scout /bin/sh
 python3 manage.py createsuperuser
 ```
 
-4. Navigate to: `http://localhost:9002/admin`
- - Create a TOR domain
- - Create related Task.
+5. Navigate to: `http://localhost:9002/admin`
+ - Here you will see your Tasks.
 
-5. Current start method:
- - Just watch the logs. Tasks are scheduled each 5 seconds.
 
 6. Create super user for api service.
 ```bash
@@ -53,4 +54,4 @@ python3 manage.py createsuperuser
 ```
 
 7. Navigate to: `http://localhost:9003/admin`
- - Enjoy.
+ - Here you will see your crawled data. Enjoy!

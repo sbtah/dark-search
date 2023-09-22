@@ -15,6 +15,19 @@ class TaskAdapter(BaseAdapter):
         super().__init__(*args, **kwargs)
         self.task = Task
 
+
+    def sget_or_create_task(self, domain: Domain) -> Task:
+        """
+        Returns existing or creates Task object.
+        - :arg domain: Domain object.
+        """
+        try:
+            existing_task = self.task.objects.get(owner=domain)
+            return existing_task
+        except Task.DoesNotExist:
+            new_task = self.task.objects.create(owner=domain)
+            return new_task
+
     async def get_or_create_task(self, domain: Domain) -> Task:
         """
         Returns existing or creates Task object.

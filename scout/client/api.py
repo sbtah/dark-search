@@ -20,7 +20,8 @@ class TorScoutApiClient:
         self.key = key
         self.url = url
         self.logger = logger
-        self.RESPONSE_ENDPOINT = f'{self.url}/api/process-response/'
+        self.POST_RESPONSE_ENDPOINT = f'{self.url}/api/process-response/'
+        self.POST_SUMMARY_ENDPOINT = f'{self.url}/api/process-summary/'
         self.HOME_ENDPOINT = f'{self.url}/api/'
 
     async def get(self, url: str):
@@ -52,6 +53,15 @@ class TorScoutApiClient:
             self.logger.error(f'(API CLient Post) Some other exception: {e}')
             raise
 
+    def ping_home(self):
+        """"""
+        try:
+            with httpx.Client() as client:
+                response = client.get(self.HOME_ENDPOINT, timeout=5)
+                return response
+        except Exception as e:
+            pass
+
     async def get_home(self):
         """
         Requests endpoint: api/.
@@ -73,11 +83,26 @@ class TorScoutApiClient:
         """
         try:
             tasks = [asyncio.create_task(
-                self.post(self.RESPONSE_ENDPOINT, data=data)
+                self.post(self.POST_RESPONSE_ENDPOINT, data=data)
             )]
             responses = await asyncio.gather(*tasks)
             if responses:
                 return responses[0]
         except Exception as e:
             self.logger.error(f'(API CLient post_response_data) Some other exception: {e}')
+            raise
+
+    async def post_summary_data(self, data: dict):
+        """
+        Sends summary crawling data to: api/summary/
+        """
+        try:
+            tasks = [asyncio.create_task(
+                self.post(self.POST_SUMMARY_ENDPOINT, data=data)
+            )]
+            responses = await asyncio.gather(*tasks)
+            if responses:
+                return responses[0]
+        except Exception as e:
+            self.logger.error(f'(API CLient post_summary_data) Some other exception: {e}')
             raise

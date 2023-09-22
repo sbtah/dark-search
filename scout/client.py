@@ -21,5 +21,4 @@ data = {
 # print(res)
 
 client = TorScoutApiClient()
-# print(asyncio.run(client.get_home()))
-print(asyncio.run(client.get_website_to_crawl()))
+print(type(client.ping_home().status_code))

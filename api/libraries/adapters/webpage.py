@@ -24,15 +24,6 @@ class WebpageAdapter(BaseAdapter):
         return webpage
 
     @staticmethod
-    def calculate_references(webpage: Webpage):
-        """"""
-        if webpage.number_of_references is not None:
-            webpage.number_of_references += 1
-        else:
-            webpage.number_of_references = 1
-        return webpage
-
-    @staticmethod
     def calculate_response_time(webpage: Webpage, last_elapsed_seconds: str):
         """"""
         if webpage.average_response_time is not None:
@@ -49,11 +40,13 @@ class WebpageAdapter(BaseAdapter):
         last_http_status: str = None,
         # For calculating average_response_time
         last_elapsed: str = None,
-        title: str = None,
+        raw_html: str = None,
+        page_title: str = None,
+        meta_title: str = None,
         meta_description: str = None,
-        visited: int = None,
         on_page_raw_urls: list = None,
         on_page_processed_urls: list = None,
+        last_visit: int = None,
     ):
         """"""
         try:
@@ -66,20 +59,23 @@ class WebpageAdapter(BaseAdapter):
             if last_http_status is not None:
                 webpage_object.last_http_status = last_http_status
                 webpage_object = self.calculate_requests(webpage_object, last_http_status)
-            if title is not None:
-                webpage_object.title = title
+            if raw_html is not None:
+                webpage_object.raw_html = raw_html
+            if page_title is not None:
+                webpage_object.page_title = page_title
+            if meta_title is not None:
+                webpage_object.meta_title = meta_title
             if meta_description is not None:
                 webpage_object.meta_description = meta_description
-            if visited is not None:
-                webpage_object.last_visit = visited
             if last_elapsed is not None:
                 webpage_object = self.calculate_response_time(webpage=webpage_object, last_elapsed_seconds=last_elapsed)
             if on_page_raw_urls is not None:
                 webpage_object.on_page_raw_urls = on_page_raw_urls
             if on_page_processed_urls is not None:
                 webpage_object.on_page_processed_urls = on_page_processed_urls
+            if last_visit is not None:
+                webpage_object.last_visit = last_visit
 
-            webpage_object = self.calculate_references(webpage_object)
             webpage_object.save()
             self.logger.debug(f'Updated Webpage: {webpage_object}')
             return webpage_object
@@ -88,7 +84,6 @@ class WebpageAdapter(BaseAdapter):
             creation_data = {
                 'parent_domain': parent_domain,
                 'url': url,
-                'number_of_references': 1,
             }
             if url_after_request is not None:
                 creation_data['url_after_request'] = url_after_request
@@ -102,16 +97,20 @@ class WebpageAdapter(BaseAdapter):
                     creation_data['is_active'] = False
             if last_elapsed is not None:
                 creation_data['average_response_time'] = last_elapsed
-            if title is not None:
-                creation_data['title'] = title
+            if raw_html is not None:
+                creation_data['raw_html'] = raw_html
+            if page_title is not None:
+                creation_data['page_title'] = page_title
+            if meta_title is not None:
+                creation_data['meta_title'] = meta_title
             if meta_description is not None:
                 creation_data['meta_description'] = meta_description
-            if visited is not None:
-                creation_data['last_visit'] = visited
             if on_page_raw_urls is not None:
                 creation_data['on_page_raw_urls'] = on_page_raw_urls
             if on_page_processed_urls is not None:
                 creation_data['on_page_processed_urls'] = on_page_processed_urls
+            if last_visit is not None:
+                creation_data['last_visit'] = last_visit
 
             webpage_object = self.webpage.objects.create(**creation_data)
             self.logger.debug(f'Created new Webpage: {webpage_object}')

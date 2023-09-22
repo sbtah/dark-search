@@ -11,6 +11,18 @@ class DomainAdapter(BaseAdapter):
         super().__init__(*args, **kwargs)
         self.domain = Domain
 
+    def sget_or_create_domain(self, domain: str) -> Domain:
+        """
+        Finds or creates a Domain object with provided domain address.
+        - :arg domain: Domain address.
+        """
+        try:
+            existing_domain = self.domain.objects.get(value=domain)
+            return existing_domain
+        except self.domain.DoesNotExist:
+            new_domain = self.domain.objects.create(value=domain)
+            return new_domain
+
     async def get_or_create_domain(self, domain: str) -> Domain:
         """
         Finds or creates a Domain object with provided domain address.

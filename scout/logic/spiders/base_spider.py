@@ -1,14 +1,18 @@
+import os
+import time
 from random import choice
 from typing import List
-import os
+
 from client.api import TorScoutApiClient
+from dotenv import load_dotenv
 from logic.adapters.domain import DomainAdapter
 from logic.adapters.task import TaskAdapter
 from logic.options.settings import USER_AGENTS
+from logic.parsers.url import URLExtractor
 from utilities.logging import logger
-from dotenv import load_dotenv
 
 
+# Load .env file values.
 load_dotenv()
 
 
@@ -24,16 +28,21 @@ class BaseSpider:
         self.client = TorScoutApiClient()
         self.domain_adapter = DomainAdapter()
         self.task_adapter = TaskAdapter()
+        self.url_extractor = URLExtractor(current_page_url=initial_url)
         self.found_internal_urls = set()
         self.external_domains = set()
         self.requested_urls = set()
+        self.crawl_start = int(time.time())
+        self.crawl_end = None
         self.max_requests = 10
         self.sleep_time = 10
         self.site_structure = {}
         self.logger = logger
 
-    async def get_proxy(self):
-        pass
+    @property
+    def user_agent(self) -> str:
+        agent = self.get_random_user_agent(USER_AGENTS)
+        return agent
 
     @staticmethod
     def get_random_user_agent(user_agent_list: List[str]) -> str:
@@ -44,12 +53,14 @@ class BaseSpider:
         agent = choice(user_agent_list)
         return agent
 
-    @property
-    def user_agent(self) -> str:
-        agent = self.get_random_user_agent(USER_AGENTS)
-        return agent
+    @staticmethod
+    def now_timestamp():
+        """
+        Returns integer from current timestamp.
+        """
+        return int(time.time())
 
     # TODO:
     # Prepare proper header to mimic browser.
-    async def prepare_headers(self):
+    def prepare_headers(self):
         pass

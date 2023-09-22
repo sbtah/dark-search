@@ -1,12 +1,10 @@
 import asyncio
-import time
 from typing import Any, Dict, Iterator, List, Tuple, Union
 
 import httpx
 from httpx import Response
-from logic.parsers.url import URLExtractor
 from logic.spiders.base_spider import BaseSpider
-from lxml.html import HtmlElement, HTMLParser, fromstring
+from lxml.html import HtmlElement, HTMLParser, fromstring, tostring
 
 
 class AsyncSpider(BaseSpider):
@@ -87,16 +85,19 @@ class AsyncSpider(BaseSpider):
         if response is not None:
             element = await self.page(response)
             if element is not None:
+                page_title = await self.extract_page_title(html_element=element)
                 meta_data = await self.extract_meta_data(html_element=element)
                 raw_urls = await self.extract_urls(html_element=element)
-                processed_urls = await URLExtractor(iterator_of_urls=raw_urls, current_page_url=self.initial_url).process_found_urls()
+                processed_urls = await self.url_extractor.process_found_urls(iterator_of_urls=raw_urls)
                 return {
                     'requested_url': str(url),
                     'responded_url': str(response.url),
                     'status': str(response.status_code),
                     'server': response.headers.get('server', None),
                     'elapsed': str(response.elapsed.total_seconds()),
-                    'visited': int(time.time()) if (str(response.status_code).startswith('2') or str(response.status_code).startswith('3')) else None,
+                    'visited': int(self.now_timestamp()) if (str(response.status_code).startswith('2') or str(response.status_code).startswith('3')) else None,
+                    'raw_html': response.text,
+                    'page_title': page_title,
                     'meta_data': meta_data,
                     'raw_urls': raw_urls if raw_urls else None,
                     'processed_urls': list(processed_urls) if processed_urls is not None else None,
@@ -111,6 +112,7 @@ class AsyncSpider(BaseSpider):
                 'requested_url': url,
                 'status': None,
             }
+
 
     async def extract_urls(self, html_element: HtmlElement) -> List | None:
         """
@@ -127,9 +129,7 @@ class AsyncSpider(BaseSpider):
         else:
             return None
 
-
-    @staticmethod
-    async def extract_meta_data(html_element: HtmlElement):
+    async def extract_meta_data(self, html_element: HtmlElement) -> Dict | None:
         """
         Takes HtmlElement as an input,
             returns title and meta description from requested Webpage.
@@ -141,3 +141,14 @@ class AsyncSpider(BaseSpider):
                 'description': html_element.xpath('/html/head/meta[@name="description"]/@content')[0].strip() if html_element.xpath('./html/head/meta[@name="description"]/@content') else ''
             }
             return meta_data
+
+    async def extract_page_title(self, html_element: HtmlElement) -> str | None:
+        """
+        """
+        if html_element is not None:
+            h1 = html_element.xpath('.//h1')
+            if h1:
+                page_title = html_element.xpath('.//h1')[0].text_content().strip()
+                return page_title
+            else:
+                return None

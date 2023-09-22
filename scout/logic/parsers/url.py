@@ -7,8 +7,7 @@ from typing import List
 
 class URLExtractor:
 
-    def __init__(self, iterator_of_urls, current_page_url):
-        self.iterator_of_urls = iterator_of_urls
+    def __init__(self, current_page_url):
         self.current_page_url = current_page_url
         self.logger = logger
 
@@ -166,7 +165,7 @@ class URLExtractor:
             return True
         return False
 
-    async def process_found_urls(self):
+    async def process_found_urls(self, iterator_of_urls=None):
         """
         Processes found URLS in many ways.
         First of all this method is cleaning URL of any query parameters and fragments.
@@ -174,8 +173,8 @@ class URLExtractor:
         Lastly it checks validity of found URL and is URL an onion.
         """
         processed_urls = set()
-        if self.iterator_of_urls:
-            for url in self.iterator_of_urls:
+        if iterator_of_urls is not None:
+            for url in iterator_of_urls:
                 cleaned = await self.clean_url(url=url.strip())
                 if await self.is_valid_url(url=cleaned) and await self.is_onion(url=cleaned) and not await self.is_file(url=cleaned):
                     processed_urls.add(cleaned)

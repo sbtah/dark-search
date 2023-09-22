@@ -79,6 +79,15 @@ class Crawler(AsyncSpider):
                     Requested {len(self.requested_urls)} urls.
                 """
             )
+            self.crawl_end = self.now_timestamp()
+            await self.client.post_summary_data(
+                data={
+                    'domain': self.initial_domain,
+                    'urls_crawled': len(self.requested_urls),
+                    'time': self.crawl_end - self.crawl_start,
+                    'date': self.now_timestamp()
+                }
+            )
             return
 
     async def ratelimit_urls(self, urls):

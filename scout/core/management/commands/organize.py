@@ -8,7 +8,7 @@ class Command(BaseCommand):
     """Base command for restarting Celery workers."""
 
     def handle(self, *args, **kwargs):
-        tasks_ids = TaskOrganizer().process_finished_tasks()
+        tasks_ids = TaskOrganizer().process_taken_tasks()
 
         # for task in tasks:
         #     print(task)

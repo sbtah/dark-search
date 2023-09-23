@@ -1,6 +1,7 @@
 import asyncio
 from logic.launchers.base import BaseLauncher
-
+from tasks.models import Task
+from domains.models import Domain
 
 class CrawlerLauncher(BaseLauncher):
     """
@@ -14,7 +15,13 @@ class CrawlerLauncher(BaseLauncher):
         """
         Launch Crawler for a Task.
         """
+
+        # For testing.
+        # domain = Domain.objects.get(value='vvedndyt433kopnhv6vejxnut54y5752vpxshjaqmj7ftwiu6quiv2ad.onion')
+        # task = Task.objects.get(owner=domain)
+
         task = self.task_adapter.get_active_task()
+        
         if task:
             self.logger.info(f"""
                     Launching crawling for Task: 

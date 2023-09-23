@@ -139,6 +139,6 @@ CELERY_BEAT_SCHEDULE = {
     },
     'reactivate-taken': {
         'task': 'tasks.tasks.reactivate_taken',
-        'schedule': timedelta(hours=2),
+        'schedule': timedelta(minutes=30),
     },
 }

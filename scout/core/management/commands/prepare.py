@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from client.api import TorScoutApiClient
 from logic.adapters.domain import DomainAdapter
 from logic.adapters.task import TaskAdapter
+from logic.organizers.organizer import TaskOrganizer
 from tasks.models import Task
 import time
 
@@ -55,8 +56,12 @@ class Command(BaseCommand):
             ))
 
         prepare_launch()
+        tasks = Task.objects.all().count()
+        taken = TaskAdapter().get_taken_tasks()
+        if taken:
+            TaskOrganizer().process_taken_tasks()
         self.stderr.write(self.style.SUCCESS(
                 f"""
-                Current number of Tasks in database: {Task.objects.all().count()}
+                Current number of Tasks in database: {tasks}
                 """
             ))

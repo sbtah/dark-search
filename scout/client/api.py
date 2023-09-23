@@ -36,7 +36,7 @@ class TorScoutApiClient:
                     return response.json()
         except Exception as e:
             self.logger.error(f'(API CLient Get) Some other exception: {e}')
-            raise
+            pass
 
     async def post(self, url: str, data: dict):
         """
@@ -48,10 +48,10 @@ class TorScoutApiClient:
             async with httpx.AsyncClient() as client:
                 response = await client.post(url, json=json.dumps(data))
                 if response:
-                    return response.json()
+                    return response
         except Exception as e:
             self.logger.error(f'(API CLient Post) Some other exception: {e}')
-            raise
+            pass
 
     def ping_home(self):
         """"""
@@ -59,7 +59,7 @@ class TorScoutApiClient:
             with httpx.Client() as client:
                 response = client.get(self.HOME_ENDPOINT, timeout=5)
                 return response
-        except Exception as e:
+        except Exception:
             pass
 
     async def get_home(self):
@@ -75,7 +75,7 @@ class TorScoutApiClient:
                 return responses[0]
         except Exception as e:
             self.logger.error(f'(API CLient get_home) Some other exception: {e}')
-            raise
+            pass
 
     async def post_response_data(self, data: dict):
         """
@@ -90,7 +90,7 @@ class TorScoutApiClient:
                 return responses[0]
         except Exception as e:
             self.logger.error(f'(API CLient post_response_data) Some other exception: {e}')
-            raise
+            pass
 
     async def post_summary_data(self, data: dict):
         """
@@ -105,4 +105,4 @@ class TorScoutApiClient:
                 return responses[0]
         except Exception as e:
             self.logger.error(f'(API CLient post_summary_data) Some other exception: {e}')
-            raise
+            pass

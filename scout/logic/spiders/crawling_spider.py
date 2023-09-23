@@ -29,47 +29,49 @@ class Crawler(AsyncSpider):
 
         for list_of_urls in lists_of_urls_list:
             responses = await self.get_requests(iterator_of_urls=list_of_urls)
+            if responses:
+                for response in responses:
 
-            for response in responses:
+                    self.requested_urls.add(response['requested_url'])
+                    self.found_internal_urls.remove(response['requested_url'])
 
-                self.requested_urls.add(response['requested_url'])
-                self.found_internal_urls.remove(response['requested_url'])
+                    await self.client.post_response_data(data=response)
 
-                await self.client.post_response_data(data=response)
-
-                if response['status'] is not None:
-                    self.logger.info(
-                        f"""
-                            Received response from: 
-                                - {response['requested_url']}
-                        """
-                    )
-                    if response.get('processed_urls') is not None:
-                        filtered = await self.filter_processed_urls(
-                            processed_urls=response['processed_urls']
+                    if response['status'] is not None:
+                        self.logger.info(
+                            f"""
+                                Received response from: 
+                                    - {response['requested_url']}
+                            """
                         )
-                        new_external_domains = filtered['external_domains']
-                        internal_urls = filtered['internal_urls']
-                        await self.process_filtered(
-                            internal_urls=internal_urls,
-                            external_domains=new_external_domains,
-                        )
+                        if response.get('processed_urls') is not None:
+                            filtered = await self.filter_processed_urls(
+                                processed_urls=response['processed_urls']
+                            )
+                            new_external_domains = filtered['external_domains']
+                            internal_urls = filtered['internal_urls']
+                            await self.process_filtered(
+                                internal_urls=internal_urls,
+                                external_domains=new_external_domains,
+                            )
+                        else:
+                            self.logger.info(
+                                f"""
+                                    No processed urls at: 
+                                        - {response['requested_url']}
+                                """
+                            )
+                            continue
                     else:
                         self.logger.info(
                             f"""
-                                No processed urls at: 
+                                Received no response from:
                                     - {response['requested_url']}
                             """
                         )
                         continue
-                else:
-                    self.logger.info(
-                        f"""
-                            Received no response from:
-                                - {response['requested_url']}
-                        """
-                    )
-                    continue
+            else:
+                continue
         if self.found_internal_urls:
             await self.crawl()
         else:

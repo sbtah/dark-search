@@ -1,6 +1,6 @@
 import asyncio
 from typing import Any, Dict, Iterator, List, Tuple, Union
-
+from logic.parsers.html import sanitize_html
 import httpx
 from httpx import Response
 from logic.spiders.base_spider import BaseSpider
@@ -87,6 +87,7 @@ class AsyncSpider(BaseSpider):
             if element is not None:
                 page_title = await self.extract_page_title(html_element=element)
                 meta_data = await self.extract_meta_data(html_element=element)
+                cleaned_html = await sanitize_html(html_element=element)
                 raw_urls = await self.extract_urls(html_element=element)
                 processed_urls = await self.url_extractor.process_found_urls(iterator_of_urls=raw_urls)
                 return {
@@ -96,7 +97,7 @@ class AsyncSpider(BaseSpider):
                     'server': response.headers.get('server', None),
                     'elapsed': str(response.elapsed.total_seconds()),
                     'visited': int(self.now_timestamp()) if (str(response.status_code).startswith('2') or str(response.status_code).startswith('3')) else None,
-                    'raw_html': response.text,
+                    'raw_html': cleaned_html,
                     'page_title': page_title,
                     'meta_data': meta_data,
                     'raw_urls': raw_urls if raw_urls else None,

@@ -35,33 +35,37 @@ def process_response(request, *args, **kwargs):
         value=requested_domain,
         server=response_data.get('server'),
     )
-
-    if response_data['status'] is not None:
-        webpage = webpage_adapter.update_or_create_webpage(
-            parent_domain=domain,
-            url=response_data['requested_url'],
-            url_after_request=response_data['responded_url'],
-            last_http_status=response_data['status'],
-            last_elapsed=response_data['elapsed'],
-            raw_html=response_data['raw_html'],
-            page_title=response_data['page_title'],
-            meta_title=response_data['meta_data']['title'],
-            meta_description=response_data['meta_data']['description'],
-            last_visit=response_data['visited'],
-            on_page_raw_urls=response_data['raw_urls'],
-            on_page_processed_urls=response_data['processed_urls']
-        )
+    try:
+        if response_data['status'] is not None:
+            webpage = webpage_adapter.update_or_create_webpage(
+                parent_domain=domain,
+                url=response_data['requested_url'],
+                url_after_request=response_data['responded_url'],
+                last_http_status=response_data['status'],
+                last_elapsed=response_data['elapsed'],
+                raw_html=response_data['raw_html'],
+                page_title=response_data['page_title'],
+                meta_title=response_data['meta_data']['title'],
+                meta_description=response_data['meta_data']['description'],
+                last_visit=response_data['visited'],
+                on_page_raw_urls=response_data['raw_urls'],
+                on_page_processed_urls=response_data['processed_urls']
+            )
+            return JsonResponse(
+                {'status': f'Parsed response: {webpage.url}'}
+            )
+        else:
+            webpage = webpage_adapter.update_or_create_webpage(
+                parent_domain=domain,
+                url=response_data['requested_url'],
+            )
+            return JsonResponse(
+                {'status': f'Parsed empty response: {webpage.url}'}
+            )
+    except Exception as e:
         return JsonResponse(
-            {'status': f'Parsed response: {webpage.url}'}
-        )
-    else:
-        webpage = webpage_adapter.update_or_create_webpage(
-            parent_domain=domain,
-            url=response_data['requested_url'],
-        )
-        return JsonResponse(
-            {'status': f'Parsed empty response: {webpage.url}'}
-        )
+                {'status': f'Exception in view: {e}'}
+            )
 
 @api_view(['POST'])
 def process_summary(request, *args, **kwargs):

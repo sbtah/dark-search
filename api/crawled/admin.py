@@ -32,6 +32,11 @@ class WebpageAdmin(admin.ModelAdmin):
         'last_visit',
         'is_active',
     )
+    search_fields = [
+        'page_title',
+        'meta_title',
+        'meta_description',
+    ]
 
 
 class DomainAdmin(admin.ModelAdmin):

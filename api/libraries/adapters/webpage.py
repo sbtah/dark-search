@@ -31,10 +31,10 @@ class WebpageAdapter(BaseAdapter):
             webpage.average_response_time = float(last_elapsed_seconds)
         return webpage
 
-    @staticmethod
-    def sanitize_html(raw_html):
-        html = raw_html.replace('\x00', '\uFFFD')
-        return html
+    # @staticmethod
+    # def sanitize_html(raw_html):
+    #     html = raw_html.replace('\x00', '\uFFFD')
+    #     return html
 
     def update_or_create_webpage(
         self,
@@ -64,7 +64,7 @@ class WebpageAdapter(BaseAdapter):
                 webpage_object.last_http_status = last_http_status
                 webpage_object = self.calculate_requests(webpage_object, last_http_status)
             if raw_html is not None:
-                webpage_object.raw_html = self.sanitize_html(raw_html)
+                webpage_object.raw_html = raw_html
             if page_title is not None:
                 webpage_object.page_title = page_title
             if meta_title is not None:
@@ -102,7 +102,7 @@ class WebpageAdapter(BaseAdapter):
             if last_elapsed is not None:
                 creation_data['average_response_time'] = last_elapsed
             if raw_html is not None:
-                creation_data['raw_html'] = self.sanitize_html(raw_html)
+                creation_data['raw_html'] = raw_html
             if page_title is not None:
                 creation_data['page_title'] = page_title
             if meta_title is not None:

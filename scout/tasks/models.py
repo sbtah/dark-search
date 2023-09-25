@@ -36,7 +36,7 @@ class Task(models.Model):
     )
     frequency = models.IntegerField(
         choices=Frequency.choices,
-        default=Frequency.one,
+        default=Frequency.seven,
     )
     importance = models.IntegerField(default=0)
     number_of_launches = models.IntegerField(default=0)

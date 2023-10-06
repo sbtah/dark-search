@@ -87,8 +87,8 @@ class AsyncSpider(BaseSpider):
             if element is not None:
                 page_title = await self.extract_page_title(html_element=element)
                 meta_data = await self.extract_meta_data(html_element=element)
-                cleaned_html = await sanitize_html(html_element=element)
                 raw_urls = await self.extract_urls(html_element=element)
+                cleaned_html = await sanitize_html(html_element=element)
                 processed_urls = await self.url_extractor.process_found_urls(iterator_of_urls=raw_urls)
                 return {
                     'requested_url': str(url),

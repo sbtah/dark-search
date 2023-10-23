@@ -67,6 +67,7 @@ def process_response(request, *args, **kwargs):
                 {'status': f'Exception in view: {e}'}
             )
 
+
 @api_view(['POST'])
 def process_summary(request, *args, **kwargs):
     """

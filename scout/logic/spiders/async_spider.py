@@ -55,7 +55,7 @@ class AsyncSpider(BaseSpider):
             self.logger.error(f'(get) Some other exception: {e}')
             return None
 
-    async def get_requests(self, iterator_of_urls: Iterator) -> Tuple[Any]:
+    async def get_requests(self, iterator_of_urls: Iterator):
         """
         Sends requests to many urls.
         - :arg iterator_of_urls: Iterator of URLs.
@@ -113,7 +113,6 @@ class AsyncSpider(BaseSpider):
                 'requested_url': url,
                 'status': None,
             }
-
 
     async def extract_urls(self, html_element: HtmlElement) -> List | None:
         """

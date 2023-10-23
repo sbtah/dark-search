@@ -19,68 +19,43 @@ class Crawler(AsyncSpider):
         Internal urls are added to found_internal_urls for further crawling.
         """
 
-        self.logger.info(
-            f"""
-                Crawling: {self.initial_domain}
-                Found: {len(self.found_internal_urls)} url(s).
-            """
-        )
+        self.logger.info(f"Crawling: {self.initial_domain} Found: {len(self.found_internal_urls)} url(s).")
         lists_of_urls_list = await self.ratelimit_urls(list(self.found_internal_urls))
 
         for list_of_urls in lists_of_urls_list:
             responses = await self.get_requests(iterator_of_urls=list_of_urls)
-            if responses:
-                for response in responses:
 
-                    self.requested_urls.add(response['requested_url'])
-                    self.found_internal_urls.remove(response['requested_url'])
-
-                    await self.client.post_response_data(data=response)
-
-                    if response['status'] is not None:
-                        self.logger.info(
-                            f"""
-                                Received response from: 
-                                    - {response['requested_url']}
-                            """
-                        )
-                        if response.get('processed_urls') is not None:
-                            filtered = await self.filter_processed_urls(
-                                processed_urls=response['processed_urls']
-                            )
-                            new_external_domains = filtered['external_domains']
-                            internal_urls = filtered['internal_urls']
-                            await self.process_filtered(
-                                internal_urls=internal_urls,
-                                external_domains=new_external_domains,
-                            )
-                        else:
-                            self.logger.info(
-                                f"""
-                                    No processed urls at: 
-                                        - {response['requested_url']}
-                                """
-                            )
-                            continue
-                    else:
-                        self.logger.info(
-                            f"""
-                                Received no response from:
-                                    - {response['requested_url']}
-                            """
-                        )
-                        continue
-            else:
+            if not responses:
                 continue
-        if self.found_internal_urls:
-            await self.crawl()
-        else:
-            self.logger.info(
-                f"""
-                    No more urls to crawl at: {self.initial_domain}.
-                    Requested {len(self.requested_urls)} urls.
-                """
-            )
+
+            for response in responses:
+
+                self.requested_urls.add(response['requested_url'])
+                self.found_internal_urls.remove(response['requested_url'])
+                await self.client.post_response_data(data=response)
+
+                if response['status'] is None:
+                    continue
+
+                if response['status'] is not None:
+                    self.logger.info(
+                        f"Received response from: - {response['requested_url']}")
+                    if response.get('processed_urls') is None:
+                        self.logger.info(f"No processed urls at: - {response['requested_url']}")
+                        continue
+                    if response.get('processed_urls') is not None:
+                        filtered = await self.filter_processed_urls(
+                            processed_urls=response['processed_urls']
+                        )
+                        new_external_domains = filtered['external_domains']
+                        internal_urls = filtered['internal_urls']
+                        await self.process_filtered(
+                            internal_urls=internal_urls,
+                            external_domains=new_external_domains,
+                        )
+
+        if not self.found_internal_urls:
+            self.logger.info(f"No more urls to crawl at: {self.initial_domain}. Requested {len(self.requested_urls)} urls.")
             self.crawl_end = self.now_timestamp()
             await self.client.post_summary_data(
                 data={
@@ -91,6 +66,8 @@ class Crawler(AsyncSpider):
                 }
             )
             return
+        else:
+            await self.crawl()
 
     async def ratelimit_urls(self, urls):
         """

@@ -22,7 +22,6 @@ class UrlExtractor:
             'external': set(),
         }
         self.accepted_schemes: set[str] = {'https', 'http'}
-        self.accepted_domain_extensions: set[str] = {'.onion'}
         self._root_domain: str | None = None
         self.logger = logger
 
@@ -45,7 +44,26 @@ class UrlExtractor:
         except ValueError:
             return False
 
-    def clean_url(self) -> str:
+    def is_path(self) -> bool:
+        """Checks whether found url is only and path."""
+        if self.current_url_split_result.path:
+            return True
+        return False
+
+    def is_onion(self) -> bool:
+        """Checks whether found url is leading to onion domain."""
+        match = re.search(r'\S+\.onion$', self.current_url_split_result.netloc)
+        if match:
+            return True
+        return False
+
+    def is_accepted_sheme(self):
+        """Checks whether found url contains accepted scheme."""
+        if self.current_url_split_result.scheme is in self.accepted_schemes:
+            return True
+        return False
+
+    def clean_url(self, url: str) -> str:
         """
         Cleans current URL of all query params or fragments.
         Returns cleaned URL.
@@ -54,7 +72,7 @@ class UrlExtractor:
             if self.current_url_split_result.query or self.current_url_split_result.fragment:
                 return urljoin(self.root_domain, self.current_url_split_result.path)
             else:
-                return self.current_url
+                return url
         except Exception as e:
             self.logger.error(f'(clean_url) Some other Exception: {e}')
             raise
@@ -65,50 +83,30 @@ class UrlExtractor:
         """
         for url in self.urls_collection:
 
-            self.current_url = url
             # Set current parse result, to minimize numer of calls to urlsplit.
             self.current_url_split_result = urlsplit(url)
+            self.current_url = self.clean_url(url=url)
+
+            if not self.is_valid_url() and self.is_path():
+                try:
+                    fixed_url = urljoin(self.root_domain, self.current_url_split_result.path)
+                    self.current_url = fixed_url
+                except Exception as e:
+                    self.logger.error(f'Error while fixing url: {e}')
+                    continue
 
             if not self.is_valid_url():
-                ...
+                continue
 
-    def is_valid_url(self) -> bool:
-        """
-        Validates current URL by parsing it with urlsplit.
-        """
-        try:
-            return bool(self.current_url_split_result.scheme and self.current_url_split_result.netloc)
-        except ValueError:
-            return False
+            if not self.is_onion():
+                continue
 
-    # def is_valid_url_regex(self, url: str) -> bool:
-    #     """
-    #     Validates URL by Regex.
+            if not self.is_accepted_sheme():
+                continue
 
-    #     :arg url: String with URL address to check.
-    #     """
-    #     try:
-    #         pattern = re.compile(
-    #             r'^(?:http|ftp)s?://'
-    #             r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'
-    #             r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
-    #             r'(?::\d+)?'
-    #             r'(?:/?|[/?]\S+)$', re.IGNORECASE)
-    #         return bool(pattern.match(url))
-    #     except Exception as e:
-    #         self.logger.error(f'(is_valid_url_regex) Some other Exception: {e}')
-    #         raise
+            if self.current_url_split_result.netloc == self.root_domain:
+                self.parse_results['internal'].add(self.current_url)
+            else:
+                self.parse_results['external'].add(self.current_url)
 
-    def is_valid_url(self, url: str) -> bool:
-        """
-        Validates URL by parsing and Regex.
-        Returns bool.
-
-        :arg url: String with URL address to check.
-        """
-        if self.is_valid_url_parse(url) is True and self.is_valid_url_regex(url) is True:
-            return True
-        return False
-
-    def is_path(self, url):
-        ...
+            return self.parse_results

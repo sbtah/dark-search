@@ -4,7 +4,6 @@ from celery import Celery
 from celery.utils.log import get_task_logger
 from django.conf import settings
 from utilities.logging import logger
-from celery.signals import worker_shutdown
 
 
 # Set the default Django settings module for the celery app.
@@ -13,6 +12,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 
 app = Celery('core')
 logger = get_task_logger(logger)
+
 
 # Read config from Django settings, the 'CELERY' namespace would make celery
 # - config keys has 'CELERY' prefix.

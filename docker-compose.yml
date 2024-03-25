@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   tor-scout:
     build:
@@ -17,36 +15,28 @@ services:
     env_file:
       - .env-dev
     depends_on:
-      - tor-redis
-      - tor-tasks-db
-      - tor-scout-api
+      - tor-scout-db
+      - tor-scout-redis
     networks:
       - tor-scout
 
-  tor-scout-api:
-    build:
-      context: .
-      dockerfile: ./compose/local/api/Dockerfile
-      args:
-        - DEV=true
-    image: tor-scout-api
-    container_name: tor-scout-api
-    command: /start
+  tor-scout-db:
+    image: postgres:16.2
+    container_name: tor-scout-db
     volumes:
-      - ./api:/api
+      - tor-scout-db-data-dev:/var/lib/postgresql/data/
     ports:
-      - "127.0.0.1:9003:8000"
-    env_file:
-      - .env-dev
-    depends_on:
-      - tor-websites-db
+      - "127.0.0.1:45432:5432"
+    environment:
+      - POSTGRES_DB=hello_django
+      - POSTGRES_USER=hello_django
+      - POSTGRES_PASSWORD=hello_django
     networks:
       - tor-scout
 
-
-  tor-celery:
-    image: tor-celery
-    container_name: tor-celery
+  tor-scout-celery:
+    image: tor-scout-celery
+    container_name: tor-scout-celery
     build:
       context: .
       dockerfile: ./compose/local/scout/Dockerfile
@@ -57,36 +47,42 @@ services:
     env_file:
       - .env-dev
     depends_on:
-      - tor-scout
-      - tor-tasks-db
-      - tor-redis
+      - tor-scout-db
+      - tor-scout-redis
     networks:
       - tor-scout
 
-  tor-beat:
+  tor-scout-redis:
+    image: redis:7.2.0-alpine
+    container_name: tor-scout-redis
+    volumes:
+      - tor-scout-redis-dev:/data
+    networks:
+      - tor-scout
+
+  tor-scout-beat:
     build:
       context: .
       dockerfile: ./compose/local/scout/Dockerfile
-    image: tor-beat
-    container_name: tor-beat
+    image: tor-scout-beat
+    container_name: tor-scout-beat
     command: /bstart
     volumes:
       - ./scout:/scout
     env_file:
       - .env-dev
     depends_on:
-      - tor-scout
-      - tor-tasks-db
-      - tor-redis
+      - tor-scout-db
+      - tor-scout-redis
     networks:
       - tor-scout
 
-  tor-flower:
+  tor-scout-flower:
     build:
       context: .
       dockerfile: ./compose/local/scout/Dockerfile
-    image: tor-flower
-    container_name: tor-flower
+    image: tor-scout-flower
+    container_name: tor-scout-flower
     command: /fstart
     volumes:
       - ./scout:/scout
@@ -95,52 +91,15 @@ services:
     ports:
       - "127.0.0.1:5559:5555"
     depends_on:
-      - tor-scout
-      - tor-tasks-db
-      - tor-redis
+      - tor-scout-db
+      - tor-scout-redis
     networks:
       - tor-scout
 
-  tor-redis:
-    image: redis:7.2.0-alpine
-    container_name: tor-redis
-    volumes:
-      - tor-redis-data-dev:/data
-    networks:
-      - tor-scout
-
-  tor-tasks-db:
-    image: postgres:15.4
-    container_name: tor-tasks-db
-    volumes:
-      - tor-task-db-data-dev:/var/lib/postgresql/data/
-    ports:
-      - "127.0.0.1:35432:5432"
-    environment:
-      - POSTGRES_DB=hello_django
-      - POSTGRES_USER=hello_django
-      - POSTGRES_PASSWORD=hello_django
-    networks:
-      - tor-scout
-
-  tor-websites-db:
-    image: postgres:15.4
-    container_name: tor-websites-db
-    volumes:
-      - tor-websites-db-data-dev:/var/lib/postgresql/data/
-    ports:
-      - "127.0.0.1:45432:5432"
-    environment:
-      - POSTGRES_DB=hello_django
-      - POSTGRES_USER=hello_django
-      - POSTGRES_PASSWORD=hello_django
-    networks:
-      - tor-scout
-
-  tor-privoxy:
+  tor-scout-privoxy:
     restart: always
     image: dockage/tor-privoxy:latest
-    container_name: tor-privoxy
+    container_name: tor-scout-privoxy
     ports:
       - "127.0.0.1:9050:9050" # Tor proxy
       - "127.0.0.1:9051:9051" # Tor control port
@@ -149,9 +108,8 @@ services:
       - tor-scout
 
 volumes:
-  tor-redis-data-dev:
-  tor-task-db-data-dev:
-  tor-websites-db-data-dev:
+  tor-scout-redis-dev:
+  tor-scout-db-data-dev:
 
 networks:
   tor-scout:

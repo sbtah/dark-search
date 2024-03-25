@@ -1,0 +1,15 @@
+"""
+Pytest fixtures
+"""
+import pytest
+from logic.parsers.url import UrlExtractor
+
+
+@pytest.fixture
+def url_extractor_case_1():
+    starting_url = 'http://example.onion'
+    urls_collection = [
+        'http://example.onion/page', 'http://example.onion/path?page=1', 'http://external.onion/',
+        'invalid.onion', '/path', 'ftp://example.onion/baz'
+    ]
+    return UrlExtractor(starting_url, urls_collection)

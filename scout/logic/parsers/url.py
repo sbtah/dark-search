@@ -46,7 +46,9 @@ class UrlExtractor:
 
     def is_path(self) -> bool:
         """Checks whether found url is only and path."""
-        if self.current_url_split_result.path:
+        pattern = r'^(/[a-zA-Z0-9\-._~%!$&\'()*+,;=:@/]*)*$'
+        match = re.search(pattern, self.current_url_split_result.path)
+        if match:
             return True
         return False
 
@@ -59,7 +61,7 @@ class UrlExtractor:
 
     def is_accepted_sheme(self):
         """Checks whether found url contains accepted scheme."""
-        if self.current_url_split_result.scheme is in self.accepted_schemes:
+        if self.current_url_split_result.scheme in self.accepted_schemes:
             return True
         return False
 
@@ -70,7 +72,7 @@ class UrlExtractor:
         """
         try:
             if self.current_url_split_result.query or self.current_url_split_result.fragment:
-                return urljoin(self.root_domain, self.current_url_split_result.path)
+                return urljoin(self.starting_url, self.current_url_split_result.path)
             else:
                 return url
         except Exception as e:
@@ -89,7 +91,7 @@ class UrlExtractor:
 
             if not self.is_valid_url() and self.is_path():
                 try:
-                    fixed_url = urljoin(self.root_domain, self.current_url_split_result.path)
+                    fixed_url = urljoin(self.starting_url, self.current_url_split_result.path)
                     self.current_url = fixed_url
                 except Exception as e:
                     self.logger.error(f'Error while fixing url: {e}')
@@ -109,4 +111,4 @@ class UrlExtractor:
             else:
                 self.parse_results['external'].add(self.current_url)
 
-            return self.parse_results
+        return self.parse_results

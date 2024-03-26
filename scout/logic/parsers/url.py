@@ -1,6 +1,7 @@
-from typing import Iterator
-from urllib.parse import urlsplit, urljoin, SplitResult
 import re
+from typing import Iterable
+from urllib.parse import SplitResult, urljoin, urlsplit
+
 from utilities.logging import logger
 
 
@@ -12,8 +13,8 @@ class UrlExtractor:
       this tool will clean url leading to clearnet.
     """
 
-    def __init__(self, starting_url: str, urls_collection: Iterator[str] = None) -> None:
-        self.urls_collection: Iterator[str] | None = urls_collection
+    def __init__(self, starting_url: str, urls_collection: Iterable[str] = None) -> None:
+        self.urls_collection: Iterable[str] | None = urls_collection
         self.starting_url: str = starting_url
         self.current_url: str | None = None
         self.current_url_split_result: SplitResult | None = None

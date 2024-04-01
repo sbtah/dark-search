@@ -2,8 +2,6 @@ import re
 from typing import Iterable
 from urllib.parse import SplitResult, urljoin, urlsplit
 
-from utilities.logging import logger
-
 
 class UrlExtractor:
     """
@@ -24,7 +22,6 @@ class UrlExtractor:
         }
         self.accepted_schemes: set[str] = {'https', 'http'}
         self._root_domain: str | None = None
-        self.logger = logger
 
     @property
     def root_domain(self) -> str:
@@ -47,11 +44,9 @@ class UrlExtractor:
 
     def is_path(self) -> bool:
         """Checks whether found url is only and path."""
-        pattern = r'^(/[a-zA-Z0-9\-._~%!$&\'()*+,;=:@/]*)*$'
-        match = re.search(pattern, self.current_url_split_result.path)
-        if match:
-            return True
-        return False
+        if not self.current_url_split_result.path:
+            return False
+        return True
 
     def is_onion(self) -> bool:
         """Checks whether found url is leading to onion domain."""
@@ -60,7 +55,7 @@ class UrlExtractor:
             return True
         return False
 
-    def is_accepted_sheme(self):
+    def is_accepted_scheme(self):
         """Checks whether found url contains accepted scheme."""
         if self.current_url_split_result.scheme in self.accepted_schemes:
             return True
@@ -71,14 +66,10 @@ class UrlExtractor:
         Cleans current URL of all query params or fragments.
         Returns cleaned URL.
         """
-        try:
-            if self.current_url_split_result.query or self.current_url_split_result.fragment:
-                return urljoin(self.starting_url, self.current_url_split_result.path)
-            else:
-                return url
-        except Exception as e:
-            self.logger.error(f'(clean_url) Some other Exception: {e}')
-            raise
+        if self.current_url_split_result.query or self.current_url_split_result.fragment:
+            return urljoin(self.starting_url, self.current_url_split_result.path)
+        else:
+            return url
 
     def parse(self):
         """
@@ -88,15 +79,13 @@ class UrlExtractor:
 
             # Set current parse result, to minimize numer of calls to urlsplit.
             self.current_url_split_result = urlsplit(url)
+            # Clean url of unwanted query params and fragments.
             self.current_url = self.clean_url(url=url)
 
             if not self.is_valid_url() and self.is_path():
-                try:
-                    fixed_url = urljoin(self.starting_url, self.current_url_split_result.path)
-                    self.current_url = fixed_url
-                except Exception as e:
-                    self.logger.error(f'Error while fixing url: {e}')
-                    continue
+                fixed_url = urljoin(self.starting_url, self.current_url_split_result.path)
+                self.current_url = fixed_url
+                self.current_url_split_result = urlsplit(fixed_url)
 
             if not self.is_valid_url():
                 continue
@@ -104,7 +93,7 @@ class UrlExtractor:
             if not self.is_onion():
                 continue
 
-            if not self.is_accepted_sheme():
+            if not self.is_accepted_scheme():
                 continue
 
             if self.current_url_split_result.netloc == self.root_domain:

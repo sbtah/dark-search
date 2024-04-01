@@ -15,23 +15,70 @@ class TestUrlExtractor:
         """Test UrlExtractor's parse method."""
         results = url_extractor.parse()
         assert results == {
-            'internal': {'http://example.onion/page', 'http://example.onion/path'},
-            'external': {'http://external.onion/'}
+            'internal': {'http://example.onion/page.html', 'http://example.onion/page', 'http://example.onion/path'},
+            'external': {'http://external.onion/'},
         }
 
-    def test_is_valid_url_returns_true(self, url_extractor):
+    def test_url_extractor_is_valid_url_returns_true(self, url_extractor):
         """Test that UrlExtractor's is_valid_url method is returning True for proper split results."""
         url_extractor.current_url_split_result = MagicMock(
             spec=SplitResult, scheme='http', netloc='example.onion', path='/invalid.onion', query='', fragment=''
         )
         assert url_extractor.is_valid_url() is True
 
-    def test_is_valid_url_returns_false(self, url_extractor):
+    def test_url_extractor_is_valid_url_returns_false(self, url_extractor):
         """Test UrlExtractor's is_valid_url method is returning False."""
         url_extractor.current_url_split_result = MagicMock(
-            scheme='', netloc='', path='example.onion', query='', fragment=''
+            spec=SplitResult, scheme='', netloc='', path='/example.onion', query='', fragment=''
         )
         assert url_extractor.is_valid_url() is False
 
-    def test_is_path_returns_true(self, url_extractor):
-        ...
+    def test_url_extractor_is_path_returns_true(self, url_extractor):
+        """Test that UrlExtractor's is_path method is returning True."""
+        url_extractor.current_url_split_result = MagicMock(
+            spec=SplitResult, scheme='', netloc='', path='example-path', query='', fragment=''
+        )
+        assert url_extractor.is_path() is True
+
+    def test_url_extractor_is_path_returns_false(self, url_extractor):
+        """Test that UrlExtractor's is_path method is returning False."""
+        url_extractor.current_url_split_result = MagicMock(
+            spec=SplitResult, scheme='https', netloc='www.google.com', path='', query='', fragment=''
+        )
+        assert url_extractor.is_path() is False
+
+    def test_url_extractor_is_onion_returns_true(self, url_extractor):
+        """Test that UrlExtractor's is_onion method is returning True for onion domains."""
+        url_extractor.current_url_split_result = MagicMock(
+            spec=SplitResult, scheme='https', netloc='www.example.onion', path='', query='', fragment=''
+        )
+        assert url_extractor.is_onion() is True
+
+    def test_url_extractor_is_onion_returns_false(self, url_extractor):
+        """Test that UrlExtractor's is_onion method is returning False for other than onion domains."""
+        url_extractor.current_url_split_result = MagicMock(
+            spec=SplitResult, scheme='https', netloc='www.example.com', path='', query='', fragment=''
+        )
+        assert url_extractor.is_onion() is False
+
+    def test_url_extractor_is_accepted_scheme_returns_true(self, url_extractor):
+        """Test that UrlExtractor's is_accepted_scheme method is returning True."""
+        url_extractor.current_url_split_result = MagicMock(
+            spec=SplitResult, scheme='https', netloc='www.example.com', path='', query='', fragment=''
+        )
+        assert url_extractor.is_accepted_scheme() is True
+
+    def test_url_extractor_is_accepted_scheme_returns_false(self, url_extractor):
+        """Test that UrlExtractor's is_accepted_scheme method is returning True."""
+        url_extractor.current_url_split_result = MagicMock(
+            spec=SplitResult, scheme='mailto', netloc='', path='info@nofluffjobs.com', query='', fragment=''
+        )
+        assert url_extractor.is_accepted_scheme() is False
+
+    def test_url_extractor_clean_url(self, url_extractor):
+        """Test UrlExtractor's clean_url method."""
+        test_url = 'http://example.onion/p=1?v=basic'
+        url_extractor.current_url_split_result = MagicMock(
+            spec=SplitResult, scheme='https', netloc='example.onion', path='/p=1', query='v=basic', fragment=''
+        )
+        assert url_extractor.clean_url(test_url) == 'http://example.onion/p=1'

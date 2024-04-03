@@ -1,3 +1,6 @@
+"""
+Test cases for UrlExtractor functionality.
+"""
 from unittest.mock import MagicMock
 from urllib.parse import SplitResult
 

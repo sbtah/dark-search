@@ -11,8 +11,7 @@ class UrlExtractor:
       this tool will clean url leading to clearnet.
     """
 
-    def __init__(self, starting_url: str, urls_collection: Iterable[str] = None) -> None:
-        self.urls_collection: Iterable[str] | None = urls_collection
+    def __init__(self, starting_url: str) -> None:
         self.starting_url: str = starting_url
         self.current_url: str | None = None
         self.current_url_split_result: SplitResult | None = None
@@ -71,11 +70,14 @@ class UrlExtractor:
         else:
             return url
 
-    def parse(self):
+    def parse(self, urls_collection: Iterable[str]):
         """
-        Parse urls from self.urls_collection.
+        Parse urls from provided in urls_collection.
         """
-        for url in self.urls_collection:
+        for url in urls_collection:
+
+            if not isinstance(url, str):
+                continue
 
             # Set current parse result, to minimize numer of calls to urlsplit.
             self.current_url_split_result = urlsplit(url)

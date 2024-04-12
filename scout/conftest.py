@@ -12,4 +12,13 @@ def url_extractor():
         'http://example.onion/page', 'http://example.onion/path?page=1', 'http://external.onion/',
         'page.html', '/path', 'ftp://example.onion/baz'
     ]
-    return UrlExtractor(starting_url, urls_collection)
+    return UrlExtractor(starting_url)
+
+
+@pytest.fixture
+def urls_collection():
+    urls_collection = [
+        'http://example.onion/page', 'http://example.onion/path?page=1', 'http://external.onion/',
+        'page.html', '/path', 'ftp://example.onion/baz'
+    ]
+    return urls_collection

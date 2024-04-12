@@ -14,9 +14,9 @@ class TestUrlExtractor:
         extractor = UrlExtractor(starting_url='http://found.onion/')
         assert extractor.root_domain == 'found.onion'
 
-    def test_url_extractor_parse(self, url_extractor):
+    def test_url_extractor_parse(self, url_extractor, urls_collection):
         """Test UrlExtractor's parse method."""
-        results = url_extractor.parse()
+        results = url_extractor.parse(urls_collection)
         assert results == {
             'internal': {'http://example.onion/page.html', 'http://example.onion/page', 'http://example.onion/path'},
             'external': {'http://external.onion/'},

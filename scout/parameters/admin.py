@@ -1,5 +1,5 @@
 from django.contrib import admin
-from parameters.models import UserAgents
+from parameters.models import UserAgent
 
 
-admin.site.register(UserAgents)
+admin.site.register(UserAgent)

@@ -12,7 +12,7 @@ pytestmark = pytest.mark.django_db
 class TestUserAgentsModel:
     """Test cases for User Agents object."""
 
-    def test_create_user_agents(self):
+    def test_create_user_agent(self):
         """Test creating UserAgents object is successful."""
         assert UserAgent.objects.count() == 0
         agents = UserAgent.objects.create(
@@ -21,7 +21,7 @@ class TestUserAgentsModel:
         assert UserAgent.objects.count() == 1
         assert isinstance(agents, UserAgent)
 
-    def test_user_agents_str_method(self):
+    def test_user_agent_str_method(self):
         """Test that UserAgent's __str__ is generating proper output."""
         agent = UserAgent.objects.create(
             value='Mozilla/5.0 Test Agent'

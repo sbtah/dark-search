@@ -35,3 +35,24 @@ class UserAgent(models.Model):
 
     def __str__(self) -> str:
         return f'{self.type}:{self.value}:{self.created}'
+
+
+class Proxy(models.Model):
+    """
+    Class representing Proxy object.
+    """
+
+    class Type(models.TextChoices):
+        dev = 'DEV'
+        production = 'PRODUCTION'
+
+    class Status(models.TextChoices):
+        active = 'ACTIVE'
+        disabled = 'DISABLED'
+
+    type = models.CharField(max_length=10, choices=Type.choices, default=Type.dev)
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.active)
+    value = models.CharField(max_length=255, unique=True, blank=False, default=None)
+
+    def __str__(self):
+        return f'{self.type}:{self.value}:{self.status}'

@@ -9,7 +9,7 @@ pytestmark = pytest.mark.django_db
 
 
 class TestCrawlTaskModel:
-    """Test cases for Crawl task """
+    """Test cases for CrawlTask model."""
 
     def test_create_crawltask(self):
         """Test creating CrawlTask object is successful."""

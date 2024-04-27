@@ -43,9 +43,9 @@ class UrlExtractor:
 
     def is_path(self) -> bool:
         """Checks whether found url is only and path."""
-        if not self.current_url_split_result.path:
-            return False
-        return True
+        if self.current_url_split_result.path:
+            return True
+        return False
 
     def is_onion(self) -> bool:
         """Checks whether found url is leading to onion domain."""
@@ -92,10 +92,10 @@ class UrlExtractor:
             if not self.is_valid_url():
                 continue
 
-            if not self.is_onion():
+            if not self.is_accepted_scheme():
                 continue
 
-            if not self.is_accepted_scheme():
+            if not self.is_onion():
                 continue
 
             if self.current_url_split_result.netloc == self.root_domain:

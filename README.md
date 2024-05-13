@@ -1,9 +1,9 @@
-# Tor Scout. 
-## what is it? : Tor domain search service.
+# Dark Search. 
+## Q: what is it?: An async Tor domain search service.
 
 
-Welcome to the Tor Scout!
-This is a python-asyncio crawler service/project. Built with Django and Celery, it allows users to search for Tor domains while providing information and statistics about them.
+Welcome to the Dark Search!
+This is a python-asyncio crawler service/project. Built with Django and Celery and asyncio. It allows users to search for Tor domains while providing information and statistics about them.
 Current focus is to find and identify domains with content related to: Hacking, data bases, selling credentials etc.
 
 ## Features
@@ -24,7 +24,7 @@ To set up this project locally, follow these steps:
 1. Clone the repository:
 ```bash
 git clone https://github.com/sbtah/tor-scout.git
-cd tor-scout
+cd tor-search
 ```
 
 2. Build Images:
@@ -39,7 +39,7 @@ docker compose up
 
 4. Create super user for scout service.
 ```bash
-docker exec -it tor-scout /bin/sh
+docker exec -it tor-search /bin/sh
 python3 manage.py createsuperuser
 ```
 
@@ -49,7 +49,7 @@ python3 manage.py createsuperuser
 
 6. Create super user for api service.
 ```bash
-docker exec -it tor-scout-api /bin/sh
+docker exec -it tor-search-api /bin/sh
 python3 manage.py createsuperuser
 ```
 

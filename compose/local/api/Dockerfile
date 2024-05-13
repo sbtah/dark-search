@@ -6,26 +6,18 @@ ENV PYTHONDONTWRITEBYTECODE 1
 
 ARG DEV=false
 
-COPY ./scout/requirements.txt /tmp/requirements.txt
-COPY ./scout/requirements.dev.txt /tmp/requirements.dev.txt
+COPY ./api/requirements.txt /tmp/requirements.txt
+COPY ./api/requirements.dev.txt /tmp/requirements.dev.txt
 
-COPY ./compose/local/scout/start /start
+
+COPY ./compose/local/api/start /start
 RUN chmod +x /start
 
-COPY ./compose/local/scout/cstart /cstart
-RUN chmod +x /cstart
-
-COPY ./compose/local/scout/fstart /fstart
-RUN chmod +x /fstart
-
-COPY ./compose/local/scout/bstart /bstart
-RUN chmod +x /bstart
-
-COPY ./compose/local/scout/entrypoint /entrypoint
+COPY ./compose/local/api/entrypoint /entrypoint
 RUN chmod +x /entrypoint
 
 RUN pip install --upgrade pip && \
-    apk add --update --no-cache postgresql-libs jpeg-dev && \
+    apk add --update --no-cache postgresql-client jpeg-dev && \
     apk add --update --no-cache --virtual .tmp-build-deps \
     build-base postgresql-dev musl-dev zlib zlib-dev linux-headers && \
     pip install -r /tmp/requirements.txt && \
@@ -37,10 +29,10 @@ RUN pip install --upgrade pip && \
     adduser \
     --disabled-password \
     --no-create-home \
-    tor-scout-user
+    api-user
 
-USER tor-scout-user
+USER api-user
 
-WORKDIR /scout
+WORKDIR /api
 
 ENTRYPOINT ["/entrypoint"]

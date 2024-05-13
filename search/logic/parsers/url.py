@@ -5,10 +5,10 @@ from urllib.parse import SplitResult, urljoin, urlsplit
 
 class UrlExtractor:
     """
-    Url Parser is a tool designed to properly validate,
+    Url Extractor is a tool designed to properly validate,
       clean and reconstruct urls found on a crawled webpage.
     Because crawler is designed to work within onion domains,
-      this tool will clean url leading to clearnet.
+      this tool will remove urls leading to clearnet.
     """
 
     def __init__(self, starting_url: str) -> None:
@@ -72,7 +72,7 @@ class UrlExtractor:
 
     def parse(self, urls_collection: Iterable[str]):
         """
-        Parse urls from provided in urls_collection.
+        Parse urls provided in urls_collection.
         """
         for url in urls_collection:
 

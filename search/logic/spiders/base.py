@@ -1,15 +1,13 @@
 import time
-from random import choice
-
-from typing import Any, Dict, Iterator, List, Tuple, Union
-from httpx import Response
-from dotenv import load_dotenv
-
-from logic.adapters.task import TaskAdapter
-from lxml.html import HtmlElement, HTMLParser, fromstring, tostring
-from logic.parsers.url import UrlExtractor
-from utilities.logging import logger
 from logging import Logger
+from typing import Dict, Iterable, List, Tuple, Union
+
+from httpx import Response
+from logic.adapters.agents import UserAgentAdapter
+from logic.adapters.task import TaskAdapter
+from logic.parsers.url import UrlExtractor
+from lxml.html import HtmlElement, HTMLParser, fromstring
+from utilities.logging import logger
 
 
 class BaseSpider:
@@ -18,8 +16,7 @@ class BaseSpider:
     """
 
     def __init__(self) -> None:
-
-        self.user_agent_adapter = ...
+        self.agent_adapter: UserAgentAdapter = UserAgentAdapter()
         self.proxy_adapter = ...
         self.task_adapter: TaskAdapter = TaskAdapter()
         self.logger: Logger = logger
@@ -68,10 +65,7 @@ class BaseSpider:
                 response.text,
                 parser=hp,
             )
-            self.logger.debug(f'')
             return element
-
-        
         except Exception as e:
             self.logger.exception(f'Exception while generating HtmlElement: {e}')
             return None
@@ -97,7 +91,7 @@ class BaseSpider:
         """
         if html_element is not None:
             title_element = html_element.xpath('/html/head/title/text()')
-            description_element = html_element.xpath('./html/head/meta[@name="description"]/@content')
+            description_element = html_element.xpath('/html/head/meta[@name="description"]/@content')
             meta_data = {
                 'title': title_element[0].strip() if title_element else '',
                 'description': description_element[0].strip() if description_element else ''

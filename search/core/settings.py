@@ -67,12 +67,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     "default": {
-        "ENGINE": os.environ.get("SCOUT_ENGINE", "django.db.backends.sqlite3"),
-        "NAME": os.environ.get("SCOUT_DATABASE", os.path.join(BASE_DIR / "db.sqlite3")),
-        "USER": os.environ.get("SCOUT_USER", "user"),
-        "PASSWORD": os.environ.get("SCOUT_PASSWORD", "password"),
-        "HOST": os.environ.get("SCOUT_HOST", "localhost"),
-        "PORT": os.environ.get("SCOUT_PORT", "5432"),
+        "ENGINE": os.environ.get("SEARCH_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("SEARCH_DATABASE", os.path.join(BASE_DIR / "db.sqlite3")),
+        "USER": os.environ.get("SEARCH_USER", "user"),
+        "PASSWORD": os.environ.get("SEARCH_PASSWORD", "password"),
+        "HOST": os.environ.get("SEARCH_HOST", "localhost"),
+        "PORT": os.environ.get("SEARCH_PORT", "5432"),
     }
 }
 
@@ -120,11 +120,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Celery settings
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'redis://tor-scout-redis:6379/0')
-CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", "redis://tor-scout-redis:6379/0")
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'redis://search-redis:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", "redis://search-redis:6379/0")
 CELERY_BEAT_SCHEDULE = {}
-
-
-# Spider settings
-ACCEPTED_CODES = [200, 302, 301, 300]
-PROXY_LIST = []

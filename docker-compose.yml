@@ -1,30 +1,50 @@
 services:
-  tor-scout:
+  search:
     build:
       context: .
-      dockerfile: ./compose/local/scout/Dockerfile
+      dockerfile: ./compose/local/search/Dockerfile
       args:
         - DEV=true
-    image: tor-scout
-    container_name: tor-scout
+    image: search
+    container_name: search
     command: /start
     volumes:
-      - ./scout:/scout
+      - ./search:/search
     ports:
       - "127.0.0.1:9002:8000"
     env_file:
       - .env-dev
     depends_on:
-      - tor-scout-db
-      - tor-scout-redis
+      - search-db
+      - search-redis
     networks:
-      - tor-scout
+      - search-network
 
-  tor-scout-db:
-    image: postgres:16.2
-    container_name: tor-scout-db
+  api:
+    build:
+      context: .
+      dockerfile: ./compose/local/api/Dockerfile
+      args:
+        - DEV=true
+    image: api
+    container_name: api
+    command: /start
     volumes:
-      - tor-scout-db-data-dev:/var/lib/postgresql/data/
+      - ./api:/api
+    ports:
+      - "127.0.0.1:9003:8000"
+    env_file:
+      - .env-dev
+    depends_on:
+      - api-db
+    networks:
+      - search-network
+
+  search-db:
+    image: postgres:16.2
+    container_name: search-db
+    volumes:
+      - search-db-data-dev:/var/lib/postgresql/data/
     ports:
       - "127.0.0.1:45432:5432"
     environment:
@@ -32,88 +52,103 @@ services:
       - POSTGRES_USER=hello_django
       - POSTGRES_PASSWORD=hello_django
     networks:
-      - tor-scout
+      - search-network
 
-  tor-scout-celery:
-    image: tor-scout-celery
-    container_name: tor-scout-celery
+  api-db:
+    image: postgres:16.2
+    container_name: api-db
+    volumes:
+      - api-db-data-dev:/var/lib/postgresql/data/
+    ports:
+      - "127.0.0.1:55432:5432"
+    environment:
+      - POSTGRES_DB=hello_django
+      - POSTGRES_USER=hello_django
+      - POSTGRES_PASSWORD=hello_django
+    networks:
+      - search-network
+
+  search-celery:
+    image: search-celery
+    container_name: search-celery
     build:
       context: .
-      dockerfile: ./compose/local/scout/Dockerfile
+      dockerfile: ./compose/local/search/Dockerfile
     restart: always
     command: /cstart
     volumes:
-      - ./scout:/scout
+      - ./search:/search
     env_file:
       - .env-dev
     depends_on:
-      - tor-scout-db
-      - tor-scout-redis
+      - search-db
+      - search-redis
     networks:
-      - tor-scout
+      - search-network
 
-  tor-scout-redis:
+  search-redis:
     image: redis:7.2.0-alpine
-    container_name: tor-scout-redis
+    container_name: search-redis
     volumes:
-      - tor-scout-redis-dev:/data
+      - search-redis-dev:/data
     networks:
-      - tor-scout
+      - search-network
 
-  tor-scout-beat:
+  search-beat:
     build:
       context: .
-      dockerfile: ./compose/local/scout/Dockerfile
-    image: tor-scout-beat
-    container_name: tor-scout-beat
+      dockerfile: ./compose/local/search/Dockerfile
+    image: search-beat
+    container_name: search-beat
     command: /bstart
     volumes:
-      - ./scout:/scout
+      - ./search:/search
     env_file:
       - .env-dev
     depends_on:
-      - tor-scout-db
-      - tor-scout-redis
+      - search-db
+      - search-redis
     networks:
-      - tor-scout
+      - search-network
 
-  tor-scout-flower:
+  search-flower:
     build:
       context: .
-      dockerfile: ./compose/local/scout/Dockerfile
-    image: tor-scout-flower
-    container_name: tor-scout-flower
+      dockerfile: ./compose/local/search/Dockerfile
+    image: search-flower
+    container_name: search-flower
     command: /fstart
     volumes:
-      - ./scout:/scout
+      - ./search:/search
     env_file:
       - .env-dev
     ports:
       - "127.0.0.1:5559:5555"
     depends_on:
-      - tor-scout-db
-      - tor-scout-redis
+      - search-db
+      - search-redis
     networks:
-      - tor-scout
+      - search-network
 
-  tor-scout-privoxy:
+  search-privoxy:
     restart: always
     image: dockage/tor-privoxy:latest
-    container_name: tor-scout-privoxy
+    container_name: search-privoxy
     ports:
       - "127.0.0.1:9050:9050" # Tor proxy
       - "127.0.0.1:9051:9051" # Tor control port
       - "127.0.0.1:8118:8118" # Privoxy
     networks:
-      - tor-scout
+      - search-network
 
 volumes:
-  tor-scout-redis-dev:
-  tor-scout-db-data-dev:
+  search-redis-dev:
+  search-db-data-dev:
+  api-db-data-dev:
 
 networks:
-  tor-scout:
-    name: tor-scout
+  search-network:
+    name: search-network
     driver: bridge
     ipam:
       config:

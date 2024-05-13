@@ -1,4 +1,4 @@
-# Tor Scout. 
+# Tor Scout. ARCHIVED
 ## what is it? : Tor domain search service.
 
 

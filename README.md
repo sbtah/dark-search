@@ -1,11 +1,11 @@
 # Dark Search
 ## Q: what is it?: An async Tor domain search service.
 
-Welcome to the Dark Search!
+Welcome to Dark Search!
 
-This is a python based crawler service. Project was built with Django, Celery and asyncio. Its main purpose is to search for Tor domains while providing information and statistics about them.
-Current focus is to find and identify and compare domains with content related to: hacking, ransomware, data bases, leaked credentials etc.
+Dark Search is a sophisticated Python-based crawler service designed to delve into the depths of the internet. Crafted using Django, Celery, and asyncio, this project is dedicated to unearthing Tor domains while furnishing comprehensive information and insightful statistics about them.
 
+At its core, Dark Search is engineered to locate, identify, and analyze domains associated with various facets of the darker side of the internet, including but not limited to hacking, ransomware, databases, leaked credentials, and more.
 ### Current state:
 - The project is being redesigned. Previous working version is on `archived` branch.
 

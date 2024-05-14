@@ -4,13 +4,13 @@
 Welcome to the Dark Search!
 
 This is a python based crawler service. Project was built with Django, Celery and asyncio. Its main purpose is to search for Tor domains while providing information and statistics about them.
-Current focus is to find and identify domains with content related to: hacking, ransomware, data bases, leaked credentials etc.
+Current focus is to find and identify and compare domains with content related to: hacking, ransomware, data bases, leaked credentials etc.
 
 ### Current state:
 - The project is being redesigned. Previous working version is on `archived` branch.
 
 ## Features
-- Crawl secified webpage,
+- Crawl specified webpage,
 - Filter urls,
 - Schedule crawl tasks for newly found domains.
 

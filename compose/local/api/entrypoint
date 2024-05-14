@@ -25,9 +25,9 @@ sys.exit(0)
 END
 }
 until postgres_ready; do
-  >&2 echo 'Waiting for tor-websites-db to become available...'
+  >&2 echo 'Waiting for api-db to become available...'
   sleep 1
 done
->&2 echo 'Success, tor-websites-db is available!'
+>&2 echo 'Success, api-db is available!'
 
 exec "$@"

@@ -1,7 +1,6 @@
 import pytest
 from crawled.models import Entity
 
-
 pytestmark = pytest.mark.django_db
 
 

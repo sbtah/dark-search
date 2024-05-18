@@ -5,7 +5,6 @@ import pytest
 from logic.adapters.agents import UserAgentAdapter
 from parameters.models import UserAgent
 
-
 pytestmark = pytest.mark.django_db
 
 

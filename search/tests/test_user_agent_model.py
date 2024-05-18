@@ -4,7 +4,6 @@ Test cases for User Agents object.
 import pytest
 from parameters.models import UserAgent
 
-
 pytestmark = pytest.mark.django_db
 
 

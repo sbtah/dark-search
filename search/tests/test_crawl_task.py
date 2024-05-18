@@ -4,7 +4,6 @@
 import pytest
 from tasks.models import CrawlTask
 
-
 pytestmark = pytest.mark.django_db
 
 

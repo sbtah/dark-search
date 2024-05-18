@@ -4,7 +4,6 @@
 import pytest
 from parameters.models import Proxy
 
-
 pytestmark = pytest.mark.django_db
 
 

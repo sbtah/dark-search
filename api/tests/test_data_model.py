@@ -4,7 +4,6 @@
 import pytest
 from crawled.models import Data
 
-
 pytestmark = pytest.mark.django_db
 
 

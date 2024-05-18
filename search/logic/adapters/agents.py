@@ -1,6 +1,7 @@
 from random import choice
 
 from logic.adapters.base import BaseAdapter
+from logic.exceptions.adapters.agents import NoUserAgentsError
 from parameters.models import UserAgent
 
 
@@ -16,4 +17,6 @@ class UserAgentAdapter(BaseAdapter):
         Retrieve random UserAgent object from database.
         """
         agents = self.agent.objects.all()
+        if not agents:
+            raise NoUserAgentsError()
         return choice(agents)

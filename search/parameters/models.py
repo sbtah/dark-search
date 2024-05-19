@@ -50,9 +50,9 @@ class Proxy(models.Model):
         active = 'ACTIVE'
         disabled = 'DISABLED'
 
+    value = models.CharField(max_length=255, unique=True)
     type = models.CharField(max_length=10, choices=Type.choices, default=Type.dev)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.active)
-    value = models.CharField(max_length=255, unique=True, blank=False, default=None)
     current_spiders = models.IntegerField(default=0)
 
     def __str__(self):

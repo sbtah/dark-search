@@ -1,4 +1,5 @@
-from logic.adapter.base import BaseAdapter
+from logic.adapters.base import BaseAdapter
+from logic.exceptions.adapters.proxies import NoProxiesError
 from parameters.models import Proxy
 
 
@@ -10,6 +11,8 @@ class ProxyAdapter(BaseAdapter):
         self.proxy = Proxy
 
     def get_proxy(self) -> Proxy:
-        """Retrieve least used Proxy from database."""
-        proxies = self.proxy.objects.all().orderby('current_spiders')
+        """Retrieve the least used Proxy from database."""
+        proxies = self.proxy.objects.all().order_by('current_spiders')
+        if not proxies:
+            raise NoProxiesError()
         return proxies.first()

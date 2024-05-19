@@ -3,7 +3,7 @@ Pytest fixtures
 """
 import pytest
 from logic.parsers.url import UrlExtractor
-from parameters.models import UserAgent
+from parameters.models import Proxy, UserAgent
 
 
 @pytest.fixture
@@ -30,3 +30,8 @@ def user_agent():
 def many_agents():
     for _ in range (1, 11):
         UserAgent.objects.create(value=f'Mozilla/5.0 Test Agent {_}')
+
+@pytest.fixture
+def many_proxies():
+    for _ in range(1, 11):
+        Proxy.objects.create(value=f'127.0.0.{_}', current_spiders=_)

@@ -15,7 +15,9 @@ class UrlExtractor:
         self.starting_url: str = starting_url
         self.current_url: str | None = None
         self.current_url_split_result: SplitResult | None = None
-        self.parse_results: dict[str, set] = {
+        # Internal urls.
+        # External domains.
+        self.parse_results: dict[str: set[str | None]] = {
             'internal': set(),
             'external': set(),
         }
@@ -48,14 +50,14 @@ class UrlExtractor:
         return False
 
     def is_onion(self) -> bool:
-        """Checks whether found url is leading to onion domain."""
+        """Checks whether the found url is leading to onion domain."""
         match = re.search(r'\S+\.onion$', self.current_url_split_result.netloc)
         if match:
             return True
         return False
 
-    def is_accepted_scheme(self):
-        """Checks whether found url contains accepted scheme."""
+    def is_accepted_scheme(self) -> bool:
+        """Checks whether the found url contains the accepted scheme."""
         if self.current_url_split_result.scheme in self.accepted_schemes:
             return True
         return False
@@ -70,10 +72,29 @@ class UrlExtractor:
         else:
             return url
 
-    def parse(self, urls_collection: Iterable[str]):
+    def clear_parse_results(self) -> True:
+        """
+        Clear parse results dictionary.
+        Prepare new one to store unique results.
+        """
+        self.parse_results.clear()
+        self.parse_results = {
+            'internal': set(),
+            'external': set(),
+        }
+        return True
+
+    def parse(self, urls_collection: Iterable[str]) -> dict:
         """
         Parse urls provided in urls_collection.
+        Add internal urls to parse_results['internal'] set.
+        Urls leading outside currently crawled domain (root_domain)
+            are added to parse_results['external'] but only domain part.
         """
+        # Clear parse_results dictionary.
+
+        self.clear_parse_results()
+
         for url in urls_collection:
 
             if not isinstance(url, str):
@@ -99,8 +120,10 @@ class UrlExtractor:
                 continue
 
             if self.current_url_split_result.netloc == self.root_domain:
+                # Add full internal url for possible future crawling.
                 self.parse_results['internal'].add(self.current_url)
             else:
-                self.parse_results['external'].add(self.current_url)
+                # Add domain of url leading outside the current domain.
+                self.parse_results['external'].add(self.current_url_split_result.netloc)
 
         return self.parse_results

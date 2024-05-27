@@ -8,7 +8,7 @@ pytestmark = pytest.mark.django_db
 
 
 class TestProxyModel:
-    """Test cases for Proxy model."""
+    """Test cases for the Proxy model."""
 
     def test_create_proxy(self):
         """Test creating Proxy is successful."""
@@ -20,4 +20,4 @@ class TestProxyModel:
     def test_proxy_str_method(self):
         """Test that Proxy __str__ is generating proper output."""
         proxy = Proxy.objects.create(value='127.0.0.1')
-        assert str(proxy) == f'{proxy.type}:{proxy.value}:{proxy.status}'
+        assert str(proxy) == f'{proxy.proxy_type}:{proxy.value}:{proxy.status}'

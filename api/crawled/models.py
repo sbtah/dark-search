@@ -2,11 +2,12 @@ import time
 
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.db.models import Q, UniqueConstraint
 
 
 class Tag(models.Model):
     """
-    Class representing Tag object.
+    Class representing the Tag object.
     Tags will be used as classifications for Domains.
     """
     value = models.CharField(max_length=25, unique=True)
@@ -26,7 +27,7 @@ class Entity(models.Model):
     """
     # Entity can own many domains, basically serving same or many different domains.
     name = models.CharField(max_length=255, unique=True, db_index=True)
-    # Description for entity, can be set manually or scraped from any source.
+    # Description for entity. Can be set manually or scraped from any source.
     description = models.TextField(blank=True, null=True)
     # Any data about entity like: contact info, bitcoin wallets, telegram or jabber channels etc...
     additional_data = models.JSONField(blank=True, null=True)
@@ -49,22 +50,26 @@ class Domain(models.Model):
         Entity, on_delete=models.SET_NULL, blank=True, null=True
     )
     value = models.CharField(max_length=2000, unique=True, db_index=True)
-    # Some entities host same site on multiple different domains.
+    # Some entities host the same site on multiple different domains.
     # We want to easily identify them, saving favicon as base64 is basically a one way to do it.
     favicon_base64 = models.TextField(blank=True, null=True, db_index=True)
     server = models.CharField(max_length=100, blank=True, null=True)
-    created = models.IntegerField(blank=True, null=True)
+    site_structure = models.JSONField(blank=True, null=True)
+    external_domains_found = models.IntegerField(default=0)
+    # IDs of Domains that this Domain is linking to.
+    external_domains_ids = ArrayField(models.IntegerField(blank=True, null=True), null=True, blank=True)
     last_crawl_date = models.IntegerField(default=0)
     average_crawl_time = models.IntegerField(default=0)
     description = models.TextField(blank=True, null=True)
+    # Some extra metadata that we can find in the future.
     additional_data = models.JSONField(blank=True, null=True)
-    # Will increment on crawl start.
+    # Will increment on a crawl start.
     number_of_crawls = models.IntegerField(default=0)
-    # Will increment on crawl end.
+    # Will increment on a crawl end.
     number_of_successful_crawls = models.IntegerField(default=0)
     # What is this Domain about.
     description_tags = models.ManyToManyField(Tag)
-    site_structure = models.JSONField(blank=True, null=True)
+    created = models.IntegerField(blank=True, null=True)
 
     class Meta:
         db_table = 'domains'
@@ -84,6 +89,7 @@ class Webpage(models.Model):
     Object representing a single Webpage(url) found while crawling TOR Domain.
     """
     parent_domain = models.ForeignKey(Domain, on_delete=models.CASCADE)
+    is_homepage = models.BooleanField(default=False)
     url = models.URLField(max_length=2000, unique=True, db_index=True)
     # Since we could get redirected. This url does not have to be unique.
     url_after_request = models.URLField(max_length=2000)
@@ -102,6 +108,11 @@ class Webpage(models.Model):
     class Meta:
         db_table = 'webpages'
         db_table_comment = 'Webpages found while crawling a Tor domain.'
+        constraints = [
+            UniqueConstraint(
+                fields=['is_homepage'], condition=Q(is_homepage=True), name='There can be only one homepage.'
+            ),
+        ]
 
     def save(self, *args, **kwargs):
         if self.created is None:

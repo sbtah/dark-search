@@ -1,7 +1,6 @@
 import asyncio
 from collections import deque
-from typing import Iterable, Any
-
+from typing import Iterable
 import httpx
 from httpx import Response
 from logic.spiders.base import BaseSpider
@@ -17,44 +16,25 @@ class AsyncSpider(BaseSpider):
         self.sleep_time: float = sleep_time
         super().__init__(*args, **kwargs)
 
-    async def get(self, url: str) -> Response | None:
+    async def get(self, url: str) -> Response:
         """
         Request specified URL.
         Return the Response object on success.
-        - :arg url: Requested URL.
+        - :arg url_dict: Dictionary with requested url.
         """
         headers = self.prepare_headers()
         try:
-            async with httpx.AsyncClient(verify=False, timeout=30, max_redirects=1, proxy=self.proxy) as client:
-                res = await client.get(url, headers=headers, follow_redirects=True)
-                await asyncio.sleep(self.sleep_time)
-                if not res:
-                    return None
+            async with httpx.AsyncClient(
+                verify=False,
+                limits=httpx.Limits(max_connections=self.max_requests),
+                timeout=httpx.Timeout(60.0),
+                follow_redirects=True,
+                proxy=self.proxy,
+            ) as client:
+                res = await client.get(url, headers=headers)
                 return res
-        except Exception as e:
-            self.logger.error(f'(get) Some other exception: {e}')
-            return None
-
-    async def run_requests(self, iterable_of_urls: Iterable) -> tuple[BaseException | Any] | None:
-        """
-        Send requests to the collection of urls.
-        - :arg iterable_of_urls: Iterable of Urls that we can loop over.
-        """
-        # o(1) complexity
-        tasks = deque()
-        try:
-            for url in iterable_of_urls:
-                tasks.append(
-                    asyncio.create_task(
-                        self.request(
-                            url,
-                        )
-                    )
-                )
-            responses = await asyncio.gather(*tasks, return_exceptions=True)
-            return responses
-        except Exception as e:
-            self.logger.error(f'(run_requests) Some other exception: {e}')
+        except Exception as exc:
+            self.logger.error(f'(get) Some other exception: {exc}')
             return None
 
     async def request(self, url: str) -> dict:
@@ -62,42 +42,92 @@ class AsyncSpider(BaseSpider):
         Request specified url asynchronously.
         Return dictionary with needed data.
         """
-        # Response from requesting a webpage.
-        response = await self.get(url=url)
 
-        # Parsed response
-        parsed_response = {
-            'requested_url': url,
-            'status': None,
-        }
+        # Response from requesting a webpage. HtmlElement generated from the response text.
+        response = await self.get(url)
+        element = self.html_extractor.page(response) if response is not None else None
 
-        if not response:
-            return parsed_response
+        self.logger.debug(
+            f'Response: code="{response.status_code}", url="{url}", html="{True if element is not None else False}"'
+        )
 
-        # Generate HtmlElement.
-        element = self.page(response)
-        extra_parsed_response = {
-            'responded_url': str(response.url),
-            'status': str(response.status_code),
-            'server': response.headers.get('server', None),
-            'elapsed': str(response.elapsed.total_seconds()),
-            'visited': int(self.now_timestamp()),
-            'html': 'NO HTML',
-        }
-        if element is None or str(response.status_code)[0] not in {'2', '3'}:
-            return {**parsed_response, **extra_parsed_response}
+        if isinstance(response, Response):
+            if str(response.status_code)[0] in {'2', '3'} and element is not None:
+                # Parsing text prepared html element.
+                parse_html_results = self.html_extractor.parse(element)
+                # Parsing urls found on the webpage.
+                parse_urls_results = self.url_extractor.parse(parse_html_results['on_page_urls'])
+                return {
+                    'requested_url': url,
+                    'responded_url': str(response.url),
+                    'status': str(response.status_code),
+                    'server': response.headers.get('server', None),
+                    'elapsed': str(response.elapsed.total_seconds()),
+                    'visited': int(self.now_timestamp()),
+                    'html': parse_html_results['html'],
+                    'page_title': parse_html_results['page_title'],
+                    'meta_title': parse_html_results['meta_title'],
+                    'meta_description': parse_html_results['meta_description'],
+                    'on_page_urls': parse_html_results['on_page_urls'],
+                    'processed_urls': parse_urls_results,
+                    'favicon_url': parse_html_results['favicon_url'],
+                }
+            if str(response.status_code)[0] not in {'2', '3'}:
+                return {
+                    'requested_url': url,
+                    'responded_url': str(response.url),
+                    'status': str(response.status_code),
+                    'server': response.headers.get('server', None),
+                    'elapsed': str(response.elapsed.total_seconds()),
+                    'visited': int(self.now_timestamp()),
+                    'html': f'Error: {str(response.status_code)}',
+                }
 
-        # Extract data from requested page.
-        page_title: str | None = self.extract_page_title(html_element=element)
-        meta_data: dict | None = self.extract_meta_data(html_element=element)
-        raw_urls: list = self.extract_urls(html_element=element)
-        cleaned_html_body: str = self.sanitize_html_body(html_element=element)
-        processed_urls: dict = self.url_extractor.parse(urls_collection=raw_urls)
-        html_parsed_response = {
-            'html': cleaned_html_body,
-            'page_title': page_title,
-            'meta_data': meta_data,
-            'raw_urls': raw_urls,
-            'processed_urls': processed_urls,
-        }
-        return {**parsed_response, **extra_parsed_response, **html_parsed_response}
+        if response is None:
+            return {
+                'requested_url': url,
+                'status': None,
+            }
+
+        if isinstance(response, httpx.HTTPError):
+            return {
+                'requested_url': url,
+                'status': f'Exception: {response}',
+            }
+
+    async def run_requests(self, iterable_of_urls: Iterable) -> tuple[BaseException | Response] | None:
+        """
+        Send requests to the collection of urls.
+        - :arg iterable_of_urls: Iterable of Urls that we can loop over.
+        """
+        # o(1) complexity
+        tasks = deque()
+        if iterable_of_urls is not None:
+            for url in iterable_of_urls:
+                # Rate limit...
+                # await asyncio.sleep(self.sleep_time)
+                tasks.append(
+                    asyncio.create_task(self.request(url=url))
+                )
+            responses = await asyncio.gather(*tasks, return_exceptions=True)
+            return responses
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

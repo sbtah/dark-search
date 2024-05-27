@@ -11,11 +11,11 @@ class Crawler(AsyncSpider):
     """
 
     def __init__(self, urls_to_crawl: Collection, *args, **kwargs):
-        self.urls_to_crawl: Collection = urls_to_crawl
-        self.queue: deque = deque()
-        self.found_internal_urls: set = set()
-        self.requested_urls: set = set()
-        self.external_domains: set = set()
+        self.urls_to_crawl: Collection[str] = urls_to_crawl
+        self.queue: deque[str] = deque()
+        self.found_internal_urls: set[str | None] = set()
+        self.requested_urls: set[str | None] = set()
+        self.external_domains: set[str | None] = set()
         self.crawl_start: int = self.now_timestamp()
         self.crawl_end: int | None = None
         super().__init__(*args, **kwargs)
@@ -33,7 +33,6 @@ class Crawler(AsyncSpider):
         External domains are being saved with proper Task.
         Internal urls are added to found_internal_urls for further crawling.
         """
-
         self.logger.info(
             f'Crawl: domain="{self.domain}" urls_to_crawl="{len(self.found_internal_urls)}" found_domains="{len(self.external_domains)}"'
         )
@@ -42,6 +41,7 @@ class Crawler(AsyncSpider):
         responses = await self.run_requests(iterable_of_urls=self.queue)
 
         for response in responses:
+            print(response)
 
             # Add url to the requested_urls set and remove from found_internal_urls if request was successful.
             self.requested_urls.add(response['requested_url'])
@@ -79,7 +79,7 @@ class Crawler(AsyncSpider):
 
         if not self.found_internal_urls:
             self.logger.info(
-                f'Crawl Summary: domain="{self.domain}" crawled_urls="{len(self.requested_urls)}" found_domains="{len(self.external_domains)}"'
+                f'Crawl Finished: domain="{self.domain}" crawled_urls="{len(self.requested_urls)}" found_domains="{len(self.external_domains)}"'
             )
             
             # TODO:

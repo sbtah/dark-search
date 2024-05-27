@@ -26,12 +26,17 @@ class UserAgent(models.Model):
 
     type = models.CharField(max_length=10, choices=Type.choices, default=Type.firefox)
     value = models.CharField(max_length=255, unique=True, blank=False, default=None)
-    created = models.IntegerField()
+    created = models.IntegerField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if self.created is None:
             self.created = int(time.time())
         super().save(*args, **kwargs)
+
+    class Meta:
+        db_table = 'user-agents'
+        db_table_comment = 'User Agents for many browsers.'
+        verbose_name_plural = 'UserAgents'
 
     def __str__(self) -> str:
         return f'{self.type}:{self.value}:{self.created}'
@@ -39,7 +44,7 @@ class UserAgent(models.Model):
 
 class Proxy(models.Model):
     """
-    Class representing Proxy object.
+    Class representing the Proxy object.
     """
 
     class Type(models.TextChoices):
@@ -51,9 +56,14 @@ class Proxy(models.Model):
         disabled = 'DISABLED'
 
     value = models.CharField(max_length=255, unique=True)
-    type = models.CharField(max_length=10, choices=Type.choices, default=Type.dev)
+    proxy_type = models.CharField(max_length=10, choices=Type.choices, default=Type.dev)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.active)
     current_spiders = models.IntegerField(default=0)
 
+    class Meta:
+        db_table = 'proxies'
+        db_table_comment = 'Proxies information.'
+        verbose_name_plural = 'Proxies'
+
     def __str__(self):
-        return f'{self.type}:{self.value}:{self.status}'
+        return f'{self.proxy_type}:{self.value}:{self.status}'

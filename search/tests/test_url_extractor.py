@@ -14,18 +14,21 @@ class TestUrlExtractor:
         extractor = UrlExtractor(starting_url='http://found.onion/')
         assert extractor.root_domain == 'found.onion'
 
-    def test_url_extractor_parse(self, url_extractor, urls_collection, mocker):
+    def test_url_extractor_parse(self, url_extractor, urls_collection):
         """Test UrlExtractor's parse method."""
-        mocked_clear = mocker.patch(
-            'logic.parsers.url.UrlExtractor.clear_parse_results', autospec=True, return_value=True
-        )
         results = url_extractor.parse(urls_collection)
-        mocked_clear.assert_called()
-        mocked_clear.assert_called_once()
-        assert mocked_clear.return_value == True
         assert results == {
             'internal': {'http://example.onion/page.html', 'http://example.onion/page', 'http://example.onion/path'},
             'external': {'external.onion'},
+        }
+
+    def test_url_extractor_parse_urls_collection_is_none(self, url_extractor):
+        """Test that UrlExtractor's parse is returning empty parse_results."""
+        raw_urls = None
+        results = url_extractor.parse(raw_urls)
+        assert results ==  {
+            'internal': set(),
+            'external': set(),
         }
 
     def test_url_extractor_is_valid_url_returns_true(self, url_extractor):
@@ -91,15 +94,3 @@ class TestUrlExtractor:
             spec=SplitResult, scheme='https', netloc='example.onion', path='/p=1', query='v=basic', fragment=''
         )
         assert url_extractor.clean_url(test_url) == 'http://example.onion/p=1'
-
-    def test_clear_parse_result(self, url_extractor):
-        """Test UrlExtractor's clean_parse_results method."""
-        url_extractor.parse_results = {
-            'internal': {'http://example.onion/page.html', 'http://example.onion/page', 'http://example.onion/path'},
-            'external': {'external.onion'},
-        }
-        url_extractor.clear_parse_results()
-        assert url_extractor.parse_results == {
-            'internal': set(),
-            'external': set(),
-        }

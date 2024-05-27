@@ -17,10 +17,6 @@ class UrlExtractor:
         self.current_url_split_result: SplitResult | None = None
         # Internal urls.
         # External domains.
-        self.parse_results: dict[str: set[str | None]] = {
-            'internal': set(),
-            'external': set(),
-        }
         self.accepted_schemes: set[str] = {'https', 'http'}
         self._root_domain: str | None = None
 
@@ -72,34 +68,24 @@ class UrlExtractor:
         else:
             return url
 
-    def clear_parse_results(self) -> True:
-        """
-        Clear parse results dictionary.
-        Prepare new one to store unique results.
-        """
-        self.parse_results.clear()
-        self.parse_results = {
-            'internal': set(),
-            'external': set(),
-        }
-        return True
-
-    def parse(self, urls_collection: Iterable[str]) -> dict:
+    def parse(self, urls_collection: Iterable[str] | None) -> dict:
         """
         Parse urls provided in urls_collection.
         Add internal urls to parse_results['internal'] set.
         Urls leading outside currently crawled domain (root_domain)
             are added to parse_results['external'] but only domain part.
         """
-        # Clear parse_results dictionary.
-
-        self.clear_parse_results()
+        # Prepare parse_results dictionary.
+        parse_results: dict[str: set[str | None]] = {
+            'internal': set(),
+            'external': set(),
+        }
+        if urls_collection is None:
+            return parse_results
 
         for url in urls_collection:
-
             if not isinstance(url, str):
                 continue
-
             # Set current parse result, to minimize numer of calls to urlsplit.
             self.current_url_split_result = urlsplit(url)
             # Clean url of unwanted query params and fragments.
@@ -121,9 +107,8 @@ class UrlExtractor:
 
             if self.current_url_split_result.netloc == self.root_domain:
                 # Add full internal url for possible future crawling.
-                self.parse_results['internal'].add(self.current_url)
+                parse_results['internal'].add(self.current_url)
             else:
                 # Add domain of url leading outside the current domain.
-                self.parse_results['external'].add(self.current_url_split_result.netloc)
-
-        return self.parse_results
+                parse_results['external'].add(self.current_url_split_result.netloc)
+        return parse_results

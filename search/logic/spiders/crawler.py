@@ -1,6 +1,7 @@
 from collections import deque
 from typing import Collection
 
+from httpx import Response
 from logic.spiders.asynchronous import AsyncSpider
 
 
@@ -40,11 +41,10 @@ class Crawler(AsyncSpider):
             )
             self.prepare_urls_queue()
 
-            responses = await self.run_requests(iterable_of_urls=self.queue)
+            # Run requests for urls in the queue...
+            responses: tuple[BaseException | Response] = await self.run_requests(iterable_of_urls=self.queue)
 
             for response in responses:
-                # print(response)
-
                 # Add url to the requested_urls set and remove from found_internal_urls if request was successful.
                 self.requested_urls.add(response['requested_url'])
                 self.found_internal_urls.remove(response['requested_url'])
@@ -53,11 +53,11 @@ class Crawler(AsyncSpider):
                 # Work on API client.
                 # await self.client.post_response_data(data=response)
 
-                # Parsing processed_urls result.
+                # If both sets in processed_urls are empty we move to next response.
                 if not response.get('processed_urls', {}).get('internal') and not response.get('processed_urls', {}).get('external'):
                     continue
 
-                # Parsing results of found external domains.
+                # Parsing results of newly found external domains.
                 for domain in response.get('processed_urls').get('external'):
                     if domain not in self.external_domains:
                         self.external_domains.add(domain)

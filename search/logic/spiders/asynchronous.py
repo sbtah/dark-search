@@ -1,9 +1,11 @@
 import asyncio
 from collections import deque
 from typing import Iterable
+
 import httpx
 from httpx import Response
 from logic.spiders.base import BaseSpider
+from lxml.html import HtmlElement
 
 
 class AsyncSpider(BaseSpider):
@@ -16,13 +18,13 @@ class AsyncSpider(BaseSpider):
         self.sleep_time: float = sleep_time
         super().__init__(*args, **kwargs)
 
-    async def get(self, url: str) -> Response:
+    async def get(self, url: str) -> Response | None:
         """
         Request specified URL.
         Return the Response object on success.
         - :arg url_dict: Dictionary with requested url.
         """
-        headers = self.prepare_headers()
+        headers: dict = self.prepare_headers()
         try:
             async with httpx.AsyncClient(
                 verify=False,
@@ -34,7 +36,7 @@ class AsyncSpider(BaseSpider):
                 res = await client.get(url, headers=headers)
                 return res
         except Exception as exc:
-            self.logger.error(f'(get) Some other exception: {exc}')
+            self.logger.error(f'({AsyncSpider.get.__qualname__}): Some other exception: {exc}')
             return None
 
     async def request(self, url: str) -> dict:
@@ -44,8 +46,8 @@ class AsyncSpider(BaseSpider):
         """
 
         # Response from requesting a webpage. HtmlElement generated from the response text.
-        response = await self.get(url)
-        element = self.html_extractor.page(response) if response is not None else None
+        response: Response | None = await self.get(url)
+        element: HtmlElement | None = self.html_extractor.page(response) if response is not None else None
 
         self.logger.debug(
             f'Response: code="{response.status_code}", url="{url}", html="{True if element is not None else False}"'
@@ -80,7 +82,6 @@ class AsyncSpider(BaseSpider):
                     'server': response.headers.get('server', None),
                     'elapsed': str(response.elapsed.total_seconds()),
                     'visited': int(self.now_timestamp()),
-                    'html': f'Error: {str(response.status_code)}',
                 }
 
         if response is None:
@@ -89,19 +90,13 @@ class AsyncSpider(BaseSpider):
                 'status': None,
             }
 
-        if isinstance(response, httpx.HTTPError):
-            return {
-                'requested_url': url,
-                'status': f'Exception: {response}',
-            }
-
-    async def run_requests(self, iterable_of_urls: Iterable) -> tuple[BaseException | Response] | None:
+    async def run_requests(self, iterable_of_urls: Iterable) -> tuple[BaseException | Response]:
         """
         Send requests to the collection of urls.
         - :arg iterable_of_urls: Iterable of Urls that we can loop over.
         """
         # o(1) complexity
-        tasks = deque()
+        tasks: deque = deque()
         if iterable_of_urls is not None:
             for url in iterable_of_urls:
                 # Rate limit...
@@ -111,23 +106,3 @@ class AsyncSpider(BaseSpider):
                 )
             responses = await asyncio.gather(*tasks, return_exceptions=True)
             return responses
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

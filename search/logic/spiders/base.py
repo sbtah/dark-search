@@ -1,11 +1,11 @@
 import time
 from logging import Logger
 from urllib.parse import urlsplit
-from logic.adapters.task import CrawlTaskAdapter
-from logic.parsers.url import UrlExtractor
-from logic.parsers.html import HtmlExtractor
-from utilities.logging import logger
 
+from logic.adapters.task import CrawlTaskAdapter
+from logic.parsers.html import HtmlExtractor
+from logic.parsers.url import UrlExtractor
+from utilities.logging import logger
 
 
 class BaseSpider:

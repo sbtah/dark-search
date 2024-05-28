@@ -1,4 +1,5 @@
 from httpx import Response
+from lxml.etree import ParserError
 from lxml.html import HtmlElement, HTMLParser, fromstring, tostring
 from lxml.html.clean import Cleaner
 
@@ -43,12 +44,15 @@ class HtmlExtractor:
         Parse response object and return HtmlElement on success.
         - :arg response: httpx Response object.
         """
-        hp = HTMLParser(encoding='utf-8')
-        element: HtmlElement = fromstring(
-            response.text,
-            parser=hp,
-        )
-        return element
+        try:
+            hp = HTMLParser(encoding='utf-8')
+            element: HtmlElement = fromstring(
+                response.text,
+                parser=hp,
+            )
+            return element
+        except ParserError:
+            return None
 
     def extract_urls(self, html_element: HtmlElement) -> list[str] | None:
         """

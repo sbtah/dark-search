@@ -20,8 +20,7 @@ class HtmlExtractor:
     def parse(self, html_element: HtmlElement) -> dict:
         """
         Parse HtmlElement.
-        Extract all possible data found.
-        Return self.parse_results dictionary.
+        Return dictionary with extracted data.
         - :arg html_element: Lxml HtmlElement.
         """
         html: str = self.extract_html_body(html_element)
@@ -68,7 +67,7 @@ class HtmlExtractor:
         - :arg html_element: Lxml HtmlElement.
         """
         # Sometimes this may be a list of urls with different icon for different resolutions.
-        favicon_urls: list[str] = html_element.xpath('/head/link[contains(@href, "favicon")]/@href')
+        favicon_urls: list[str] = html_element.xpath('/html/head/link[contains(@href, "favicon")]/@href')
         # We want only 1 url and usually 1st url if the smallest one in terms of resolution.
         return favicon_urls[0].strip() if favicon_urls else None
 

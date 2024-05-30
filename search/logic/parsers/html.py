@@ -7,7 +7,7 @@ from lxml.html.clean import Cleaner
 class HtmlExtractor:
     """
     Class designed to work with httpx Response.
-    The Main purpose is to convert test response to HtmlElement and extract data like:
+    The Main purpose is to convert text response to HtmlElement and extract data like:
     - Cleaned html body,
     - Page title
     - Metadata (title, description),
@@ -25,7 +25,7 @@ class HtmlExtractor:
         """
         html: str = self.extract_html_body(html_element)
         page_title: str | None = self.extract_page_title(html_element)
-        meta_title: str | None = self.extract_page_title(html_element)
+        meta_title: str | None = self.extract_meta_title(html_element)
         meta_description: str | None = self.extract_meta_description(html_element)
         on_page_urls: list[str] | None  = self.extract_urls(html_element)
         favicon_url: str | None = self.extract_favicon_url(html_element)
@@ -99,7 +99,7 @@ class HtmlExtractor:
         Return parsed content.
         - :arg html_element: Lxml HtmlElement.
         """
-        description_element: str = html_element.xpath('/html/head/meta[@name="description"]/@content')
+        description_element: list[str] = html_element.xpath('/html/head/meta[@name="description"]/@content')
         return description_element[0].strip() if description_element else None
 
     def extract_html_body(self, html_element: HtmlElement) -> str:

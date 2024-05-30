@@ -64,3 +64,45 @@ class TestHtmlExtractor:
         """Test that extract_page_title returns None if no h1 tags were found."""
         page_title = HtmlExtractor().extract_page_title(no_urls_element)
         assert page_title is None
+
+    def test_html_extractor_extract_meta_title_returns_string(self, meta_title_element):
+        """Test that extract_meta_title returns meta title on success."""
+        meta_title = HtmlExtractor().extract_meta_title(meta_title_element)
+        assert isinstance(meta_title, str)
+        assert meta_title == 'Test Page'
+
+    def test_html_extractor_extract_meta_title_returns_none(self, no_urls_element):
+        """Test that extract_meta_title returns None if no title tag was found."""
+        meta_title = HtmlExtractor().extract_meta_title(no_urls_element)
+        assert meta_title is None
+
+    def test_html_extractor_extract_meta_description_returns_string(self, meta_description_element):
+        """Test that extract_meta_description is returning meta description text content on success."""
+        meta_description = HtmlExtractor().extract_meta_description(meta_description_element)
+        assert isinstance(meta_description, str)
+        assert meta_description == 'Description!'
+
+    def test_html_extractor_extract_html_body_is_returns_empty_string_on_exception(self, mocker, no_urls_element):
+        """Test that extract_html_body is returning an empty string on any Exception."""
+        mocker.patch('logic.parsers.html.HtmlExtractor.extract_html_body', side_effect=Exception)
+        with pytest.raises(Exception):
+            body = HtmlExtractor().extract_html_body(no_urls_element)
+            assert isinstance(body, str)
+            assert body == ''
+
+    def test_html_extractor_parse_is_successful(self, example_webpage_element):
+        """Test that parse method return dictionary with extracted data."""
+        parse_data = HtmlExtractor().parse(example_webpage_element)
+        assert isinstance(parse_data, dict)
+        assert isinstance(parse_data['html'], str)
+        assert isinstance(parse_data['page_title'], str)
+        assert parse_data['page_title'] == 'This is a title'
+        assert isinstance(parse_data['meta_title'], str)
+        assert parse_data['meta_title'] == 'Test Page'
+        assert isinstance(parse_data['meta_description'], str)
+        assert parse_data['meta_description'] == 'Description!'
+        assert isinstance(parse_data['on_page_urls'], list)
+        assert len(parse_data['on_page_urls']) == 2
+        assert isinstance(parse_data['favicon_url'], str)
+        assert parse_data['favicon_url'] == '/favicon.ico'
+        

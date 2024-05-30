@@ -50,7 +50,7 @@ class HtmlExtractor:
                 parser=hp,
             )
             return element
-        except ParserError:
+        except Exception:
             return None
 
     def extract_urls(self, html_element: HtmlElement) -> list[str] | None:

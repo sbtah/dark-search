@@ -84,14 +84,15 @@ class TestHtmlExtractor:
 
     def test_html_extractor_extract_html_body_is_returns_empty_string_on_exception(self, mocker, no_urls_element):
         """Test that extract_html_body is returning an empty string on any Exception."""
-        mocker.patch('logic.parsers.html.HtmlExtractor.extract_html_body', side_effect=Exception)
+        mocked = mocker.patch('logic.parsers.html.HtmlExtractor.extract_html_body', side_effect=Exception)
+        assert mocked.assert_called_once
         with pytest.raises(Exception):
             body = HtmlExtractor().extract_html_body(no_urls_element)
             assert isinstance(body, str)
             assert body == ''
 
     def test_html_extractor_parse_is_successful(self, example_webpage_element):
-        """Test that parse method return dictionary with extracted data."""
+        """Test that parse method is returning dictionary with extracted data."""
         parse_data = HtmlExtractor().parse(example_webpage_element)
         assert isinstance(parse_data, dict)
         assert isinstance(parse_data['html'], str)
@@ -105,4 +106,3 @@ class TestHtmlExtractor:
         assert len(parse_data['on_page_urls']) == 2
         assert isinstance(parse_data['favicon_url'], str)
         assert parse_data['favicon_url'] == '/favicon.ico'
-        

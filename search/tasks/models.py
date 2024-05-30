@@ -2,7 +2,7 @@ from django.db import models
 
 
 class CrawlTask(models.Model):
-    """Base object for crawl task."""
+    """Base object for a crawl task."""
 
     domain = models.CharField(max_length=255, unique=True, blank=False, default=None)
     current_celery_id = models.CharField(max_length=100, blank=True, null=True)
@@ -30,6 +30,11 @@ class CrawlTask(models.Model):
 
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.active)
     frequency = models.IntegerField(choices=Frequency.choices, default=Frequency.one)
+
+    class Meta:
+        db_table = 'crawl_tasks'
+        db_table_comment = 'Task data and statistics.'
+        verbose_name_plural = 'CrawlTasks'
 
     def __str__(self):
         return f'{self.__class__.__name__}:{str(self.domain)}'

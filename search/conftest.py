@@ -2,24 +2,30 @@
 Pytest fixtures
 """
 import pytest
+from logic.objects.url import Url
 from logic.parsers.url import UrlExtractor
-from parameters.models import Proxy, UserAgent
 from lxml.html import fromstring
+from parameters.models import Proxy, UserAgent
 
 
 @pytest.fixture
 def url_extractor():
-    starting_url = 'http://example.onion'
+    starting_url = Url(value='http://example.onion')
     return UrlExtractor(starting_url)
 
 
 @pytest.fixture
 def urls_collection():
     urls_collection = [
-        'http://example.onion/page', 'http://example.onion/path?page=1', 'http://external.onion/',
-        'page.html', '/path', 'ftp://example.onion/baz'
+        {'url': 'http://example.onion/page', 'anchor': 'Example Text'},
+        {'url': 'http://example.onion/path?page=1', 'anchor': 'Some text...'},
+        {'url': 'http://external.onion/', 'anchor': ''},
+        {'url': 'page.html', 'anchor': '...'},
+        {'url': '/path', 'anchor': 'Test text'},
+        {'url': 'ftp://example.onion/baz' , 'anchor': ''},
     ]
     return urls_collection
+
 
 
 @pytest.fixture
@@ -42,14 +48,36 @@ def many_proxies():
 @pytest.fixture
 def many_urls_element():
     return fromstring(
-        '<html><head></head><body><p>Test</p><a href="http://test-url-1.com">Link 1<a/><a href="http://test-url-2.com">Link 1<a/></body></html>'
+        '<html>'
+            '<head></head>'
+            '<body>'
+                '<p>Test</p><a href="http://test-url-1.com">Link 1<a/><a href="http://test-url-2.com">Link 2<a/>'
+            '</body>'
+        '</html>'
     )
 
 
 @pytest.fixture
 def empty_urls_element():
     return fromstring(
-        '<html><head></head><body><p>Test</p><a href="http://test-url-1.com">Link 1<a/><a href="">Link 1<a/></body></html>'
+        '<html>'
+            '<head></head>'
+            '<body>'
+                '<p>Test</p><a href="http://test-url-1.com">Link 1<a/><a href="">Link 1<a/>'
+            '</body>'
+        '</html>'
+    )
+
+
+@pytest.fixture
+def empty_texts_urls_element():
+    return fromstring(
+        '<html>'
+            '<head></head>'
+            '<body>'
+                '<p>Test</p><a href="http://test-url-1.com"><a/><a href="http://test-url-2.com"><a/>'
+            '</body>'
+        '</html>'
     )
 
 

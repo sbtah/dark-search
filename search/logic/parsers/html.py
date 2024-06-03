@@ -1,7 +1,7 @@
 from httpx import Response
-from lxml.etree import ParserError
 from lxml.html import HtmlElement, HTMLParser, fromstring, tostring
 from lxml.html.clean import Cleaner
+from logic.objects.url import Url
 
 
 class HtmlExtractor:
@@ -27,7 +27,8 @@ class HtmlExtractor:
         page_title: str | None = self.extract_page_title(html_element)
         meta_title: str | None = self.extract_meta_title(html_element)
         meta_description: str | None = self.extract_meta_description(html_element)
-        on_page_urls: list[str] | None  = self.extract_urls(html_element)
+        # on_page_urls: list[str] | None  = self.extract_urls(html_element)
+        on_page_urls: list[Url] | None = self.extract_urls_with_texts(html_element)
         favicon_url: str | None = self.extract_favicon_url(html_element)
         return {
             'html': html,
@@ -60,6 +61,16 @@ class HtmlExtractor:
         """
         urls: list[str] = html_element.xpath('/html/body//a[@href and not(@href="")]/@href')
         return [url.strip() for url in urls] if urls else None
+
+
+    def extract_urls_with_texts(self, html_element: HtmlElement) -> list[dict[str: str, str: str]] | None:
+        """
+        Search for urls in body of provided HtmlElement.
+        - :arg html_element: Lxml HtmlElement.
+        """
+        urls: list[HtmlElement] = html_element.xpath('/html/body//a[@href and not(@href="") and not(@href=" ")]')
+        return [{'url': url.xpath('./@href')[0], 'anchor': url.text_content().strip()} for url in urls] if urls else None
+
 
     def extract_favicon_url(self, html_element: HtmlElement) -> str | None:
         """

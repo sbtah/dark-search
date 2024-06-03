@@ -3,6 +3,7 @@ from logging import Logger
 from urllib.parse import urlsplit
 
 from logic.adapters.task import CrawlTaskAdapter
+from logic.objects.url import Url
 from logic.parsers.html import HtmlExtractor
 from logic.parsers.url import UrlExtractor
 from utilities.logging import logger
@@ -13,8 +14,8 @@ class BaseSpider:
     Base spider containing logic for data extracting while crawling or scraping.
     """
 
-    def __init__(self, initial_url: str, proxy: str,  user_agent: str) -> None:
-        self.initial_url: str = initial_url
+    def __init__(self, initial_url: Url, proxy: str,  user_agent: str) -> None:
+        self.initial_url: Url = initial_url
         self._domain: str | None = None
         self.proxy: str = proxy
         self.user_agent: str = user_agent
@@ -32,7 +33,7 @@ class BaseSpider:
     def domain(self) -> str:
         """Set domain from `initial_url`."""
         if self._domain is None:
-            self._domain = urlsplit(self.initial_url).netloc
+            self._domain = urlsplit(self.initial_url.value).netloc
             return self._domain
         return self._domain
 

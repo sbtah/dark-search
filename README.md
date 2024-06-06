@@ -15,7 +15,7 @@ Including but not limited to hacking, ransomware, databases, leaked credentials,
 - The project is being redesigned. Previous working (POC) version is on `archived` branch.
 
 ![alt text](https://github.com/sbtah/dark-search/blob/main/1.png?raw=true)
-
+----
 ## Features:
 - Crawl specified webpage,
 - Extract, filter and validate urls on each crawled webpage,
@@ -60,3 +60,5 @@ python3 manage.py createsuperuser
 
 7. Navigate to: `http://localhost:9003/admin`
  - Here you will see your crawled data. Enjoy!
+
+![alt text](https://github.com/sbtah/dark-search/blob/main/2.png?raw=true)

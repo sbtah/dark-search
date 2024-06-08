@@ -2,7 +2,7 @@
 Pytest fixtures
 """
 import pytest
-from logic.objects.url import Url
+from logic.parsers.objects.url import Url
 from logic.parsers.url import UrlExtractor
 from lxml.html import fromstring
 from parameters.models import Proxy, UserAgent

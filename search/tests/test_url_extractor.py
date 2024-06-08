@@ -4,7 +4,8 @@ Test cases for UrlExtractor functionality.
 from unittest.mock import MagicMock
 from urllib.parse import SplitResult
 
-from logic.objects.url import Url
+import pytest
+from logic.parsers.objects.url import Url
 from logic.parsers.url import UrlExtractor
 
 
@@ -41,73 +42,88 @@ class TestUrlExtractor:
 
     def test_url_extractor_is_valid_url_returns_true(self, url_extractor):
         """Test that UrlExtractor's is_valid_url method is returning True for proper split results."""
-        url_extractor.current_url_split_result = MagicMock(
+        test_split_result = MagicMock(
             spec=SplitResult, scheme='http', netloc='example.onion', path='/invalid.onion', query='', fragment=''
         )
-        assert url_extractor.is_valid_url() is True
+        assert url_extractor.is_valid_url(test_split_result) is True
 
     def test_url_extractor_is_valid_url_returns_false(self, url_extractor):
         """Test UrlExtractor's is_valid_url method is returning False."""
-        url_extractor.current_url_split_result = MagicMock(
+        test_split_result = MagicMock(
             spec=SplitResult, scheme='', netloc='', path='/example.onion', query='', fragment=''
         )
-        assert url_extractor.is_valid_url() is False
-
-    def test_url_extractor_is_path_returns_true(self, url_extractor):
+        assert url_extractor.is_valid_url(test_split_result) is False
+    #
+    @pytest.mark.parametrize(
+        'input, expected',
+        [
+            ('/example-path', True),
+            ('example-path', True),
+        ]
+    )
+    def test_url_extractor_is_path_returns_true(self, url_extractor, input, expected):
         """Test that UrlExtractor's is_path method is returning True."""
-        url_extractor.current_url_split_result = MagicMock(
-            spec=SplitResult, scheme='', netloc='', path='example-path', query='', fragment=''
-        )
-        assert url_extractor.is_path() is True
+        assert url_extractor.is_path(input) is expected
 
-    def test_url_extractor_is_path_returns_false(self, url_extractor):
+    @pytest.mark.parametrize(
+        'input, expected',
+        [
+            ('/', False),
+            ('', False),
+            (' ', False),
+        ]
+    )
+    def test_url_extractor_is_path_returns_false(self, url_extractor, input, expected):
         """Test that UrlExtractor's is_path method is returning False."""
-        url_extractor.current_url_split_result = MagicMock(
-            spec=SplitResult, scheme='https', netloc='www.google.com', path='', query='', fragment=''
-        )
-        assert url_extractor.is_path() is False
+        assert url_extractor.is_path(input) is expected
 
     def test_url_extractor_is_onion_returns_true(self, url_extractor):
         """Test that UrlExtractor's is_onion method is returning True for onion domains."""
-        url_extractor.current_url_split_result = MagicMock(
-            spec=SplitResult, scheme='https', netloc='www.example.onion', path='', query='', fragment=''
-        )
-        assert url_extractor.is_onion() is True
+        test_netloc = 'example.onion'
+        assert url_extractor.is_onion(test_netloc) is True
 
-    def test_url_extractor_is_onion_returns_false(self, url_extractor):
+
+    @pytest.mark.parametrize(
+        'input, expected',
+        [
+            ('example.com', False),
+            ('example.org', False),
+            ('example.edu', False),
+            ('example.gov', False),
+            ('example.int', False),
+        ]
+    )
+    def test_url_extractor_is_onion_returns_false(self, url_extractor, input, expected):
         """Test that UrlExtractor's is_onion method is returning False for other than onion domains."""
-        url_extractor.current_url_split_result = MagicMock(
-            spec=SplitResult, scheme='https', netloc='www.example.com', path='', query='', fragment=''
-        )
-        assert url_extractor.is_onion() is False
+        assert url_extractor.is_onion(input) is expected
 
-    def test_url_extractor_is_accepted_scheme_returns_true(self, url_extractor):
+    @pytest.mark.parametrize(
+        'input, expected',
+        [
+            ('http', True),
+            ('https', True),
+        ]
+    )
+    def test_url_extractor_is_accepted_scheme_returns_true(self, url_extractor, input, expected):
         """Test that UrlExtractor's is_accepted_scheme method is returning True."""
-        url_extractor.current_url_split_result = MagicMock(
-            spec=SplitResult, scheme='https', netloc='www.example.com', path='', query='', fragment=''
-        )
-        assert url_extractor.is_accepted_scheme() is True
+        assert url_extractor.is_accepted_scheme(input) is expected
 
-    def test_url_extractor_is_accepted_scheme_returns_false(self, url_extractor):
-        """Test that UrlExtractor's is_accepted_scheme method is returning True."""
-        url_extractor.current_url_split_result = MagicMock(
-            spec=SplitResult, scheme='mailto', netloc='', path='info@nofluffjobs.com', query='', fragment=''
-        )
-        assert url_extractor.is_accepted_scheme() is False
+    @pytest.mark.parametrize(
+        'input, expected',
+        [
+            ('mailto', False),
+            ('javascript', False),
+            ('file', False),
+            ('irc', False),
+            ('telnet', False),
+
+        ]
+    )
+    def test_url_extractor_is_accepted_scheme_returns_false(self, url_extractor, input, expected):
+        """Test that UrlExtractor's is_accepted_scheme method is returning False."""
+        assert url_extractor.is_accepted_scheme(input) is expected
 
     def test_url_extractor_clean_url(self, url_extractor):
         """Test UrlExtractor's clean_url method."""
-        test_url = Url(value='http://example.onion/p=1?v=basic', anchor='')
-        url_extractor.current_url_split_result = MagicMock(
-            spec=SplitResult, scheme='https', netloc='example.onion', path='/p=1', query='v=basic', fragment=''
-        )
+        test_url = 'http://example.onion/p=1?v=basic'
         assert url_extractor.clean_url(test_url) == 'http://example.onion/p=1'
-
-    def test_url_extractor_create_url_objects(self, url_extractor, urls_collection):
-        """Test that create_url_objects method is properly creating Url objects from the list of dictionaries."""
-        result_list = url_extractor.create_url_objects(urls_collection)
-        for result in result_list:
-            assert isinstance(result, Url)
-            assert isinstance(result.value, str)
-            assert isinstance(result.anchor, str)
-            assert isinstance(result.number_of_requests, int)

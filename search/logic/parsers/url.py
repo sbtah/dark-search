@@ -1,6 +1,8 @@
 import re
 from urllib.parse import SplitResult, urljoin, urlsplit
-from logic.objects.url import Url
+
+from logic.adapters.url import UrlAdapter
+from logic.parsers.objects.url import Url
 
 
 class UrlExtractor:
@@ -13,10 +15,9 @@ class UrlExtractor:
 
     def __init__(self, starting_url: Url) -> None:
         self.starting_url: Url = starting_url
-        self.current_url: str | None = None
-        self.current_url_split_result: SplitResult | None = None
         self.accepted_schemes: set[str] = {'https', 'http'}
         self._root_domain: str | None = None
+        self.url_adapter: UrlAdapter = UrlAdapter()
 
     @property
     def root_domain(self) -> str:
@@ -26,95 +27,101 @@ class UrlExtractor:
             return self._root_domain
         return self._root_domain
 
-    def create_url_objects(self, urls_collection: list[dict[str: str, str: str]]) -> list[Url]:
-        """Convert a list of dictionaries with urls and anchors to list of Urls objects."""
-        return [Url(value=data['url'], anchor=data['anchor'], number_of_requests=0) for data in urls_collection]
-
-    def is_valid_url(self) -> bool:
+    @staticmethod
+    def is_valid_url(split_result: SplitResult) -> bool:
         """
         Validates current URL by parsing it with urlsplit.
         """
         try:
-            return bool(self.current_url_split_result.scheme and self.current_url_split_result.netloc)
+            return bool(split_result.scheme and split_result.netloc)
         except ValueError:
             return False
 
-    def is_path(self) -> bool:
-        """Checks whether found url is only and path."""
-        if self.current_url_split_result.path:
+    @staticmethod
+    def is_path(path: str) -> bool:
+        """Checks if the current path result is indeed valid."""
+        if all([path, path != '/', path != ' ', len(path) > 1]):
             return True
         return False
 
-    def is_onion(self) -> bool:
+    @staticmethod
+    def is_onion(netloc: str) -> bool:
         """Checks whether the found url is leading to onion domain."""
-        match = re.search(r'\S+\.onion$', self.current_url_split_result.netloc)
+        match = re.search(r'\S+\.onion$', netloc)
         if match:
             return True
         return False
 
-    def is_accepted_scheme(self) -> bool:
+    def is_accepted_scheme(self, scheme: str) -> bool:
         """Checks whether the found url contains the accepted scheme."""
-        if self.current_url_split_result.scheme in self.accepted_schemes:
+        if scheme in self.accepted_schemes:
             return True
         return False
 
-    def clean_url(self, url: Url) -> str:
+    def clean_url(self, url: str) -> str:
         """
         Cleans current URL of all query params or fragments.
         Returns cleaned URL.
         """
-        if self.current_url_split_result.query or self.current_url_split_result.fragment:
-            return urljoin(self.starting_url.value, self.current_url_split_result.path)
+        split_result = urlsplit(url)
+        if split_result.query or split_result.fragment:
+            return urljoin(self.starting_url.value, split_result.path)
         else:
             return url
 
-    def parse(self, urls_collection: list[dict[str: str, str: str]] | None) -> dict:
+    def parse(
+        self, urls_collection: list[dict[str: str, str: str]] | None
+    ) -> dict[str: set[Url | None], str: set[Url | None]]:
         """
-        Parse urls provided in urls_collection. Create a list of Url objects to parse.
+        Parse urls provided in urls_collection.
         Add internal urls to parse_results['internal'] set.
         Urls leading outside currently crawled domain (root_domain)
             are added to parse_results['external'] but only domain part.
+        - :arg urls_collection: List with dictionaries representing url element from a webpage.
         """
         # Prepare parse_results dictionary.
-        parse_results: dict[str: set[Url | None]] = {
+        parse_results: dict[str: set[Url | None], str: set[Url | None]]= {
             'internal': set(),
             'external': set(),
         }
         if urls_collection is None:
             return parse_results
 
-        urls_objects_collection: list[Url] = self.create_url_objects(urls_collection=urls_collection)
+        for url_dict in urls_collection:
 
-        for url_obj in urls_objects_collection:
+            # Extracted url after cleaning query params and fragments.
+            url: str = self.clean_url(url_dict['url'])
+            # # Set current parse result, to minimize numer of calls to urlsplit.
+            current_url_split_result: SplitResult = urlsplit(url)
+            # Extracted anchor.
+            anchor: str = url_dict['anchor']
 
-            if not isinstance(url_obj, Url):
+            if not self.is_valid_url(current_url_split_result) and self.is_path(current_url_split_result.path):
+                fixed_url: str = urljoin(self.starting_url.value, current_url_split_result.path)
+                # Set new fixed url.
+                url: str = fixed_url
+                # Set new split result.
+                current_url_split_result: SplitResult = urlsplit(fixed_url)
+
+            if not self.is_valid_url(current_url_split_result):
                 continue
 
-            # Set current parse result, to minimize numer of calls to urlsplit.
-            self.current_url_split_result = urlsplit(url_obj.value)
-            # Clean url of unwanted query params and fragments.
-            self.current_url = self.clean_url(url=url_obj.value)
-
-            if not self.is_valid_url() and self.is_path():
-                fixed_url = urljoin(self.starting_url.value, self.current_url_split_result.path)
-                self.current_url = fixed_url
-                self.current_url_split_result = urlsplit(fixed_url)
-
-            if not self.is_valid_url():
+            if not self.is_accepted_scheme(current_url_split_result.scheme):
                 continue
 
-            if not self.is_accepted_scheme():
+            if not self.is_onion(current_url_split_result.netloc):
                 continue
 
-            if not self.is_onion():
-                continue
-
-            if self.current_url_split_result.netloc == self.root_domain:
-                # Add full internal url for possible future crawling.
-                url_obj.value = self.current_url
+            if current_url_split_result.netloc == self.root_domain:
+                # Create a new url object.
+                url_data: dict = {'value': url, 'anchor': anchor}
+                url_obj: Url = self.url_adapter.create_url_object(**url_data)
+                # Add an Url object with domain matching to starting url to the internal set.
                 parse_results['internal'].add(url_obj)
             else:
-                # Add domain of url leading outside the current domain.
-                url_obj.value = self.current_url_split_result.netloc
+                # Create a new url object.
+                url_data: dict = {'value': current_url_split_result.netloc, 'anchor': anchor}
+                url_obj: Url = self.url_adapter.create_url_object(**url_data)
+                # Urls with domain leading outside the current domain are added to the external set.
                 parse_results['external'].add(url_obj)
         return parse_results

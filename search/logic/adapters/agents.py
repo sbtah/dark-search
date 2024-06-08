@@ -9,8 +9,8 @@ class UserAgentAdapter(BaseAdapter):
     """Adapter for creating and fetching user agents from database."""
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
         self.agent = UserAgent
+        super().__init__(*args, **kwargs)
 
     def get_random_user_agent(self) -> UserAgent:
         """

@@ -1,7 +1,7 @@
 from httpx import Response
+from logic.parsers.objects.url import Url
 from lxml.html import HtmlElement, HTMLParser, fromstring, tostring
 from lxml.html.clean import Cleaner
-from logic.objects.url import Url
 
 
 class HtmlExtractor:
@@ -17,7 +17,7 @@ class HtmlExtractor:
     def __init__(self) -> None:
         pass
 
-    def parse(self, html_element: HtmlElement) -> dict:
+    def parse(self, html_element: HtmlElement, favicon: bool=True) -> dict:
         """
         Parse HtmlElement.
         Return dictionary with extracted data.
@@ -29,15 +29,17 @@ class HtmlExtractor:
         meta_description: str | None = self.extract_meta_description(html_element)
         # on_page_urls: list[str] | None  = self.extract_urls(html_element)
         on_page_urls: list[Url] | None = self.extract_urls_with_texts(html_element)
-        favicon_url: str | None = self.extract_favicon_url(html_element)
-        return {
+        result = {
             'html': html,
             'page_title': page_title,
             'meta_title': meta_title,
             'meta_description': meta_description,
             'on_page_urls': on_page_urls,
-            'favicon_url': favicon_url,
         }
+        if favicon is True:
+            favicon_url: str | None = self.extract_favicon_url(html_element)
+            result['favicon_url'] = favicon_url
+        return result
 
     def page(self, response: Response) -> HtmlElement | None:
         """

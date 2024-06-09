@@ -1,19 +1,14 @@
-import asyncio
-import time
-from urllib.parse import urljoin
 from django.core.management.base import BaseCommand
-from logic.spiders.crawler import Crawler
-from logic.spiders.base import BaseSpider
-from tasks.models import CrawlTask
 from logic.adapters.agents import UserAgentAdapter
 from logic.adapters.proxy import ProxyAdapter
 from logic.parsers.objects.url import Url
-
+from logic.spiders.synchronous import SyncSpider
 
 domain = 'tor66sewebgixwhcqfnp5inzp5x5uohhdy3kvtnyfxc2e5mxiuh34iid.onion'
 full_url = f'http://{domain}/'
 new_url = 'http://s4k4ceiapwwgcm3mkb6e4diqecpo7kvdnfr5gg7sph7jjppqkvwwqtyd.onion/'
 ex_url = 'http://zqktlwiuavvvqqt4ybvgvi7tyo4hjl5xgfuvpdf6otjiycgwqbym2qad.onion/wiki/index.php/Main_Page'
+
 
 class Command(BaseCommand):
     """Base command for restarting Celery workers."""
@@ -29,6 +24,6 @@ class Command(BaseCommand):
         proxy = 'http://search-privoxy:8118'
 
         url_tor_66 = Url(value=full_url)
-        wiki_url = Url(value=ex_url)
-        crawler = Crawler(initial_url=url_tor_66, proxy=proxy, user_agent=agent.value, urls_to_crawl=[url_tor_66, ], max_requests=5, sleep_time=0)
-        asyncio.run(crawler.start_crawling())
+        probe = SyncSpider(initial_url=url_tor_66, proxy=proxy, user_agent=agent.value)
+        value = probe.request(url_tor_66)
+        print(value)

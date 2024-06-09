@@ -3,9 +3,10 @@ from logging import Logger
 from urllib.parse import urlsplit
 
 from logic.adapters.task import CrawlTaskAdapter
-from logic.objects.url import Url
+from logic.parsers.objects.url import Url
 from logic.parsers.html import HtmlExtractor
 from logic.parsers.url import UrlExtractor
+from logic.parsers.byte import Converter
 from utilities.logging import logger
 
 
@@ -22,6 +23,7 @@ class BaseSpider:
         self.task_adapter: CrawlTaskAdapter = CrawlTaskAdapter()
         self.url_extractor: UrlExtractor = UrlExtractor(starting_url=initial_url)
         self.html_extractor: HtmlExtractor = HtmlExtractor()
+        self.converter: Converter = Converter()
         self.logger: Logger = logger
 
     @staticmethod

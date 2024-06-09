@@ -1,8 +1,6 @@
 class Url:
     """Hashable object representing url."""
 
-    __slots__ = ('value', 'anchor', 'number_of_requests')
-
     def __init__(self, value: str, anchor: str='', number_of_requests: int=0):
         self.value: str = value
         self.anchor: str = anchor

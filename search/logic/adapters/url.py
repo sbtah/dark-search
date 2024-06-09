@@ -1,5 +1,5 @@
 from logic.adapters.base import BaseAdapter
-from logic.exceptions.adapters.url import WrongTypeProvidedError
+from logic.exceptions.adapters.url import WrongTypeProvidedError, WrongValueProvidedError
 from logic.parsers.objects.url import Url
 
 
@@ -24,6 +24,10 @@ class UrlAdapter(BaseAdapter):
         """
         if not isinstance(value, str):
             raise WrongTypeProvidedError()
+
+        # The Shortest possible url is 3 characters, but we deal with onion domains.
+        if len(value) < 6:
+            raise WrongValueProvidedError()
 
         if anchor is not None and not isinstance(anchor, str):
             raise WrongTypeProvidedError()

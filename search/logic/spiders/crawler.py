@@ -91,8 +91,9 @@ class Crawler(AsyncSpider):
                 # Clear the queue.
                 self.queue.clear()
         else:
+            self.crawl_end = self.now_timestamp()
             self.logger.info(
-                f'Crawl Finished: domain="{self.domain}" crawled_urls="{len(self.requested_urls)}" found_domains="{len(self.external_domains)}"'
+                f'Crawl Finished: domain="{self.domain}" crawled_urls="{len(self.requested_urls)}" found_domains="{len(self.external_domains)}" in_time="{self.crawl_end - self.crawl_start}"'
             )
             # TODO:
             # Work on API client.

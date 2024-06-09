@@ -48,6 +48,7 @@ class AsyncSpider(BaseSpider):
         """
         Request specified url asynchronously.
         Return dictionary with needed data.
+        :arg url: Url object.
         """
 
         # Response from requesting a webpage. HtmlElement generated from the response text.
@@ -60,10 +61,12 @@ class AsyncSpider(BaseSpider):
                     f'Response: status="{response[0].status_code}", url="{url}", html="{True if element is not None else False}"'
                 )
                 if str(response[0].status_code)[0] in {'2', '3'} and element is not None:
+
                     # Parsing text prepared html element.
-                    parse_html_results = self.html_extractor.parse(element)
+                    parse_html_results: dict = self.html_extractor.parse(element)
                     # Parsing urls found on the webpage.
-                    parse_urls_results = self.url_extractor.parse(parse_html_results['on_page_urls'])
+                    parse_urls_results: dict = self.url_extractor.parse(parse_html_results['on_page_urls'])
+
                     return {
                         'requested_url': url,
                         'responded_url': str(response[0].url),

@@ -1,3 +1,6 @@
+"""
+Test cases for Url and UrlAdapter.
+"""
 import pytest
 from logic.adapters.url import UrlAdapter
 from logic.exceptions.adapters.url import (

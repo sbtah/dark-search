@@ -28,6 +28,16 @@ class UrlExtractor:
         return self._root_domain
 
     @staticmethod
+    def split_result(url: str) -> SplitResult:
+        """Split url with an urlsplit return result object."""
+        return urlsplit(url)
+
+    @staticmethod
+    def join_result(url: str, path: str) -> str:
+        """Return result of urljoin."""
+        return urljoin(url, path)
+
+    @staticmethod
     def is_valid_url(split_result: SplitResult) -> bool:
         """
         Validates current URL by parsing it with urlsplit.
@@ -63,9 +73,9 @@ class UrlExtractor:
         Cleans current URL of all query params or fragments.
         Returns cleaned URL.
         """
-        split_result = urlsplit(url)
+        split_result = self.split_result(url)
         if split_result.query or split_result.fragment:
-            return urljoin(self.starting_url.value, split_result.path)
+            return self.join_result(self.starting_url.value, split_result.path)
         else:
             return url
 
@@ -92,16 +102,16 @@ class UrlExtractor:
             # Extracted url after cleaning query params and fragments.
             url: str = self.clean_url(url_dict['url'])
             # # Set current parse result, to minimize numer of calls to urlsplit.
-            current_url_split_result: SplitResult = urlsplit(url)
+            current_url_split_result: SplitResult = self.split_result(url)
             # Extracted anchor.
             anchor: str = url_dict['anchor']
 
             if not self.is_valid_url(current_url_split_result) and self.is_path(current_url_split_result.path):
-                fixed_url: str = urljoin(self.starting_url.value, current_url_split_result.path)
+                fixed_url: str = self.join_result(self.starting_url.value, current_url_split_result.path)
                 # Set new fixed url.
                 url: str = fixed_url
                 # Set new split result.
-                current_url_split_result: SplitResult = urlsplit(fixed_url)
+                current_url_split_result: SplitResult = self.split_result(fixed_url)
 
             if not self.is_valid_url(current_url_split_result):
                 continue

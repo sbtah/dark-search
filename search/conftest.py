@@ -2,7 +2,7 @@
 Pytest fixtures
 """
 import pytest
-from logic.parsers.objects.url import Url
+from logic.adapters.url import UrlAdapter
 from logic.parsers.url import UrlExtractor
 from lxml.html import fromstring
 from parameters.models import Proxy, UserAgent
@@ -10,7 +10,7 @@ from parameters.models import Proxy, UserAgent
 
 @pytest.fixture
 def url_extractor():
-    starting_url = Url(value='http://example.onion')
+    starting_url = UrlAdapter.create_url_object(value='http://example.onion')
     return UrlExtractor(starting_url)
 
 
@@ -25,7 +25,6 @@ def urls_collection():
         {'url': 'ftp://example.onion/baz' , 'anchor': ''},
     ]
     return urls_collection
-
 
 
 @pytest.fixture

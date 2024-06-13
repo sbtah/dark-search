@@ -5,7 +5,7 @@ from typing import Iterable
 
 import httpx
 from httpx import Response
-from logic.objects.url import Url
+from logic.parsers.objects.url import Url
 from logic.spiders.base import BaseSpider
 from lxml.html import HtmlElement
 

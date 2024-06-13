@@ -5,6 +5,14 @@ from logic.adapters.url import UrlAdapter
 from logic.parsers.objects.url import Url
 
 
+
+FILE_PATTERN = re.compile(
+    r"""\S+(\.zip|\.7z|\.rar|\.doc|\.docx|\.docm|\.pdf|\.ods|\.xlsx|\.xls|\.txt|\.odt|\.tgz|\.tar\.xz|
+    \.tar\.Z|\.tar\.zst|\.tar\.gz|\.tar\.lz|\.tar\.bz2|\.tar|\.tlz|\.tbz2|\.txz|\.png|\.jpg|\.jpeg|
+    \.csv|\.bin|\.bat|\.accdb|\.dll|\.exe|\.gif|\.mov|\.mp3|\.mp4|\.mpeg|\.mpg|\.ppt|\.pptx|\.xps)$""", re.VERBOSE
+)
+
+
 class UrlExtractor:
     """
     Url Extractor is a tool designed to properly validate,
@@ -16,6 +24,7 @@ class UrlExtractor:
     def __init__(self, starting_url: Url) -> None:
         self.starting_url: Url = starting_url
         self.accepted_schemes: set[str] = {'https', 'http'}
+        self.onion_pattern: str = r'\S+\.onion$'
         self._root_domain: str | None = None
         self.url_adapter: UrlAdapter = UrlAdapter()
 
@@ -50,14 +59,19 @@ class UrlExtractor:
     @staticmethod
     def is_path(path: str) -> bool:
         """Checks if the current path result is indeed valid."""
-        if all([path, path != '/', path != ' ', len(path) > 1]):
+        if all([path, path != '/', path != ' ']):
             return True
         return False
 
     @staticmethod
-    def is_onion(netloc: str) -> bool:
+    def is_file(path: str) -> bool:
+        """Checks if the currently processed path is leading to a downloadable file."""
+        match = re.search(FILE_PATTERN, path)
+        return True if match else False
+
+    def is_onion(self, netloc: str) -> bool:
         """Checks whether the found url is leading to onion domain."""
-        match = re.search(r'\S+\.onion$', netloc)
+        match = re.search(self.onion_pattern, netloc)
         if match:
             return True
         return False
@@ -70,12 +84,16 @@ class UrlExtractor:
 
     def clean_url(self, url: str) -> str:
         """
-        Cleans current URL of all query params or fragments.
+        Cleans current URL of fragments.
         Returns cleaned URL.
         """
         split_result = self.split_result(url)
-        if split_result.query or split_result.fragment:
-            return self.join_result(self.starting_url.value, split_result.path)
+        if split_result.fragment and split_result.query:
+            prepared_url = self.join_result(self.starting_url.value, split_result.path)
+            return f'{prepared_url}?{split_result.query}'
+        if split_result.fragment:
+            prepared_url = self.join_result(self.starting_url.value, split_result.path)
+            return prepared_url
         else:
             return url
 
@@ -113,10 +131,14 @@ class UrlExtractor:
                 # Set new split result.
                 current_url_split_result: SplitResult = self.split_result(fixed_url)
 
+            # This step might be wrong?
             if not self.is_valid_url(current_url_split_result):
                 continue
 
             if not self.is_accepted_scheme(current_url_split_result.scheme):
+                continue
+
+            if self.is_file(current_url_split_result.path):
                 continue
 
             if not self.is_onion(current_url_split_result.netloc):

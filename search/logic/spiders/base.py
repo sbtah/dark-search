@@ -13,6 +13,8 @@ from utilities.logging import logger
 class BaseSpider:
     """
     Base spider containing logic for data extracting while crawling or scraping.
+    Each spider inheriting from this class expects to receive UserAgent and Proxy,
+    as well as initial url object.
     """
 
     def __init__(self, initial_url: Url, proxy: str,  user_agent: str) -> None:
@@ -36,7 +38,6 @@ class BaseSpider:
         """Set domain from `initial_url`."""
         if self._domain is None:
             self._domain = urlsplit(self.initial_url.value).netloc
-            return self._domain
         return self._domain
 
     def prepare_headers(self) -> dict:

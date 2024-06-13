@@ -30,5 +30,12 @@ class Command(BaseCommand):
 
         url_tor_66 = Url(value=full_url)
         wiki_url = Url(value=ex_url)
-        crawler = Crawler(initial_url=url_tor_66, proxy=proxy, user_agent=agent.value, urls_to_crawl=[url_tor_66, ], max_requests=5, sleep_time=0)
+        crawler = Crawler(
+            initial_url=wiki_url,
+            proxy=proxy,
+            user_agent=agent.value,
+            urls_to_crawl=[wiki_url, ],
+            max_requests=5,
+            sleep_time=0
+        )
         asyncio.run(crawler.start_crawling())

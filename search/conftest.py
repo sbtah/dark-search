@@ -17,12 +17,18 @@ def url_extractor():
 @pytest.fixture
 def urls_collection():
     urls_collection = [
-        {'url': 'http://example.onion/page', 'anchor': 'Example Text'},
-        {'url': 'http://example.onion/path?page=1', 'anchor': 'Some text...'},
+        {'url': 'http://example.onion/page', 'anchor': 'Url 1'},
+        {'url': 'http://example.onion/path?page=1', 'anchor': 'Url 2'},
+        {'url': 'http://example.onion/path?query=string#fragment', 'anchor': 'Url 3'},
+        {'url': 'http://example.onion/path#fragment', 'anchor': 'Url 4'},
         {'url': 'http://external.onion/', 'anchor': ''},
         {'url': 'page.html', 'anchor': '...'},
         {'url': '/path', 'anchor': 'Test text'},
         {'url': 'ftp://example.onion/baz' , 'anchor': ''},
+        {'url': 'http://example.onion/some.jpeg', 'anchor': 'Image 1'},
+        {'url': 'some-2.jpeg', 'anchor': 'Image 2'},
+        {'url': '/some-3.jpeg', 'anchor': 'Image 3'},
+        {'url': 'http://example.onion/some.pdf', 'anchor': 'Pdf 1'},
     ]
     return urls_collection
 

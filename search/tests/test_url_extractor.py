@@ -20,11 +20,15 @@ class TestUrlExtractor:
     def test_url_extractor_parse(self, url_extractor, urls_collection):
         """Test UrlExtractor's parse method."""
         results = url_extractor.parse(urls_collection)
+        # print(results)
         assert results == {
             'internal': {
+                Url(value='http://example.onion/page', anchor='Url 1', number_of_requests=0),
+                Url(value='http://example.onion/path?page=1', anchor='Url 2', number_of_requests=0),
+                Url(value='http://example.onion/path?query=string', anchor='Url 3', number_of_requests=0),
+                Url(value='http://example.onion/path', anchor='Url 4', number_of_requests=0),
                 Url(value='http://example.onion/page.html', anchor='...', number_of_requests=0),
-                Url(value='http://example.onion/page', anchor='Example Text', number_of_requests=0),
-                Url(value='http://example.onion/path', anchor='Some text...', number_of_requests=0),
+                Url(value='http://example.onion/path', anchor='Test text', number_of_requests=0),
             },
             'external': {
                 Url(value='external.onion', anchor='', number_of_requests=0),
@@ -97,6 +101,27 @@ class TestUrlExtractor:
         """Test that UrlExtractor's is_onion method is returning False for other than onion domains."""
         assert url_extractor.is_onion(input) is expected
 
+
+    @pytest.mark.parametrize(
+        'input, expected',
+        [
+            ('/file.zip', True), ('/file.7z', True), ('/file.rar', True), ('/file.doc', True), ('/file.docx', True),
+            ('/file.docm', True),('/file.pdf', True), ('/file.ods', True), ('/file.xlsx', True), ('/file.xls', True),
+            ('/file.txt', True), ('/file.odt', True), ('/file.ods', True), ('/file.tgz', True), ('/file.tar.xz', True),
+            ('/file.tar.Z', True), ('/file.tar.zst', True), ('/file.tar.gz', True), ('/file.tar.lz', True),('/file.tar.bz2', True),
+            ('/file.tar', True), ('/file.tlz', True), ('/file.tbz2', True), ('/file.txz', True),('/file.png', True),
+            ('/file.jpg', True), ('/file.jpeg', True), ('/file.csv', True), ('/file.bin', True), ('/file.bat', True),
+            ('/file.accdb', True), ('/file.dll', True), ('/file.exe', True), ('/file.gif', True), ('/file.mov', True),
+            ('/file.mp3', True), ('/file.mp4', True), ('/file.mpeg', True), ('/file.mpg', True), ('/file.ppt', True),
+            ('/file.pptx', True), ('/file.xps', True),
+        ]
+    )
+    def test_url_extractor_is_file_returns_true_for_known_file_extensions(self, url_extractor, input, expected):
+        """Test that UrlExtractor's is_file method is returning True for each tested path.
+
+        """
+        assert url_extractor.is_file(input) is expected
+
     @pytest.mark.parametrize(
         'input, expected',
         [
@@ -125,5 +150,5 @@ class TestUrlExtractor:
 
     def test_url_extractor_clean_url(self, url_extractor):
         """Test UrlExtractor's clean_url method."""
-        test_url = 'http://example.onion/p=1?v=basic'
-        assert url_extractor.clean_url(test_url) == 'http://example.onion/p=1'
+        test_url = 'http://example.onion/path?query=string#fragment'
+        assert url_extractor.clean_url(test_url) == 'http://example.onion/path?query=string'

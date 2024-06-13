@@ -1,7 +1,7 @@
 from collections import deque
 from typing import Collection
 
-from logic.objects.url import Url
+from logic.parsers.objects.url import Url
 from logic.spiders.asynchronous import AsyncSpider
 
 
@@ -46,6 +46,8 @@ class Crawler(AsyncSpider):
             responses: list[Exception | dict] = await self.run_requests(iterable_of_urls=self.queue)
 
             for response in responses:
+
+                # response = ...
 
                 # If response is None and Url.number_of_request is under max_retries threshold,
                 #   we want to keep this Url in the found_internal_urls set.
@@ -116,3 +118,10 @@ class Crawler(AsyncSpider):
             if len(self.queue) < self.max_requests:
                 self.queue.append(url)
         return
+
+    def serialize_response(self, response_dict: dict) -> dict[dict]:
+        """
+        Serialize Url objects in response dictionary.
+        Used while sending data to the API.
+        """
+        ...

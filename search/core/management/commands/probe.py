@@ -3,11 +3,11 @@ from logic.adapters.agents import UserAgentAdapter
 from logic.adapters.proxy import ProxyAdapter
 from logic.parsers.objects.url import Url
 from logic.spiders.synchronous import SyncSpider
+from logic.adapters.url import UrlAdapter
 
-domain = 'tor66sewebgixwhcqfnp5inzp5x5uohhdy3kvtnyfxc2e5mxiuh34iid.onion'
-full_url = f'http://{domain}/'
-new_url = 'http://s4k4ceiapwwgcm3mkb6e4diqecpo7kvdnfr5gg7sph7jjppqkvwwqtyd.onion/'
-ex_url = 'http://zqktlwiuavvvqqt4ybvgvi7tyo4hjl5xgfuvpdf6otjiycgwqbym2qad.onion/wiki/index.php/Main_Page'
+
+tor_66_url_str = 'http://tor66sewebgixwhcqfnp5inzp5x5uohhdy3kvtnyfxc2e5mxiuh34iid.onion'
+wiki_url_str = 'http://zqktlwiuavvvqqt4ybvgvi7tyo4hjl5xgfuvpdf6otjiycgwqbym2qad.onion/wiki/index.php/Main_Page'
 
 
 class Command(BaseCommand):
@@ -23,7 +23,8 @@ class Command(BaseCommand):
         # print(proxy)
         proxy = 'http://search-privoxy:8118'
 
-        url_tor_66 = Url(value=full_url)
-        probe = SyncSpider(initial_url=url_tor_66, proxy=proxy, user_agent=agent.value)
-        value = probe.request(url_tor_66)
+        tor_url: Url = UrlAdapter.create_url_object(value=tor_66_url_str)
+        wiki_url: Url = UrlAdapter.create_url_object(value=wiki_url_str)
+        probe = SyncSpider(initial_url=wiki_url, proxy=proxy, user_agent=agent.value)
+        value = probe.request()
         print(value)

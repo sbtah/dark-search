@@ -4,7 +4,7 @@
 Welcome to Dark Search!
 
 Dark Search is a sophisticated Python-based crawler service designed to delve into the depths of the internet. 
-Crafted using Django, Celery, and asyncio.
+Crafted using Django, Celery, Redis, postgresql, asyncio and tested with pytest.
 This project is dedicated to unearthing Tor(onion) domains,
 while furnishing comprehensive information and insightful statistics about them.
 
@@ -13,6 +13,10 @@ Including but not limited to hacking, ransomware, databases, leaked credentials,
 
 ### Current state:
 - The project is being redesigned. Previous working (POC) version is on `archived` branch.
+- The main Crawler class is finished!
+- The Task model is ready.
+- Almost all tests for search service components are ready.
+
 
 ![alt text](https://github.com/sbtah/dark-search/blob/main/1.png?raw=true)
 ----

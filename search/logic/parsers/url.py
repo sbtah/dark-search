@@ -1,12 +1,13 @@
 import re
+from re import Pattern
 from urllib.parse import SplitResult, urljoin, urlsplit
 
 from logic.adapters.url import UrlAdapter
 from logic.parsers.objects.url import Url
 
 
-
-FILE_PATTERN = re.compile(
+# File pattern used in identifying urls leading to a file.
+FILE_PATTERN: Pattern[str] = re.compile(
     r"""\S+(\.zip|\.7z|\.rar|\.doc|\.docx|\.docm|\.pdf|\.ods|\.xlsx|\.xls|\.txt|\.odt|\.tgz|\.tar\.xz|
     \.tar\.Z|\.tar\.zst|\.tar\.gz|\.tar\.lz|\.tar\.bz2|\.tar|\.tlz|\.tbz2|\.txz|\.png|\.jpg|\.jpeg|
     \.csv|\.bin|\.bat|\.accdb|\.dll|\.exe|\.gif|\.mov|\.mp3|\.mp4|\.mpeg|\.mpg|\.ppt|\.pptx|\.xps)$""", re.VERBOSE
@@ -98,7 +99,7 @@ class UrlExtractor:
             return url
 
     def parse(
-        self, urls_collection: list[dict[str: str, str: str]] | None
+            self, urls_collection: list[dict[str: str, str: str]] | None
     ) -> dict[str: set[Url | None], str: set[Url | None]]:
         """
         Parse urls provided in urls_collection.
@@ -108,7 +109,7 @@ class UrlExtractor:
         - :arg urls_collection: List with dictionaries representing url element from a webpage.
         """
         # Prepare parse_results dictionary.
-        parse_results: dict[str: set[Url | None], str: set[Url | None]]= {
+        parse_results: dict[str: set[Url | None], str: set[Url | None]] = {
             'internal': set(),
             'external': set(),
         }

@@ -1,36 +1,32 @@
 from httpx import Response
 from logic.parsers.objects.url import Url
 from lxml.html import HtmlElement, HTMLParser, fromstring, tostring
-from lxml.html.clean import Cleaner
 
 
 class HtmlExtractor:
     """
     Class designed to work with httpx Response.
     The Main purpose is to convert text response to HtmlElement and extract data like:
-    - Cleaned html body,
+    - Text from entire body,
     - Page title
     - Metadata (title, description),
-    - On page urls.
+    - On page urls with texts.
     """
-
-    def __init__(self) -> None:
-        pass
 
     def parse(self, html_element: HtmlElement, favicon: bool=True) -> dict:
         """
         Parse HtmlElement.
         Return dictionary with extracted data.
         - :arg html_element: Lxml HtmlElement.
+        - :arg favicon: If set to `True` parser will try extracting favicon url.
         """
-        html: str = self.extract_html_body(html_element)
+        text: str | None = self.extract_entire_text(html_element)
         page_title: str | None = self.extract_page_title(html_element)
         meta_title: str | None = self.extract_meta_title(html_element)
         meta_description: str | None = self.extract_meta_description(html_element)
-        # on_page_urls: list[str] | None  = self.extract_urls(html_element)
         on_page_urls: list[Url] | None = self.extract_urls_with_texts(html_element)
         result = {
-            'html': html,
+            'text': text,
             'page_title': page_title,
             'meta_title': meta_title,
             'meta_description': meta_description,
@@ -61,7 +57,7 @@ class HtmlExtractor:
         Search for urls in body of provided HtmlElement.
         - :arg html_element: Lxml HtmlElement.
         """
-        urls: list[str] = html_element.xpath('/html/body//a[@href and not(@href="")]/@href')
+        urls: list[str | None] = html_element.xpath('/html/body//a[@href and not(@href="")]/@href')
         return [url.strip() for url in urls] if urls else None
 
 
@@ -70,7 +66,7 @@ class HtmlExtractor:
         Search for urls in body of provided HtmlElement.
         - :arg html_element: Lxml HtmlElement.
         """
-        urls: list[HtmlElement] = html_element.xpath('/html/body//a[@href and not(@href="") and not(@href=" ")]')
+        urls: list[HtmlElement | None] = html_element.xpath('/html/body//a[@href and not(@href="") and not(@href=" ")]')
         return [{'url': url.xpath('./@href')[0], 'anchor': url.text_content().strip()} for url in urls] if urls else None
 
 
@@ -80,8 +76,8 @@ class HtmlExtractor:
         - :arg html_element: Lxml HtmlElement.
         """
         # Sometimes this may be a list of urls with different icon for different resolutions.
-        favicon_urls: list[str] = html_element.xpath('/html/head/link[contains(@href, "favicon")]/@href')
-        # We want only 1 url and usually 1st url if the smallest one in terms of resolution.
+        favicon_urls: list[str | None] = html_element.xpath('/html/head/link[contains(@href, "favicon")]/@href')
+        # We want first url and usually 1st url if the smallest one in terms of resolution.
         return favicon_urls[0].strip() if favicon_urls else None
 
 
@@ -93,7 +89,7 @@ class HtmlExtractor:
         Return parsed content.
         - :arg html_element: Lxml HtmlElement.
         """
-        h1: list[HtmlElement] = html_element.xpath('.//h1')
+        h1: list[HtmlElement | None] = html_element.xpath('.//h1')
         return h1[0].text_content().strip() if h1 else None
 
 
@@ -103,7 +99,7 @@ class HtmlExtractor:
         Return parsed content.
         - :arg html_element: Lxml HtmlElement.
         """
-        title_element: list[HtmlElement] = html_element.xpath('/html/head/title/text()')
+        title_element: list[HtmlElement | None] = html_element.xpath('/html/head/title/text()')
         return title_element[0].strip() if title_element else None
 
     def extract_meta_description(self, html_element: HtmlElement) -> str | None:
@@ -112,29 +108,16 @@ class HtmlExtractor:
         Return parsed content.
         - :arg html_element: Lxml HtmlElement.
         """
-        description_element: list[str] = html_element.xpath('/html/head/meta[@name="description"]/@content')
+        description_element: list[str | None] = html_element.xpath('/html/head/meta[@name="description"]/@content')
         return description_element[0].strip() if description_element else None
 
-    def extract_html_body(self, html_element: HtmlElement) -> str:
+    def extract_entire_text(self, html_element: HtmlElement) -> str | None:
         """
-        Extract body part from HtmlElement.
-        Clean html of dangerous elements and attributes.
-        Return string representing Html content.
+        Extract body from HtmlElement.
+        Return entire text from all nodes on success. 
+        - :arg html_element: Lxml HtmlElement.
         """
-        body = html_element.xpath('/html/body')
-        cleaner = Cleaner(
-                style=True,
-                inline_style=True,
-                scripts=True,
-                javascript=True,
-                embedded=True,
-                frames=True,
-                meta=True,
-                annoying_tags=True,
-                kill_tags=['img']
-            )
-        try:
-            sanitized_content = tostring(cleaner.clean_html(body[0]))
-        except Exception:
-            sanitized_content = b''
-        return sanitized_content.decode('utf-8')
+        body: list[HtmlElement | None] = html_element.xpath('/html/body')
+        content: str | None = body[0].text_content() if body else None
+        return content
+

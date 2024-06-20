@@ -117,20 +117,25 @@ class TestHtmlExtractor:
         assert isinstance(meta_description, str)
         assert meta_description == 'Description!'
 
-    def test_html_extractor_extract_html_body_returns_empty_string_on_exception(self, mocker, no_urls_element):
+    def test_html_extractor_extract_entire_text_returns_desired_string(self, example_webpage_element):
+        """Test that extract_entire_text is returning string with proper content."""
+        content = HtmlExtractor().extract_entire_text(example_webpage_element)
+        assert isinstance(content, str)
+        assert content == '\n                This is a title\n                TestLink 1Link 1\n            '
+
+    def test_html_extractor_extract_entire_text_returns_none_on_exception(self, mocker, no_urls_element):
         """Test that extract_html_body is returning an empty string on any Exception."""
-        mocked = mocker.patch('logic.parsers.html.HtmlExtractor.extract_html_body', side_effect=Exception)
+        mocked = mocker.patch('logic.parsers.html.HtmlExtractor.extract_entire_text', side_effect=Exception)
         assert mocked.assert_called_once
         with pytest.raises(Exception):
-            body = HtmlExtractor().extract_html_body(no_urls_element)
-            assert isinstance(body, str)
-            assert body == ''
+            text = HtmlExtractor().extract_entire_text(no_urls_element)
+            assert text is None
 
     def test_html_extractor_parse_is_successful(self, example_webpage_element):
         """Test that parse method is returning dictionary with extracted data."""
         parse_data = HtmlExtractor().parse(example_webpage_element)
         assert isinstance(parse_data, dict)
-        assert isinstance(parse_data['html'], str)
+        assert isinstance(parse_data['text'], str)
         assert isinstance(parse_data['page_title'], str)
         assert parse_data['page_title'] == 'This is a title'
         assert isinstance(parse_data['meta_title'], str)
@@ -141,4 +146,3 @@ class TestHtmlExtractor:
         assert len(parse_data['on_page_urls']) == 2
         assert isinstance(parse_data['favicon_url'], str)
         assert parse_data['favicon_url'] == '/favicon.ico'
-

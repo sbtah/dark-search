@@ -6,6 +6,7 @@ from logic.adapters.url import UrlAdapter
 from logic.parsers.url import UrlExtractor
 from lxml.html import fromstring
 from parameters.models import Proxy, UserAgent
+from logic.parsers.objects.url import Url
 
 
 @pytest.fixture
@@ -134,3 +135,25 @@ def example_webpage_element():
         </html>
         """
     )
+
+
+@pytest.fixture
+def example_text_response():
+    text = """
+        <html>
+            <head>
+                <title>Test Page</title><link href="/favicon.ico"><meta name="description" content="Description!">
+            </head>
+            <body>
+                <h1><div><p>This is a title</p></div></h1>
+                <p>Test</p><a href="http://test-url-1.com">Link 1<a/><a href="http://test-url-2.com">Link 1<a/>
+            </body>
+        </html>
+        """
+    return text
+
+
+@pytest.fixture
+def example_url_object():
+    url = Url(value='http://found.onion/')
+    return url

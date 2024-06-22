@@ -3,8 +3,6 @@ from httpx import Response
 from logic.parsers.objects.url import Url
 from logic.spiders.base import BaseSpider
 from lxml.html import HtmlElement
-from urllib.parse import SplitResult
-
 
 
 class SyncSpider(BaseSpider):
@@ -12,7 +10,6 @@ class SyncSpider(BaseSpider):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
 
     def get(self, url: Url) -> tuple[Response | None, Url]:
         """
@@ -35,12 +32,14 @@ class SyncSpider(BaseSpider):
             self.logger.error(f'({SyncSpider.get.__qualname__}): Some other exception: {exc}')
             return None, url
 
-    def request(self, url: Url=None):
+    def request(self, url: Url = None) -> dict:
         """
         Request specified value in provided Url object.
         Return dictionary with needed data.
         :arg url: Url object.
         """
+        # Setting url value.
+        url = url if url is not None else self.initial_url
 
         # Response from requesting a webpage. HtmlElement generated from the response text.
         response: tuple[Response | None, Url] = self.get(url=self.initial_url) if url is None else self.get(url=url)
@@ -59,28 +58,25 @@ class SyncSpider(BaseSpider):
                     parse_urls_results: dict = self.url_extractor.parse(parse_html_results['on_page_urls'])
 
                     # Preparing favicon url
-                    favicon_url: str = parse_html_results['favicon_url']
-                    if favicon_url is not None:
-                        split_result: SplitResult = self.url_extractor.split_result(favicon_url)
-                        if not self.url_extractor.is_valid_url(split_result) and self.url_extractor.is_path(split_result.path):
-                            favicon_url_str: str = self.url_extractor.join_result(self.initial_url.value, favicon_url)
-                            favicon_url: Url = self.url_extractor.url_adapter.create_url_object(value=favicon_url_str)
+                    favicon_url: str | None = parse_html_results['favicon_url']
+                    favicon_url_obj: Url | None = self.url_extractor.parse_favicon_url(favicon_url)
+
                     return {
                         # Serialize me later...
                         'requested_url': url,
                         'responded_url': str(response[0].url),
                         'status': str(response[0].status_code),
                         'server': response[0].headers.get('server', None),
-                        'elapsed': str(response[0].elapsed.total_seconds()),
+                        'elapsed': int(response[0].elapsed.total_seconds()),
                         'visited': int(self.now_timestamp()),
-                        'html': parse_html_results['html'],
+                        'text': parse_html_results['text'],
                         'page_title': parse_html_results['page_title'],
                         'meta_title': parse_html_results['meta_title'],
                         'meta_description': parse_html_results['meta_description'],
                         'on_page_urls': parse_html_results['on_page_urls'],
                         'processed_urls': parse_urls_results,
                         # Serialize me later...
-                        'favicon_url': favicon_url,
+                        'favicon_url': favicon_url_obj,
                     }
 
                 if str(response[0].status_code)[0] not in {'2', '3'}:
@@ -89,27 +85,37 @@ class SyncSpider(BaseSpider):
                         'responded_url': str(response[0].url),
                         'status': str(response[0].status_code),
                         'server': response[0].headers.get('server', None),
-                        'elapsed': str(response[0].elapsed.total_seconds()),
+                        'elapsed': int(response[0].elapsed.total_seconds()),
                         'visited': int(self.now_timestamp()),
                     }
 
             if response[0] is None:
-                    self.logger.debug(
-                        f'Response: status="None", url="{url}", html="{True if element is not None else False}"'
-                    )
-                    return {
-                        'requested_url': url,
-                        'status': None,
-                    }
+                self.logger.debug(
+                    f'Response: status="None", url="{url}", html="False"'
+                )
+                return {
+                    'requested_url': url,
+                    'status': None,
+                }
         except Exception as e:
             self.logger.debug(
-                f'Response: status="Exception: {e}", url="{url}", html="{True if element is not None else False}"'
+                f'Response: status="Exception: {e}", url="{url}", html="False"'
             )
             return {
                 'requested_url': url,
                 'status': None,
             }
 
-    def request_favicon_icon(self, url: Url):
-        """"""
-        ...
+    def request_favicon(self, favicon_url: Url):
+        """
+        Request Url object for favicon url.
+        Return base64 representation of icon.
+        - :arg favicon_url: Url object.
+        """
+        response: tuple[Response | None, Url] = self.get(url=favicon_url)
+        favicon_base_64: str | None = self.converter.convert(response[0].content) if response[0] is not None \
+            else None
+        self.logger.debug(
+            f'Response: status="{response[0].status_code}", url="{favicon_url}", favicon_base_64="{True if favicon_base_64 is not None else False}"'
+        )
+        return favicon_base_64

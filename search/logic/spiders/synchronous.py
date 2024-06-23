@@ -34,7 +34,7 @@ class SyncSpider(BaseSpider):
 
     def request(self, url: Url = None) -> dict:
         """
-        Request specified value in provided Url object.
+        Request specified value of provided Url object.
         Return dictionary with needed data.
         :arg url: Url object.
         """
@@ -42,7 +42,7 @@ class SyncSpider(BaseSpider):
         url = url if url is not None else self.initial_url
 
         # Response from requesting a webpage. HtmlElement generated from the response text.
-        response: tuple[Response | None, Url] = self.get(url=self.initial_url) if url is None else self.get(url=url)
+        response: tuple[Response | None, Url] = self.get(url)
         element: HtmlElement | None = self.html_extractor.page(response[0]) if response[0] is not None else None
 
         try:
@@ -98,7 +98,7 @@ class SyncSpider(BaseSpider):
                     'status': None,
                 }
         except Exception as e:
-            self.logger.debug(
+            self.logger.error(
                 f'Response: status="Exception: {e}", url="{url}", html="False"'
             )
             return {

@@ -7,11 +7,15 @@ from logic.parsers.objects.url import Url
 
 
 # File pattern used in identifying urls leading to a file.
-FILE_PATTERN: Pattern[str] = re.compile(
+FILE_PATTERN: Pattern = re.compile(
     r"""\S+(\.zip|\.7z|\.rar|\.doc|\.docx|\.docm|\.pdf|\.ods|\.xlsx|\.xls|\.txt|\.odt|\.tgz|\.tar\.xz|
     \.tar\.Z|\.tar\.zst|\.tar\.gz|\.tar\.lz|\.tar\.bz2|\.tar|\.tlz|\.tbz2|\.txz|\.png|\.jpg|\.jpeg|
     \.csv|\.bin|\.bat|\.accdb|\.dll|\.exe|\.gif|\.mov|\.mp3|\.mp4|\.mpeg|\.mpg|\.ppt|\.pptx|\.xps)$""", re.VERBOSE
 )
+
+# Pattern for domains identification,
+# for cases when href attribute will contain only a domain without proper scheme.
+DOMAIN_PATTERN: Pattern[str] = r'^(?=.{1,255}$)(?!-)[A-Za-z0-9\-]{1,63}(\.[A-Za-z0-9\-]{1,63})*\.?(?<!-)$'
 
 
 class UrlExtractor:
@@ -60,7 +64,26 @@ class UrlExtractor:
     @staticmethod
     def is_path(path: str) -> bool:
         """Checks if the current path result is indeed valid."""
-        if all([path, path != '/', path != ' ']):
+        if all([len(path) > 1, path[0] == '/']):
+            return True
+        if all([len(path) > 2, path.startswith('./')]):
+            return True
+        if all([len(path) > 3, path.startswith('../')]):
+            return True
+        if any([path.endswith('.html'), path.endswith('.php')]):
+            return True
+        return False
+
+    @staticmethod
+    def is_domain(path: str) -> bool:
+        """
+        Verify that scraped url is only a domain.
+        Verification is happening via regex.
+        :param path: Current path result of urlsplit().
+        """
+        domain_match = re.search(DOMAIN_PATTERN, path)
+        file_match = re.search(FILE_PATTERN, path)
+        if domain_match and not file_match:
             return True
         return False
 
@@ -98,6 +121,23 @@ class UrlExtractor:
         else:
             return url
 
+    def parse_favicon_url(self, favicon_url: str | None) -> Url | None:
+        """
+        Parse str representing favicon url.
+        Favicon urls are usually a path urls,
+        this method is building full url and converting it to Url object.
+        - :arg favicon_url: String if favicon url was successfully extracted.
+        """
+        if favicon_url is None:
+            return None
+
+        split_result: SplitResult = self.split_result(favicon_url)
+
+        if not self.is_valid_url(split_result) and self.is_path(split_result.path):
+            favicon_url_str: str = self.join_result(self.starting_url.value, favicon_url)
+            favicon_url_obj: Url = self.url_adapter.create_url_object(value=favicon_url_str)
+            return favicon_url_obj
+
     def parse(
             self, urls_collection: list[dict[str: str, str: str]] | None
     ) -> dict[str: set[Url | None], str: set[Url | None]]:
@@ -106,7 +146,7 @@ class UrlExtractor:
         Add internal urls to parse_results['internal'] set.
         Urls leading outside currently crawled domain (root_domain)
             are added to parse_results['external'] but only domain part.
-        - :arg urls_collection: List with dictionaries representing url element from a webpage.
+        - :arg urls_collection: List with dictionaries representing url elements from a webpage.
         """
         # Prepare parse_results dictionary.
         parse_results: dict[str: set[Url | None], str: set[Url | None]] = {
@@ -125,6 +165,7 @@ class UrlExtractor:
             # Extracted anchor.
             anchor: str = url_dict['anchor']
 
+            # Repairing paths only urls, by joining them with starting_url.
             if not self.is_valid_url(current_url_split_result) and self.is_path(current_url_split_result.path):
                 fixed_url: str = self.join_result(self.starting_url.value, current_url_split_result.path)
                 # Set new fixed url.
@@ -132,7 +173,12 @@ class UrlExtractor:
                 # Set new split result.
                 current_url_split_result: SplitResult = self.split_result(fixed_url)
 
-            # This step might be wrong?
+            # Repairing urls without scheme. Urlsplit will categorize these as paths.
+            if not self.is_valid_url(current_url_split_result) and self.is_domain(current_url_split_result.path):
+                fixed_url: str = f'http://{current_url_split_result.path}'
+                url: str = fixed_url
+                current_url_split_result: SplitResult = self.split_result(fixed_url)
+
             if not self.is_valid_url(current_url_split_result):
                 continue
 

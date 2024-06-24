@@ -28,10 +28,14 @@ class TestUrlExtractor:
                 Url(value='http://example.onion/path?query=string', anchor='Url 3', number_of_requests=0),
                 Url(value='http://example.onion/path', anchor='Url 4', number_of_requests=0),
                 Url(value='http://example.onion/page.html', anchor='...', number_of_requests=0),
+                Url(value='http://example.onion/page.php', anchor='....', number_of_requests=0),
                 Url(value='http://example.onion/path', anchor='Test text', number_of_requests=0),
+                Url(value='http://example.onion', anchor='malformed url', number_of_requests=0),
             },
             'external': {
                 Url(value='external.onion', anchor='', number_of_requests=0),
+                Url(value='other.onion', anchor='Url 5', number_of_requests=0),
+                Url(value='external-2.onion', anchor='malformed url 2', number_of_requests=0),
             },
         }
 
@@ -39,7 +43,7 @@ class TestUrlExtractor:
         """Test that UrlExtractor's parse is returning empty parse_results."""
         raw_urls = None
         results = url_extractor.parse(raw_urls)
-        assert results ==  {
+        assert results == {
             'internal': set(),
             'external': set(),
         }
@@ -57,12 +61,15 @@ class TestUrlExtractor:
             spec=SplitResult, scheme='', netloc='', path='/example.onion', query='', fragment=''
         )
         assert url_extractor.is_valid_url(test_split_result) is False
-    #
+
     @pytest.mark.parametrize(
         'input, expected',
         [
             ('/example-path', True),
-            ('example-path', True),
+            ('./example-path', True),
+            ('../example-path', True),
+            ('example-path.html', True),
+            ('example-path.php', True),
         ]
     )
     def test_url_extractor_is_path_returns_true(self, url_extractor, input, expected):
@@ -73,19 +80,28 @@ class TestUrlExtractor:
         'input, expected',
         [
             ('/', False),
-            ('', False),
-            (' ', False),
+            ('test.com', False),
         ]
     )
     def test_url_extractor_is_path_returns_false(self, url_extractor, input, expected):
         """Test that UrlExtractor's is_path method is returning False."""
         assert url_extractor.is_path(input) is expected
 
+    @pytest.mark.parametrize(
+        'input, expected',
+        [
+            ('example.onion', True),
+            ('example.com', True),
+        ]
+    )
+    def test_url_extractor_is_domain_returns_true(self, url_extractor, input, expected):
+        """Test that UrlExtractor's is_domain method is returning True."""
+        assert url_extractor.is_domain(input) is expected
+
     def test_url_extractor_is_onion_returns_true(self, url_extractor):
         """Test that UrlExtractor's is_onion method is returning True for onion domains."""
         test_netloc = 'example.onion'
         assert url_extractor.is_onion(test_netloc) is True
-
 
     @pytest.mark.parametrize(
         'input, expected',
@@ -117,8 +133,8 @@ class TestUrlExtractor:
         ]
     )
     def test_url_extractor_is_file_returns_true_for_known_file_extensions(self, url_extractor, input, expected):
-        """Test that UrlExtractor's is_file method is returning True for each tested path.
-
+        """
+        Test that UrlExtractor's is_file method is returning True for each tested path.
         """
         assert url_extractor.is_file(input) is expected
 

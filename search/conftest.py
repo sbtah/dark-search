@@ -22,14 +22,18 @@ def urls_collection():
         {'url': 'http://example.onion/path?page=1', 'anchor': 'Url 2'},
         {'url': 'http://example.onion/path?query=string#fragment', 'anchor': 'Url 3'},
         {'url': 'http://example.onion/path#fragment', 'anchor': 'Url 4'},
-        {'url': 'http://external.onion/', 'anchor': ''},
+        {'url': 'http://other.onion', 'anchor': 'Url 5'},
+        {'url': 'http://external.onion', 'anchor': ''},
         {'url': 'page.html', 'anchor': '...'},
+        {'url': 'page.php', 'anchor': '....'},
         {'url': '/path', 'anchor': 'Test text'},
         {'url': 'ftp://example.onion/baz' , 'anchor': ''},
         {'url': 'http://example.onion/some.jpeg', 'anchor': 'Image 1'},
         {'url': 'some-2.jpeg', 'anchor': 'Image 2'},
         {'url': '/some-3.jpeg', 'anchor': 'Image 3'},
         {'url': 'http://example.onion/some.pdf', 'anchor': 'Pdf 1'},
+        {'url': 'example.onion', 'anchor': 'malfomed url',},
+        {'url': 'external-2.onion', 'anchor': 'malfomed url 2',}
     ]
     return urls_collection
 

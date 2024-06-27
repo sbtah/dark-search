@@ -39,6 +39,13 @@ class TestUrlExtractor:
             },
         }
 
+    def test_url_extractor_parse_favicon_url(self, url_extractor):
+        """
+        Test that UrlExtractor's parse_favicon_url is returning desired Url object.
+        """
+        result = url_extractor.parse_favicon_url('/favicon.ico')
+        assert result == Url(value="http://example.onion/favicon.ico")
+
     def test_url_extractor_parse_urls_collection_is_none(self, url_extractor):
         """Test that UrlExtractor's parse is returning empty parse_results."""
         raw_urls = None

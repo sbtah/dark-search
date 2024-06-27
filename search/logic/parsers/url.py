@@ -137,6 +137,7 @@ class UrlExtractor:
             favicon_url_str: str = self.join_result(self.starting_url.value, favicon_url)
             favicon_url_obj: Url = self.url_adapter.create_url_object(value=favicon_url_str)
             return favicon_url_obj
+        return self.url_adapter.create_url_object(value=favicon_url)
 
     def parse(
             self, urls_collection: list[dict[str: str, str: str]] | None

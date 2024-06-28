@@ -1,7 +1,7 @@
 class Url:
     """Hashable object representing url."""
 
-    def __init__(self, value: str, anchor: str='', number_of_requests: int=0):
+    def __init__(self, value: str, anchor: str = '', number_of_requests: int = 0):
         self.value: str = value
         self.anchor: str = anchor
         self.number_of_requests: int = number_of_requests
@@ -18,5 +18,5 @@ class Url:
     def __eq__(self, other):
         return self.value == other.value
 
-    def serialize(self):
+    def serialize(self) -> dict:
         return self.__dict__

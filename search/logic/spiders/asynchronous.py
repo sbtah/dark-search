@@ -17,7 +17,7 @@ class AsyncSpider(BaseSpider):
 
     def __init__(self, max_requests: int, sleep_time: float | int, *args, **kwargs) -> None:
         self.max_requests: int = max_requests
-        self.sleep_time: float | int= sleep_time
+        self.sleep_time: float | int = sleep_time
         super().__init__(*args, **kwargs)
 
     async def get(self, url: Url) -> tuple[Response | None, Url]:
@@ -62,8 +62,8 @@ class AsyncSpider(BaseSpider):
                 )
                 if str(response[0].status_code)[0] in {'2', '3'} and element is not None:
 
-                    # Parsing text prepared html element.
-                    parse_html_results: dict = self.html_extractor.parse(element)
+                    # Parsing prepared html element.
+                    parse_html_results: dict = self.html_extractor.parse(element, favicon=False)
                     # Parsing urls found on the webpage.
                     parse_urls_results: dict = self.url_extractor.parse(parse_html_results['on_page_urls'])
 
@@ -72,15 +72,14 @@ class AsyncSpider(BaseSpider):
                         'responded_url': str(response[0].url),
                         'status': str(response[0].status_code),
                         'server': response[0].headers.get('server', None),
-                        'elapsed': str(response[0].elapsed.total_seconds()),
+                        'elapsed': int(response[0].elapsed.total_seconds()),
                         'visited': int(self.now_timestamp()),
-                        'html': parse_html_results['html'],
+                        'text': parse_html_results['text'],
                         'page_title': parse_html_results['page_title'],
                         'meta_title': parse_html_results['meta_title'],
                         'meta_description': parse_html_results['meta_description'],
                         'on_page_urls': parse_html_results['on_page_urls'],
                         'processed_urls': parse_urls_results,
-                        'favicon_url': parse_html_results['favicon_url'],
                     }
                 if str(response[0].status_code)[0] not in {'2', '3'}:
                     return {
@@ -88,7 +87,7 @@ class AsyncSpider(BaseSpider):
                         'responded_url': str(response[0].url),
                         'status': str(response[0].status_code),
                         'server': response[0].headers.get('server', None),
-                        'elapsed': str(response[0].elapsed.total_seconds()),
+                        'elapsed': int(response[0].elapsed.total_seconds()),
                         'visited': int(self.now_timestamp()),
                     }
 
@@ -114,7 +113,6 @@ class AsyncSpider(BaseSpider):
         Send requests to the collection of urls.
         - :arg iterable_of_urls: Iterable of Urls that we can loop over.
         """
-        # o(1) complexity for appending...
         tasks: deque = deque()
         if iterable_of_urls is not None:
             async with asyncio.TaskGroup() as tg:
@@ -124,4 +122,3 @@ class AsyncSpider(BaseSpider):
                     )
             responses = [task.result() for task in tasks]
             return responses
-

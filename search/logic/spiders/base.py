@@ -54,3 +54,14 @@ class BaseSpider:
             'Connection': 'close',
             'User-Agent': self.user_agent,
         }
+
+    @staticmethod
+    def serialize_response(response_dict: dict) -> dict:
+        """
+        Serialize Url objects in response dictionary.
+        Used while sending data to the API.
+        """
+        url: Url = response_dict.pop('requested_url')
+        url = url.serialize()
+        serialized_response: dict = {'requested_url': url, **response_dict}
+        return serialized_response

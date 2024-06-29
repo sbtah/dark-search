@@ -29,7 +29,7 @@ class SyncSpider(BaseSpider):
                 res = client.get(url.value, headers=headers)
                 return res, url
         except Exception as exc:
-            self.logger.error(f'({SyncSpider.get.__qualname__}): Some other exception: {exc}')
+            self.logger.error(f'({SyncSpider.get.__qualname__}): Some other exception="{exc.__class__}", message="{exc}"')
             return None, url
 
     def request(self, url: Url = None) -> dict:

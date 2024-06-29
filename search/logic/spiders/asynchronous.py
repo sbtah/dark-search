@@ -41,7 +41,7 @@ class AsyncSpider(BaseSpider):
                 await asyncio.sleep(self.sleep_time)
                 return res, url
         except Exception as exc:
-            self.logger.error(f'({AsyncSpider.get.__qualname__}): Some other exception: {exc}')
+            self.logger.error(f'({AsyncSpider.get.__qualname__}): Some other exception="{exc.__class__}", message="{exc}"')
             return None, url
 
     async def request(self, url: Url) -> dict:

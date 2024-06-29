@@ -1,3 +1,6 @@
+"""
+Test cases for SyncSpider class.
+"""
 from datetime import timedelta
 from unittest.mock import MagicMock, patch
 
@@ -20,7 +23,7 @@ def spider(example_url_object):
 class TestSyncSpider:
     """Test cases for SyncSpider functionality."""
 
-    @patch("logic.spiders.synchronous.httpx.Client.get")
+    @patch('logic.spiders.synchronous.httpx.Client.get')
     def test_sync_spider_get_method_returns_response_and_url_object(
         self,
         mock_get,
@@ -38,12 +41,12 @@ class TestSyncSpider:
         assert len(response) == 2
         assert response[1].number_of_requests == 1
 
-    @patch("logic.spiders.synchronous.httpx.Client.get")
+    @patch('logic.spiders.synchronous.httpx.Client.get')
     def test_sync_spider_get_method_returns_none_on_exception(
         self, mock_get, spider, example_url_object
     ):
         """Test that SyncSpider get method is returning tuple with None and Url object on exception."""
-        mock_get.side_effect = HTTPError("Error!")
+        mock_get.side_effect = HTTPError('Error!')
 
         response = spider.get(url=spider.initial_url)
         mock_get.assert_called_once()
@@ -129,3 +132,4 @@ class TestSyncSpider:
         assert isinstance(response, dict)
         assert {'requested_url', 'status'} == set(response.keys())
         assert response['status'] is None
+

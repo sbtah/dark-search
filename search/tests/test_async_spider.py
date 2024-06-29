@@ -2,11 +2,12 @@
 Test cases for AsyncSpider class.
 """
 from datetime import timedelta
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, call
 
 import pytest
 from httpx import HTTPError, Response
 from logic.spiders.asynchronous import AsyncSpider
+from logic.parsers.objects.url import Url
 
 
 @pytest.fixture
@@ -141,3 +142,38 @@ class TestAsyncSpider:
         assert isinstance(response, dict)
         assert {'requested_url', 'status'} == set(response.keys())
         assert response['status'] is None
+
+    @pytest.mark.asyncio
+    @patch('logic.spiders.asynchronous.AsyncSpider.request')
+    async def test_async_spider_run_requests_method_is_returning_expected_responses(
+        self,
+        mock_request,
+        spider,
+        example_url_objects,
+    ):
+        """Test that AsyncSpider request method is returning expected list of results."""
+        responses = await spider.run_requests(example_url_objects)
+        expected = [
+            call(url=Url('http://found.onion/page0')),
+            call(url=Url('http://found.onion/page1')),
+            call(url=Url('http://found.onion/page2')),
+            call(url=Url('http://found.onion/page3')),
+            call(url=Url('http://found.onion/page4')),
+        ]
+        assert mock_request.mock_calls == expected
+        print(responses)
+        # return {
+        #     'requested_url': url,
+        #     'responded_url': str(response[0].url),
+        #     'status': str(response[0].status_code),
+        #     'server': response[0].headers.get('server', None),
+        #     'elapsed': int(response[0].elapsed.total_seconds()),
+        #     'visited': int(self.now_timestamp()),
+        #     'text': parse_html_results['text'],
+        #     'page_title': parse_html_results['page_title'],
+        #     'meta_title': parse_html_results['meta_title'],
+        #     'meta_description': parse_html_results['meta_description'],
+        #     'on_page_urls': parse_html_results['on_page_urls'],
+        #     'processed_urls': parse_urls_results,
+        # }
+

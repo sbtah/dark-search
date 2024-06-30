@@ -1,0 +1,81 @@
+import asyncio
+import json
+import httpx
+from httpx import Response
+from logic.parsers.objects.url import Url
+from logic.client.base import BaseClient
+
+
+class AsyncApiClient(BaseClient):
+    """
+    Client class used in asynchronous communication with API service.
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        self._client: httpx.AsyncClient | None = None
+        super().__init__(*args, **kwargs)
+
+    @property
+    def client(self) -> httpx.AsyncClient:
+        if self._client is None:
+            self._client = httpx.AsyncClient
+        return self._client
+
+    async def get(self, url: Url) -> tuple[Response | None, Url]:
+        """
+        Send get requests to url value in Url object.
+        Return tuple with Response object and Url object on success.
+        - :arg url: Url object representing requsted endpoint.
+        """
+        headers = self.prepare_auth_headers()
+        url.number_of_requests += 1
+        try:
+            async with self.client(
+                limits=httpx.Limits(max_connections=1),
+                timeout=httpx.Timeout(5),
+                follow_redirects=False,
+            ) as client:
+                res = await client.get(url.value, headers)
+                return res, url
+        except Exception as exc:
+            self.logger.error(
+                f'{AsyncApiClient.get.__qualname__}: exception="{exc.__class__}", message="{exc}"'
+            )
+            return None, url
+
+    async def post(self, url: Url, data: dict) -> tuple[Response | None, Url]:
+        """
+        Send POST request to value of Url object.
+        Return tuple with Response and Url objects on success.
+        - :arg url: Url object.
+        - :data: Dictionary with data payload.
+        """
+        headers = self.prepare_auth_headers()
+        url.number_of_requests += 1
+        try:
+            async with self.client(
+                limits=httpx.Limits(max_connections=1),
+                timeout=httpx.Timeout(5),
+                follow_redirects=False,
+            ) as client:
+                res = await client.post(
+                    url.value, headers, json=json.dumps(data)
+                )
+                return res, url
+        except Exception as exc:
+            self.logger.error(
+                f'{AsyncApiClient.post.__qualname__}: exception="{exc.__class__}", message="{exc}"'
+            )
+            return None, url
+
+    async def run_request(self, type: str, url: Url, data=None):
+        """
+        """
+        while True:
+            async with asyncio.TaskGroup() as tg:
+                task = tg.create_task(self.get(url=url))
+                response = task.result()
+                if response[0] is None and url.number_of_requests < self.max_retries:
+                    continue
+                else:
+                    return response

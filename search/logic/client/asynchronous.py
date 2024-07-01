@@ -78,7 +78,7 @@ class AsyncApiClient(BaseClient):
         - :arg url: Url object with requested endpoint.
         - :arg data: Dictionary with data for POST request.
         """
-        if type == "GET":
+        if type == 'GET':
             while True:
                 async with asyncio.TaskGroup() as tg:
                     task = tg.create_task(self.get(url=url))

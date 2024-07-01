@@ -1,9 +1,10 @@
 import asyncio
 import json
+
 import httpx
 from httpx import Response
-from logic.parsers.objects.url import Url
 from logic.client.base import BaseClient
+from logic.parsers.objects.url import Url
 
 
 class AsyncApiClient(BaseClient):
@@ -23,7 +24,7 @@ class AsyncApiClient(BaseClient):
 
     async def get(self, url: Url) -> tuple[Response | None, Url]:
         """
-        Send get requests to url value in Url object.
+        Send GET requests to url value in Url object.
         Return tuple with Response object and Url object on success.
         - :arg url: Url object representing requsted endpoint.
         """
@@ -68,14 +69,32 @@ class AsyncApiClient(BaseClient):
             )
             return None, url
 
-    async def run_request(self, type: str, url: Url, data=None):
+    async def run_request(
+        self, type: str, url: Url, data: dict | None = None
+    ) -> tuple[Response | None, Url]:
         """
+        Create an asyncio task for GET or POST request to endpoint specified via Url object.
+        - :arg type: String representing a request method. Ie: 'POST' or 'GET'
+        - :arg url: Url object with requested endpoint.
+        - :arg data: Dictionary with data for POST request.
         """
-        while True:
-            async with asyncio.TaskGroup() as tg:
-                task = tg.create_task(self.get(url=url))
-                response = task.result()
-                if response[0] is None and url.number_of_requests < self.max_retries:
-                    continue
-                else:
-                    return response
+        if type == "GET":
+            while True:
+                async with asyncio.TaskGroup() as tg:
+                    task = tg.create_task(self.get(url=url))
+                    response = task.result()
+                    if response[0] is None and url.number_of_requests < self.max_retries:
+                        continue
+                    if response[0] is not None:
+                        return response
+
+        if type == 'POST':
+            while True:
+                async with asyncio.TaskGroup() as tg:
+                    task = tg.create_task(self.post(url=url, data=data))
+                    response = task.result()
+                    if response[0] is None and url.number_of_requests < self.max_retries:
+                        continue
+                    if response[0] is not None:
+                        return response
+

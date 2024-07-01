@@ -161,3 +161,11 @@ def example_text_response():
 def example_url_object():
     url = Url(value='http://found.onion/')
     return url
+
+
+@pytest.fixture
+def example_url_objects():
+    """Collection of Url objects."""
+    urls = [Url(value=f'http://found.onion/page{_}') for _ in range(5)]
+    return urls
+

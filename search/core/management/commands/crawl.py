@@ -22,10 +22,11 @@ class Command(BaseCommand):
         # crawler = BaseSpider(initial_url=full_url)
         # This will be in launcher.
         # PROXY = "socks5://search-privoxy:9050"
-        agent = UserAgentAdapter().get_random_user_agent()
+        # agent = UserAgentAdapter().get_random_user_agent()
         # print(agent)
         # proxy = ProxyAdapter().get_proxy()
         # print(proxy)
+        agent = 'Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0'
         proxy = 'http://search-privoxy:8118'
 
         url_tor_66 = Url(value=full_url)
@@ -33,7 +34,7 @@ class Command(BaseCommand):
         crawler = Crawler(
             initial_url=wiki_url,
             proxy=proxy,
-            user_agent=agent.value,
+            user_agent=agent,
             urls_to_crawl=[wiki_url, ],
             max_requests=5,
             sleep_time=0

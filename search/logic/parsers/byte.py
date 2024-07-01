@@ -7,9 +7,6 @@ class Converter:
     Created for converting favicons for tracking.
     """
 
-    def __init__(self) -> None:
-        pass
-
     @staticmethod
     def convert(bytes_content: bytes) -> str:
         """Convert bytes response to base64 string."""

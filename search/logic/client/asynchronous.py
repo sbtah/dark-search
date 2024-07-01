@@ -3,11 +3,11 @@ import json
 
 import httpx
 from httpx import Response
-from logic.client.base import BaseClient
+from logic.client.base import BaseApiClient
 from logic.parsers.objects.url import Url
 
 
-class AsyncApiClient(BaseClient):
+class AsyncApiClient(BaseApiClient):
     """
     Client class used in asynchronous communication with API service.
     """

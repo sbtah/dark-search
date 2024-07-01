@@ -1,11 +1,12 @@
-from utilities.logging import logger
 from logging import Logger
+
 from django.conf import settings
 from logic.adapters.url import UrlAdapter
 from logic.parsers.objects.url import Url
+from utilities.logging import logger
 
 
-class BaseClient:
+class BaseApiClient:
     """
     Base class for Api client.
     """

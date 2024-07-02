@@ -40,6 +40,26 @@ services:
     networks:
       - search-network
 
+  front:
+    build:
+      context: .
+      dockerfile: ./compose/local/front/Dockerfile
+      args:
+        - DEV=true
+    image: front
+    container_name: front
+    command: /start
+    volumes:
+      - ./front:/front
+    ports:
+      - "127.0.0.1:3000:3000"
+    env_file:
+      - .env-dev
+    depends_on:
+      - api
+    networks:
+      - search-network
+
   search-db:
     image: postgres:16.2
     container_name: search-db

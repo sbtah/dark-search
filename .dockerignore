@@ -5,7 +5,13 @@ search/__pycache__/
 search/*/__pycache__/
 search/*/*/__pycache__/
 search/*/*/*/__pycache__/
+api/__pycache__/
+api/*/__pycache__/
+api/*/*/__pycache__/
+api/*/*/*/__pycache__/
 .env/
 .venv/
 venv/
 redis_data/
+front/node_modules
+front/npm-debug.log

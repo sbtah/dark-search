@@ -4,6 +4,5 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-#npm install -g npm@latest && npm install && npm run dev
 echo "Starting Front Application!"
-npm run dev
+npm install -g npm@latest && npm install && npm run dev

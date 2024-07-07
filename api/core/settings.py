@@ -116,6 +116,11 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Celery settings
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'redis://search-redis:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", "redis://search-redis:6379/0")
+CELERY_BEAT_SCHEDULE = {}
+
 
 CORS_ALLOWED_ORIGINS = [
     'http://search:8000'

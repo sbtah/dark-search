@@ -3,7 +3,7 @@ import sys
 from logging import Formatter, StreamHandler
 
 
-logger = logging.getLogger('SEARCH')
+logger = logging.getLogger('API')
 logger.setLevel(logging.DEBUG)
 handler = StreamHandler(stream=sys.stdout)
 handler.setFormatter(Formatter(fmt="[%(asctime)s: %(levelname)s] %(message)s"))

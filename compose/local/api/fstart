@@ -8,9 +8,9 @@ worker_ready() {
 }
 
 until worker_ready; do
-  >&2 echo 'Search Service workers are not available...'
+  >&2 echo 'API Service workers are not available...'
   sleep 1
 done
->&2 echo 'Search Service workers are available!'
+>&2 echo 'API Service workers are available!'
 
 celery --broker="${CELERY_BROKER}" flower

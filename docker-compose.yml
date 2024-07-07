@@ -106,6 +106,24 @@ services:
     networks:
       - search-network
 
+  api-celery:
+    image: api-celery
+    container_name: api-celery
+    build:
+      context: .
+      dockerfile: ./compose/local/api/Dockerfile
+    restart: always
+    command: /cstart
+    volumes:
+      - ./api:/api
+    env_file:
+      - .env-dev
+    depends_on:
+      - api-db
+      - search-redis
+    networks:
+      - search-network
+
   search-redis:
     image: redis:7.2.0-alpine
     container_name: search-redis
@@ -131,6 +149,23 @@ services:
     networks:
       - search-network
 
+  api-beat:
+    build:
+      context: .
+      dockerfile: ./compose/local/api/Dockerfile
+    image: api-beat
+    container_name: api-beat
+    command: /bstart
+    volumes:
+      - ./api:/api
+    env_file:
+      - .env-dev
+    depends_on:
+      - api-db
+      - search-redis
+    networks:
+      - search-network
+
   search-flower:
     build:
       context: .
@@ -146,6 +181,25 @@ services:
       - "127.0.0.1:5559:5555"
     depends_on:
       - search-db
+      - search-redis
+    networks:
+      - search-network
+
+  api-flower:
+    build:
+      context: .
+      dockerfile: ./compose/local/api/Dockerfile
+    image: api-flower
+    container_name: api-flower
+    command: /fstart
+    volumes:
+      - ./api:/api
+    env_file:
+      - .env-dev
+    ports:
+      - "127.0.0.1:5558:5555"
+    depends_on:
+      - api-db
       - search-redis
     networks:
       - search-network

@@ -13,6 +13,15 @@ COPY ./api/requirements.dev.txt /tmp/requirements.dev.txt
 COPY ./compose/local/api/start /start
 RUN chmod +x /start
 
+COPY ./compose/local/api/cstart /cstart
+RUN chmod +x /cstart
+
+COPY ./compose/local/api/fstart /fstart
+RUN chmod +x /fstart
+
+COPY ./compose/local/api/bstart /bstart
+RUN chmod +x /bstart
+
 COPY ./compose/local/api/entrypoint /entrypoint
 RUN chmod +x /entrypoint
 

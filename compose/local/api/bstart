@@ -1,0 +1,7 @@
+#!/bin/ash
+
+set -o errexit
+set -o nounset
+
+rm -rf './celerybeat.pid'
+celery -A core beat -l INFO

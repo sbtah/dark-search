@@ -56,12 +56,9 @@ class Crawler(AsyncSpider):
                 self.requested_urls.add(response['requested_url'])
                 self.found_internal_urls.remove(response['requested_url'])
 
-                # TODO:
-                # Work on API client.
-                # await is blocking should we create_task here?
-                # Url object must be serialized to dict...
-                # await self.client.post_response_data(data=self.serialize_response(response))
-                print(self.serialize_response(response))
+                # Send response to API service.
+                serialized_response: dict = self.serialize_response(response)
+                await self.client.post_response_data(data=serialized_response)
 
                 # If both sets in processed_urls are empty we move to next response.
                 if not response.get('processed_urls', {}).get('internal') and not response.get('processed_urls', {}).get('external'):
@@ -96,17 +93,15 @@ class Crawler(AsyncSpider):
             self.logger.info(
                 f'Crawl Finished: domain="{self.domain}", crawled_urls="{len(self.requested_urls)}", found_domains="{len(self.external_domains)}", in_time="{self.crawl_end - self.crawl_start}"'
             )
-            # TODO:
-            # Work on API client.
-            # await is blocking should we create_task here?
-            # await self.client.post_summary_data(
-            #     data={
-            #         'domain': self.initial_domain,
-            #         'urls_crawled': len(self.requested_urls),
-            #         'time': self.crawl_end - self.crawl_start,
-            #         'date': self.now_timestamp()
-            #     }
-            # )
+            # Send post crawl summary data to API service.
+            await self.client.post_summary_data(
+                data={
+                    'domain': self.initial_domain,
+                    'urls_crawled': len(self.requested_urls),
+                    'time': self.crawl_end - self.crawl_start,
+                    'date': self.now_timestamp()
+                }
+            )
             return
 
     def prepare_urls_queue(self) -> None:

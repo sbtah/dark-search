@@ -8,6 +8,7 @@ from httpx import Response
 from logic.parsers.objects.url import Url
 from logic.spiders.base import BaseSpider
 from lxml.html import HtmlElement
+from logic.client.asynchronous import AsyncApiClient
 
 
 class AsyncSpider(BaseSpider):
@@ -18,6 +19,7 @@ class AsyncSpider(BaseSpider):
     def __init__(self, max_requests: int, sleep_time: float | int, *args, **kwargs) -> None:
         self.max_requests: int = max_requests
         self.sleep_time: float | int = sleep_time
+        self.client = AsyncApiClient()
         super().__init__(*args, **kwargs)
 
     async def get(self, url: Url) -> tuple[Response | None, Url]:

@@ -21,7 +21,7 @@ class TestUrlObject:
 
     def test_create_url_with_wrong_value_type_raises_exception(self):
         """Test that trying to create Url with the wrong type for `url.value` raises an Exception"""
-        for t in [1 , 1,22, True, list, dict, set]:
+        for t in [1, 1, 22, True, list, dict, set]:
             with pytest.raises(WrongTypeProvidedError):
                 UrlAdapter.create_url_object(value=t)
 
@@ -32,7 +32,7 @@ class TestUrlObject:
 
     def test_create_url_with_wrong_anchor_type_raises_exception(self):
         """Test that trying to create Url with the wrong type for `url.anchor` raises an Exception"""
-        for t in [1 , 1,22, True, list, dict, set]:
+        for t in [1, 1, 22, True, list, dict, set]:
             with pytest.raises(WrongTypeProvidedError):
                 UrlAdapter.create_url_object(value='test.com', anchor=t)
 

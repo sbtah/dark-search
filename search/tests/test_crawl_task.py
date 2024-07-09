@@ -1,6 +1,6 @@
-# """
-# Test cases for tasks objects.
-# """
+"""
+Test cases for tasks objects.
+"""
 import pytest
 from tasks.models import CrawlTask
 

@@ -38,15 +38,14 @@ class TestAsyncSpider:
         """
         Test that AsyncSpider get method is returning tuple with Response and Url object.
         """
-        mock_respone = MagicMock(spec=Response, status_code=200)
-        mock_get.return_value = mock_respone, example_url_object
+        mock_response = MagicMock(spec=Response, status_code=200)
+        mock_get.return_value = mock_response, example_url_object
 
         response = await spider.get(url=spider.initial_url)
         mock_get.assert_called_once()
         assert isinstance(response, tuple)
         assert len(response) == 2
         assert response[1].number_of_requests == 1
-
 
     @pytest.mark.asyncio
     @patch('logic.spiders.asynchronous.httpx.AsyncClient.get')
@@ -161,19 +160,3 @@ class TestAsyncSpider:
             call(url=Url('http://found.onion/page4')),
         ]
         assert mock_request.mock_calls == expected
-        print(responses)
-        # return {
-        #     'requested_url': url,
-        #     'responded_url': str(response[0].url),
-        #     'status': str(response[0].status_code),
-        #     'server': response[0].headers.get('server', None),
-        #     'elapsed': int(response[0].elapsed.total_seconds()),
-        #     'visited': int(self.now_timestamp()),
-        #     'text': parse_html_results['text'],
-        #     'page_title': parse_html_results['page_title'],
-        #     'meta_title': parse_html_results['meta_title'],
-        #     'meta_description': parse_html_results['meta_description'],
-        #     'on_page_urls': parse_html_results['on_page_urls'],
-        #     'processed_urls': parse_urls_results,
-        # }
-

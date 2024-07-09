@@ -89,7 +89,6 @@ class TestSyncSpider:
             'favicon_url'
         } == set(response.keys())
 
-
     @patch('logic.spiders.synchronous.SyncSpider.get')
     def test_sync_spider_request_method_returns_desired_data_for_wrong_status_codes(
         self, mock_get, spider, example_url_object,
@@ -117,7 +116,6 @@ class TestSyncSpider:
             'visited',
         } == set(response.keys())
 
-
     @patch('logic.spiders.synchronous.SyncSpider.get')
     def test_sync_spider_request_method_returns_desired_data_for_none_response(
         self, mock_get, spider, example_url_object,
@@ -132,4 +130,3 @@ class TestSyncSpider:
         assert isinstance(response, dict)
         assert {'requested_url', 'status'} == set(response.keys())
         assert response['status'] is None
-

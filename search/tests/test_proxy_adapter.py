@@ -3,7 +3,7 @@ Test cases for ProxyAdapter.
 """
 import pytest
 from logic.adapters.proxy import ProxyAdapter
-from logic.exceptions.adapters.proxies import NoProxiesError
+from logic.exceptions.adapters.proxy import NoProxiesError
 from parameters.models import Proxy
 
 

@@ -64,7 +64,7 @@ class UrlExtractor:
     @staticmethod
     def is_path(path: str) -> bool:
         """Checks if the current path result is indeed valid."""
-        if all([len(path) > 1, path[0] == '/']):
+        if all([len(path) > 1, path.startswith('/')]):
             return True
         if all([len(path) > 2, path.startswith('./')]):
             return True

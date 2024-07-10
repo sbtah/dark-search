@@ -1,14 +1,15 @@
 import asyncio
+import traceback
 from asyncio import Future
 from collections import deque
 from typing import Iterable
 
 import httpx
 from httpx import Response
+from logic.client.asynchronous import AsyncApiClient
 from logic.parsers.objects.url import Url
 from logic.spiders.base import BaseSpider
 from lxml.html import HtmlElement
-from logic.client.asynchronous import AsyncApiClient
 
 
 class AsyncSpider(BaseSpider):
@@ -43,7 +44,10 @@ class AsyncSpider(BaseSpider):
                 await asyncio.sleep(self.sleep_time)
                 return res, url
         except Exception as exc:
-            self.logger.error(f'({AsyncSpider.get.__qualname__}): Some other exception="{exc.__class__}", message="{exc}"')
+            self.logger.error(
+                f'({AsyncSpider.get.__qualname__}): Some other exception="{exc.__class__}", '
+                f'message="{exc}", traceback="{traceback.print_exception(exc)}"'
+            )
             return None, url
 
     async def request(self, url: Url) -> dict:
@@ -102,8 +106,9 @@ class AsyncSpider(BaseSpider):
                     'status': None,
                 }
         except Exception as e:
-            self.logger.debug(
-                f'Response: status="Exception: {e}", url="{url}", html="{True if element is not None else False}"'
+            self.logger.error(
+                f'Response: status="Exception", class="{e.__class__}", message="{e}", '
+                f'traceback="{traceback.print_exception(e)}", url="{url}"'
             )
             return {
                 'requested_url': url,

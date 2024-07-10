@@ -22,13 +22,14 @@ class Crawler(AsyncSpider):
         self.crawl_end: int | None = None
         super().__init__(*args, **kwargs)
 
-    async def start_crawling(self) -> None:
+    async def start_crawling(self) -> dict:
         """Initiate a crawling process for urls in self.urls_to_crawl Collection."""
         self.logger.info(f'Crawl Start: domain="{self.domain}"')
         self.found_internal_urls.add(*self.urls_to_crawl)
-        await self.crawl()
+        result = await self.crawl()
+        return result
 
-    async def crawl(self) -> None:
+    async def crawl(self) -> dict:
         """
         Crawling proces that travels trough domain and looks for urls.
         Found urls are filtered to internal urls and external domains.
@@ -38,7 +39,8 @@ class Crawler(AsyncSpider):
 
         while len(self.found_internal_urls) > 0:
             self.logger.info(
-                f'Crawl: domain="{self.domain}", urls_to_crawl="{len(self.found_internal_urls)}", found_domains="{len(self.external_domains)}"'
+                f'Crawl, started: domain="{self.domain}", urls_to_crawl="{len(self.found_internal_urls)}",'
+                f' found_domains="{len(self.external_domains)}"'
             )
             self.prepare_urls_queue()
 
@@ -46,6 +48,8 @@ class Crawler(AsyncSpider):
             responses: list[dict] = await self.run_requests(iterable_of_urls=self.queue)
 
             for response in responses:
+                # print(response)
+                requested_url: Url = response['requested_url']
 
                 # If response is None and Url.number_of_request is under max_retries threshold,
                 #   we want to keep this Url in the found_internal_urls set.
@@ -58,23 +62,19 @@ class Crawler(AsyncSpider):
 
                 # Send response to API service.
                 serialized_response: dict = self.serialize_response(response)
-                await self.client.post_response_data(data=serialized_response)
+                # await self.client.post_response_data(data=serialized_response)
 
                 # If both sets in processed_urls are empty we move to next response.
-                if not response.get('processed_urls', {}).get('internal') and not response.get('processed_urls', {}).get('external'):
+                if not response.get('processed_urls', {}).get('internal') and \
+                        not response.get('processed_urls', {}).get('external'):
                     continue
 
                 # Parsing results of newly found external domains.
+                # Creating CrawlTask for each new domain found.
                 for domain in response.get('processed_urls').get('external'):
                     if domain not in self.external_domains:
                         self.external_domains.add(domain)
-                        # self.logger.debug(
-                        #     f'Response: new_external_domain="{domain}" at url="{response['requested_url']}"'
-                        # )
-                        # TODO
-                        # Implement this logic in adapter.
-                        # await is blocking should we create_task here?
-                        # await self.task_adapter.get_or_create_task(domain=domain)
+                        await self.task_adapter.async_get_or_create_task(domain=domain)
 
                 # Add results from internal results set to found_internal_urls.
                 for url in response.get('processed_urls').get('internal'):
@@ -82,27 +82,28 @@ class Crawler(AsyncSpider):
                     #   we want to add it to the found_internal_urls set.
                     if url not in self.requested_urls and url not in self.found_internal_urls:
                         self.found_internal_urls.add(url)
-                        # self.logger.debug(
-                        #     f'Response: new_internal_url="{url}" at url="{response['requested_url']}"'
-                        # )
+                        self.logger.info(
+                            f'Crawl, new url found: new_internal_url="{url}" at url="{requested_url.value}"'
+                        )
             else:
                 # Clear the queue.
                 self.queue.clear()
         else:
             self.crawl_end = self.now_timestamp()
             self.logger.info(
-                f'Crawl Finished: domain="{self.domain}", crawled_urls="{len(self.requested_urls)}", found_domains="{len(self.external_domains)}", in_time="{self.crawl_end - self.crawl_start}"'
+                f'Crawl, finished: domain="{self.domain}", crawled_urls="{len(self.requested_urls)}", '
+                f'found_domains="{len(self.external_domains)}", in_time="{self.crawl_end - self.crawl_start}"'
             )
             # Send post crawl summary data to API service.
-            await self.client.post_summary_data(
-                data={
-                    'domain': self.initial_domain,
+            result_data = {
+                    'domain': self.domain,
                     'urls_crawled': len(self.requested_urls),
-                    'time': self.crawl_end - self.crawl_start,
+                    'external_domains_found': len(self.external_domains),
+                    'time': int(self.crawl_end - self.crawl_start),
                     'date': self.now_timestamp()
                 }
-            )
-            return
+            # await self.client.post_summary_data(data=result_data)
+            return result_data
 
     def prepare_urls_queue(self) -> None:
         """

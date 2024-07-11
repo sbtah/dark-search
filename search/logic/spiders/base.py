@@ -1,7 +1,7 @@
 import time
 from logging import Logger
 from urllib.parse import urlsplit
-
+import copy
 from logic.adapters.task import CrawlTaskAdapter
 from logic.parsers.byte import Converter
 from logic.parsers.html import HtmlExtractor
@@ -56,12 +56,32 @@ class BaseSpider:
         }
 
     @staticmethod
-    def serialize_response(response_dict: dict) -> dict:
+    def serialized_response(response_dict: dict) -> dict:
         """
-        Serialize Url objects in response dictionary.
+        Make a copy of response and change Url objects in response to dictionary.
         Used while sending data to the API.
         """
-        url: Url = response_dict.pop('requested_url')
+
+        copied_response: dict = copy.deepcopy(response_dict)
+        url: Url = copied_response.pop('requested_url')
         url = url.serialize()
-        serialized_response: dict = {'requested_url': url, **response_dict}
+        serialized_response: dict = {'requested_url': url, **copied_response}
+
+        if copied_response.get('processed_urls') is None:
+            return serialized_response
+
+        processed_urls: dict[str: set[Url | None], str: set[Url | None]] = copied_response.pop('processed_urls')
+        processed_urls_new: dict = dict()
+
+        if len(processed_urls.get('internal')) > 0:
+            internal_set: set[Url] = processed_urls.pop('internal')
+            new_internal: list[dict] = [url_obj.serialize() for url_obj in internal_set]
+            processed_urls_new['internal'] = new_internal
+
+        if len(processed_urls.get('external')) > 0:
+            external_set: set[Url] = processed_urls.pop('external')
+            new_external: list[dict] = [url_ob.serialize() for url_ob in external_set]
+            processed_urls_new['external'] = new_external
+
+        serialized_response: dict = {'requested_url': url, **copied_response, 'processed_urls': processed_urls_new}
         return serialized_response

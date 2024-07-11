@@ -24,7 +24,7 @@ class Crawler(AsyncSpider):
 
     async def start_crawling(self) -> dict:
         """Initiate a crawling process for urls in self.urls_to_crawl Collection."""
-        self.logger.info(f'Crawl Start: domain="{self.domain}"')
+        self.logger.info(f'Crawler, initiated: domain="{self.domain}"')
         self.found_internal_urls.add(*self.urls_to_crawl)
         result = await self.crawl()
         return result
@@ -39,7 +39,7 @@ class Crawler(AsyncSpider):
 
         while len(self.found_internal_urls) > 0:
             self.logger.info(
-                f'Crawl, started: domain="{self.domain}", urls_to_crawl="{len(self.found_internal_urls)}",'
+                f'Crawler, crawling : domain="{self.domain}", urls_to_crawl="{len(self.found_internal_urls)}",'
                 f' found_domains="{len(self.external_domains)}"'
             )
             self.prepare_urls_queue()
@@ -48,7 +48,7 @@ class Crawler(AsyncSpider):
             responses: list[dict] = await self.run_requests(iterable_of_urls=self.queue)
 
             for response in responses:
-                # print(response)
+
                 requested_url: Url = response['requested_url']
 
                 # If response is None and Url.number_of_request is under max_retries threshold,
@@ -60,9 +60,9 @@ class Crawler(AsyncSpider):
                 self.requested_urls.add(response['requested_url'])
                 self.found_internal_urls.remove(response['requested_url'])
 
-                # Send response to API service.
-                serialized_response: dict = self.serialize_response(response)
-                # await self.client.post_response_data(data=serialized_response)
+                # Serialize and send response to API service.
+                serialized_response: dict = self.serialized_response(response)
+                await self.client.post_response_data(data=serialized_response)
 
                 # If both sets in processed_urls are empty we move to next response.
                 if not response.get('processed_urls', {}).get('internal') and \
@@ -83,7 +83,7 @@ class Crawler(AsyncSpider):
                     if url not in self.requested_urls and url not in self.found_internal_urls:
                         self.found_internal_urls.add(url)
                         self.logger.info(
-                            f'Crawl, new url found: new_internal_url="{url}" at url="{requested_url.value}"'
+                            f'Crawler, new url found: new_internal_url="{url}" at url="{requested_url.value}"'
                         )
             else:
                 # Clear the queue.
@@ -91,7 +91,7 @@ class Crawler(AsyncSpider):
         else:
             self.crawl_end = self.now_timestamp()
             self.logger.info(
-                f'Crawl, finished: domain="{self.domain}", crawled_urls="{len(self.requested_urls)}", '
+                f'Crawler, finished: domain="{self.domain}", crawled_urls="{len(self.requested_urls)}", '
                 f'found_domains="{len(self.external_domains)}", in_time="{self.crawl_end - self.crawl_start}"'
             )
             # Send post crawl summary data to API service.

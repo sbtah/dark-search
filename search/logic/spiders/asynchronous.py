@@ -75,8 +75,8 @@ class AsyncSpider(BaseSpider):
 
                     return {
                         'requested_url': url,
-                        'responded_url': str(response[0].url),
                         'status': str(response[0].status_code),
+                        'responded_url': str(response[0].url),
                         'server': response[0].headers.get('server', None),
                         'elapsed': int(response[0].elapsed.total_seconds()),
                         'visited': int(self.now_timestamp()),
@@ -87,11 +87,11 @@ class AsyncSpider(BaseSpider):
                         'on_page_urls': parse_html_results['on_page_urls'],
                         'processed_urls': parse_urls_results,
                     }
-                if str(response[0].status_code)[0] not in {'2', '3'}:
+                if str(response[0].status_code)[0] not in {'2', '3'} or element is None:
                     return {
                         'requested_url': url,
-                        'responded_url': str(response[0].url),
                         'status': str(response[0].status_code),
+                        'responded_url': str(response[0].url),
                         'server': response[0].headers.get('server', None),
                         'elapsed': int(response[0].elapsed.total_seconds()),
                         'visited': int(self.now_timestamp()),

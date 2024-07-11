@@ -15,7 +15,10 @@ from tasks.models import CrawlTask
 
 class CrawlLauncher(BaseLauncher):
     """
-    Launcher of crawlers.
+    Launcher for crawlers.
+    Fetch tasks from database,
+    mark them with proper status,
+    launch crawling for task.domain.
     """
 
     def __init__(self, *args, **kwargs):
@@ -42,7 +45,7 @@ class CrawlLauncher(BaseLauncher):
             celery_id=celery_task_id, launch_timestamp=time_start
         )
         self.logger.info(
-            f'Launcher, launching task: task_id="{time_start}", domain="{task.domain}", '
+            f'Launcher, launching task: task_id="{task.id}", domain="{task.domain}", '
             f'started="{datetime.fromtimestamp(time_start)}"'
         )
 
@@ -55,6 +58,7 @@ class CrawlLauncher(BaseLauncher):
         url: Url = self.url_adapter.create_url_object(value=prepared_url)
 
         try:
+            # Prepare a crawler instance.
             crawler = Crawler(
                 initial_url=url,
                 proxy=proxy,
@@ -71,13 +75,13 @@ class CrawlLauncher(BaseLauncher):
                 task=task, finished_timestamp=time_end, crawl_time_seconds=crawl_time
             )
             self.logger.info(
-                f'Launcher, finished task: task_id="{time_start}", domain="{task.domain}", '
+                f'Launcher, finished task: task_id="{task.id}", domain="{task.domain}", '
                 f'finished="{datetime.fromtimestamp(time_end)}", crawl_time="{crawl_time}"'
             )
         except Exception as exc:
             time_end: int = self.now_timestamp()
             self.logger.error(
-                f'Launcher, task failed: task_id="{time_start}", domain="{task.domain}", '
+                f'Launcher, task failed: task_id="{task.id}", domain="{task.domain}", '
                 f'failed_at="{datetime.fromtimestamp(time_end)}", error="{exc.__class__}", '
                 f'error_message="{traceback.print_exception(exc)}"'
             )

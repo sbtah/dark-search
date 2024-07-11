@@ -60,7 +60,7 @@ class AsyncApiClient(BaseApiClient):
                 follow_redirects=False,
             ) as client:
                 res = await client.post(
-                    url.value, headers, json=json.dumps(data)
+                    url=url.value, headers=headers, json=data
                 )
                 return res, url
         except Exception as exc:
@@ -82,30 +82,30 @@ class AsyncApiClient(BaseApiClient):
             while True:
                 async with asyncio.TaskGroup() as tg:
                     task = tg.create_task(self.get(url=url))
-                    response = task.result()
-                    if response[0] is None and url.number_of_requests < self.max_retries:
-                        continue
-                    if response[0] is not None:
-                        return response
+                response = task.result()
+                if response[0] is None and url.number_of_requests < self.max_retries:
+                    continue
+                if response[0] is not None:
+                    return response
 
         if request_type == 'POST':
             while True:
                 async with asyncio.TaskGroup() as tg:
                     task = tg.create_task(self.post(url=url, data=data))
-                    response = task.result()
-                    if response[0] is None and url.number_of_requests < self.max_retries:
-                        continue
-                    if response[0] is not None:
-                        return response
+                response = task.result()
+                if response[0] is None and url.number_of_requests < self.max_retries:
+                    continue
+                if response[0] is not None:
+                    return response
 
     async def post_response_data(self, data: dict) -> tuple[Response | None, Url]:
         """Send crawled response data to dedicated endpoint."""
         response = await self.run_request(request_type='POST', url=self.post_response_url, data=data)
-        self.logger.debug()
+        # self.logger.debug()
         return response
 
     async def post_summary_data(self, data: dict) -> tuple[Response | None, Url]:
         """Send post crawl summary data to dedicated endpoint"""
         response = await self.run_request(request_type='POST', url=self.post_summary_url, data=data)
-        self.logger.debug()
+        # self.logger.debug()
         return response

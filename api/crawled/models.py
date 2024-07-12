@@ -55,21 +55,17 @@ class Domain(models.Model):
     favicon_base64 = models.TextField(blank=True, null=True, db_index=True)
     server = models.CharField(max_length=100, blank=True, null=True)
     site_structure = models.JSONField(blank=True, null=True)
-    external_domains_found = models.IntegerField(default=0)
-    # IDs of Domains that this Domain is linking to.
-    external_domains_ids = ArrayField(models.IntegerField(blank=True, null=True), null=True, blank=True)
+    # Domains that this domain is linking to.
+    linking_to = models.ManyToManyField('self')
     last_crawl_date = models.IntegerField(default=0)
     average_crawl_time = models.IntegerField(default=0)
-    description = models.TextField(blank=True, null=True)
-    # Some extra metadata that we can find in the future.
-    additional_data = models.JSONField(blank=True, null=True)
     # Will increment on a crawl start.
     number_of_crawls = models.IntegerField(default=0)
     # Will increment on a crawl end.
     number_of_successful_crawls = models.IntegerField(default=0)
-    # What is this Domain about.
-    description_tags = models.ManyToManyField(Tag)
     created = models.IntegerField(blank=True, null=True)
+    # Calculated via number of incoming links.
+    domain_rank = models.FloatField(blank=True, null=True)
 
     class Meta:
         db_table = 'domains'
@@ -94,16 +90,23 @@ class Webpage(models.Model):
     # Since we could get redirected. This url does not have to be unique.
     url_after_request = models.URLField(max_length=2000)
     last_request_date = models.IntegerField(default=0)
+    last_successful_request_date = models.IntegerField(default=0)
     last_http_status = models.CharField(max_length=3, blank=True, null=True)
     # Calculated for successful responses.
     average_response_time = models.FloatField(default=0)
-    # What is this Webpage about.
-    description_tags = models.ManyToManyField(Tag)
-    # How many times we successfully requested this url? status 200.
     number_of_successful_requests = models.IntegerField(default=0)
     number_of_unsuccessful_requests = models.IntegerField(default=0)
     is_active = models.BooleanField(default=False)
     created = models.IntegerField(blank=True, null=True)
+
+    # What is this Webpage about.
+    description_tags = models.ManyToManyField(Tag)
+    # How many times we successfully requested this url? status 200.
+    detected_language = models.CharField(max_length=100, blank=True, null=True)
+    # List of texts that other site use in links. This has to be saved via pre-save signal.
+    anchor_texts = ArrayField(models.CharField(max_length=2000), null=True, blank=True)
+    # This will be processed by AI model.
+    translated_anchor_texts = ArrayField(models.CharField(max_length=2000), null=True, blank=True)
 
     class Meta:
         db_table = 'webpages'
@@ -128,9 +131,7 @@ class Data(models.Model):
     Object representing data saved from requesting a single Webpage.
     """
     webpage = models.OneToOneField(Webpage, on_delete=models.CASCADE)
-    html = models.TextField(blank=True, null=True)
-    extracted_text = models.TextField(blank=True, null=True)
-    detected_language = models.CharField(max_length=100, blank=True, null=True)
+    raw_text = models.TextField(blank=True, null=True)
     translated_text = models.TextField(blank=True, null=True)
     # h1 tag...
     page_title = models.CharField(max_length=2000, blank=True, null=True, db_index=True)

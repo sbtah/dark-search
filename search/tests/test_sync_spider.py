@@ -17,6 +17,7 @@ def spider(example_url_object):
         proxy='http://test:8118',
         user_agent='Mozilla/Test',
     )
+    spider.logger = MagicMock()
     return spider
 
 

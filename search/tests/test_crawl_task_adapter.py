@@ -11,6 +11,7 @@ from logic.exceptions.adapters.task import (
     NoTaskValueProvidedError,
 )
 from tasks.models import CrawlTask
+from unittest.mock import MagicMock
 
 
 pytestmark = pytest.mark.django_db
@@ -50,30 +51,37 @@ def example_taken_task() -> CrawlTask:
     )
 
 
+@pytest.fixture
+def adapter():
+    adapter = CrawlTaskAdapter()
+    adapter.logger = MagicMock()
+    return adapter
+
+
 class TestCrawlTaskAdapter:
     """Test cases for adapter functionality for CrawlTask."""
 
-    def test_crawl_task_adapter_get_active_task(self, example_tasks):
+    def test_crawl_task_adapter_get_active_task(self, adapter, example_tasks):
         """
         Test that _get_active_task method is returning properly ordered Queryset.
         Method is filtering tasks by last_launch_date ascending and by highest importance descending.
         """
-        active_tasks = CrawlTaskAdapter()._get_active_tasks()
+        active_tasks = adapter._get_active_tasks()
         assert isinstance(active_tasks, QuerySet)
         assert active_tasks.first().importance == 0
         assert active_tasks.first().status == 'ACTIVE'
 
-    def test_crawl_task_adapter_mark_task_active(self, example_finished_task):
+    def test_crawl_task_adapter_mark_task_active(self, adapter, example_finished_task):
         """Test that mark_task_active method is properly saving `ACTIVE` status."""
-        result = CrawlTaskAdapter().mark_task_active(task=example_finished_task)
+        result = adapter.mark_task_active(task=example_finished_task)
         assert result is True
         example_finished_task.refresh_from_db()
         assert example_finished_task.status == 'ACTIVE'
         assert example_finished_task.current_celery_id is None
 
-    def test_crawl_task_adapter_mark_task_taken(self, example_active_task):
+    def test_crawl_task_adapter_mark_task_taken(self, adapter, example_active_task):
         """Test that mark_task_taken method is properly saving new status of CrawlTask."""
-        result = CrawlTaskAdapter().mark_task_taken(
+        result = adapter.mark_task_taken(
             task=example_active_task, celery_id='Test ID', launch_timestamp=11111111
         )
         assert result is True
@@ -82,22 +90,22 @@ class TestCrawlTaskAdapter:
         assert example_active_task.current_celery_id == 'Test ID'
         assert example_active_task.last_launch_date == 11111111
 
-    def test_crawl_task_adapter_mark_task_taken_raises_exception(self, example_active_task):
+    def test_crawl_task_adapter_mark_task_taken_raises_exception(self, adapter, example_active_task):
         """Test that mark_task_taken method is raising exception when arguments are missing."""
         with pytest.raises(NoTaskValueProvidedError):
-            CrawlTaskAdapter().mark_task_taken(task=example_active_task)
+            adapter.mark_task_taken(task=example_active_task)
 
-    def test_crawl_task_adapter_mark_task_failed(self, example_taken_task):
+    def test_crawl_task_adapter_mark_task_failed(self, adapter, example_taken_task):
         """Test that mark_task_failed is setting expected status on CrawlTask object."""
-        result = CrawlTaskAdapter().mark_task_failed(task=example_taken_task)
+        result = adapter.mark_task_failed(task=example_taken_task)
         assert result is True
         example_taken_task.refresh_from_db()
         assert example_taken_task.status == 'FAILED'
 
-    def test_crawl_task_adapter_mark_task_finished(self, example_taken_task):
+    def test_crawl_task_adapter_mark_task_finished(self, adapter, example_taken_task):
         """Test that mark_task_finished is properly saving all needed data on CrawlTask object."""
         date_timestamp: int = int(datetime.now().timestamp())
-        result = CrawlTaskAdapter().mark_task_finished(
+        result = adapter.mark_task_finished(
             task=example_taken_task, finished_timestamp=date_timestamp, crawl_time_seconds=2
         )
         assert result is True

@@ -1,5 +1,5 @@
 import asyncio
-import json
+from typing import Any
 
 import httpx
 from httpx import Response
@@ -12,14 +12,14 @@ class AsyncApiClient(BaseApiClient):
     Client class used in asynchronous communication with API service.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self._client: httpx.AsyncClient | None = None
         super().__init__(*args, **kwargs)
 
     @property
     def client(self) -> httpx.AsyncClient:
         if self._client is None:
-            self._client = httpx.AsyncClient
+            self._client: httpx.AsyncClient = httpx.AsyncClient
         return self._client
 
     async def get(self, url: Url) -> tuple[Response | None, Url]:
@@ -88,7 +88,7 @@ class AsyncApiClient(BaseApiClient):
                 if response[0] is not None:
                     return response
 
-        if request_type == 'POST':
+        if request_type == 'POST' and data is not None:
             while True:
                 async with asyncio.TaskGroup() as tg:
                     task = tg.create_task(self.post(url=url, data=data))

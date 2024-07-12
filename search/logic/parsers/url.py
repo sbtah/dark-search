@@ -10,12 +10,12 @@ from logic.parsers.objects.url import Url
 FILE_PATTERN: Pattern = re.compile(
     r"""\S+(\.zip|\.7z|\.rar|\.doc|\.docx|\.docm|\.pdf|\.ods|\.xlsx|\.xls|\.txt|\.odt|\.tgz|\.tar\.xz|
     \.tar\.Z|\.tar\.zst|\.tar\.gz|\.tar\.lz|\.tar\.bz2|\.tar|\.tlz|\.tbz2|\.txz|\.png|\.jpg|\.jpeg|
-    \.csv|\.bin|\.bat|\.accdb|\.dll|\.exe|\.gif|\.mov|\.mp3|\.mp4|\.mpeg|\.mpg|\.ppt|\.pptx|\.xps)$""", re.VERBOSE
+    \.csv|\.bin|\.bat|\.accdb|\.dll|\.exe|\.gif|\.mov|\.mp3|\.mp4|\.mpeg|\.mpg|\.ppt|\.pptx|\.xps|\.cbz|\.cbr)$""", re.VERBOSE
 )
 
 # Pattern for domains identification,
 # for cases when href attribute will contain only a domain without proper scheme.
-DOMAIN_PATTERN: Pattern[str] = r'^(?=.{1,255}$)(?!-)[A-Za-z0-9\-]{1,63}(\.[A-Za-z0-9\-]{1,63})*\.?(?<!-)$'
+DOMAIN_PATTERN: str = r'^(?=.{1,255}$)(?!-)[A-Za-z0-9\-]{1,63}(\.[A-Za-z0-9\-]{1,63})*\.?(?<!-)$'
 
 
 class UrlExtractor:
@@ -140,8 +140,8 @@ class UrlExtractor:
         return self.url_adapter.create_url_object(value=favicon_url)
 
     def parse(
-            self, urls_collection: list[dict[str: str, str: str]] | None
-    ) -> dict[str: set[Url | None], str: set[Url | None]]:
+        self, urls_collection: list[dict[str, str]] | None
+    ) -> dict[str, set[Url | None]]:
         """
         Parse urls provided in urls_collection.
         Add internal urls to parse_results['internal'] set.
@@ -150,7 +150,7 @@ class UrlExtractor:
         - :arg urls_collection: List with dictionaries representing url elements from a webpage.
         """
         # Prepare parse_results dictionary.
-        parse_results: dict[str: set[Url | None], str: set[Url | None]] = {
+        parse_results: dict[str, set[Url | None]] = {
             'internal': set(),
             'external': set(),
         }
@@ -170,15 +170,15 @@ class UrlExtractor:
             if not self.is_valid_url(current_url_split_result) and self.is_path(current_url_split_result.path):
                 fixed_url: str = self.join_result(self.starting_url.value, current_url_split_result.path)
                 # Set new fixed url.
-                url: str = fixed_url
+                url = fixed_url
                 # Set new split result.
-                current_url_split_result: SplitResult = self.split_result(fixed_url)
+                current_url_split_result = self.split_result(fixed_url)
 
             # Repairing urls without scheme. Urlsplit will categorize these as paths.
             if not self.is_valid_url(current_url_split_result) and self.is_domain(current_url_split_result.path):
-                fixed_url: str = f'http://{current_url_split_result.path}'
-                url: str = fixed_url
-                current_url_split_result: SplitResult = self.split_result(fixed_url)
+                fixed_url = f'http://{current_url_split_result.path}'
+                url = fixed_url
+                current_url_split_result = self.split_result(fixed_url)
 
             if not self.is_valid_url(current_url_split_result):
                 continue
@@ -200,8 +200,8 @@ class UrlExtractor:
                 parse_results['internal'].add(url_obj)
             else:
                 # Create a new url object.
-                url_data: dict = {'value': current_url_split_result.netloc, 'anchor': anchor}
-                url_obj: Url = self.url_adapter.create_url_object(**url_data)
+                url_data = {'value': current_url_split_result.netloc, 'anchor': anchor}
+                url_obj = self.url_adapter.create_url_object(**url_data)
                 # Urls with domain leading outside the current domain are added to the external set.
                 parse_results['external'].add(url_obj)
         return parse_results

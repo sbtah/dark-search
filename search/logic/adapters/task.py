@@ -34,7 +34,7 @@ class CrawlTaskAdapter(BaseAdapter):
         task.status = 'ACTIVE'
         task.current_celery_id = None
         task.save()
-        self.logger.debug(f'Task Adapter, marked task: status="ACTIVE", task_id="{task.id}"')
+        self.logger.debug(f'TaskAdapter, marked task: status="ACTIVE", task_id="{task.id}"')
         return True
 
     def mark_task_taken(
@@ -55,7 +55,7 @@ class CrawlTaskAdapter(BaseAdapter):
         - :arg celery_id: String with ID of Celery Task.
         - :arg launch_timestamp: Integer with date of launch (timestamp).
         """
-        message = f'Task Adapter, marked task: status="TAKEN", task_id="{task.id}"'
+        message = f'TaskAdapter, marked task: status="TAKEN", task_id="{task.id}"'
         task.status = 'TAKEN'
         if for_launch is False:
             task.save()
@@ -82,7 +82,7 @@ class CrawlTaskAdapter(BaseAdapter):
         """
         task.status = 'FAILED'
         task.save()
-        self.logger.debug(f'Task Adapter, marked task: status="FAILED", task_id="{task.id}"')
+        self.logger.debu(f'TaskAdapter, marked task: status="FAILED", task_id="{task.id}"')
         return True
 
     def mark_task_finished(
@@ -103,7 +103,7 @@ class CrawlTaskAdapter(BaseAdapter):
         - :arg finished_timestamp: An Integer representing timestamp of date when task was finished.
         - :arg crawl_time_seconds: An integer representing the number of seconds it took to complete this task.
         """
-        message = f'Task Adapter, marked task: status="FINISHED", task_id="{task.id}"'
+        message = f'TaskAdapter, marked task: status="FINISHED", task_id="{task.id}"'
         task.status = 'FINISHED'
 
         if after_launch is False:
@@ -129,7 +129,7 @@ class CrawlTaskAdapter(BaseAdapter):
 
     def _get_active_tasks(self) -> QuerySet[CrawlTask | None]:
         """
-        Get first ACTIVE Task object for crawling.
+        Get the first ACTIVE Task object for crawling.
         Tasks are filtered by last_launch_date ASC and importance DESC.
         """
         tasks = self.task.objects.filter(
@@ -157,7 +157,7 @@ class CrawlTaskAdapter(BaseAdapter):
         task: CrawlTask = tasks.first()
         self.mark_task_taken(task=task, celery_id=celery_id, launch_timestamp=launch_timestamp)
         self.logger.info(
-            f'Task Adapter, prepared task: task_id="{task.id}", celery_id="{task.current_celery_id}", '
+            f'TaskAdapter, prepared task: task_id="{task.id}", celery_id="{task.current_celery_id}", '
             f'domain="{task.domain}"'
         )
         return task
@@ -165,29 +165,29 @@ class CrawlTaskAdapter(BaseAdapter):
     async def async_get_or_create_task(self, domain: str) -> CrawlTask:
         """
         Try to create a new Task object or return existing one.
-        Return Task id.
+        Return Task object.
         - :arg domain: String with domain value.
         """
         try:
             existing_task: CrawlTask = await self.task.objects.aget(domain=domain)
-            self.logger.debug(f'Task Adapter, found existing Task: task_id="{existing_task.id}", domain="{domain}"')
+            self.logger.debug(f'TaskAdapter, found existing Task: task_id="{existing_task.id}", domain="{domain}"')
             return existing_task
         except CrawlTask.DoesNotExist:
             new_task: CrawlTask = await self.task.objects.acreate(domain=domain)
-            self.logger.debug(f'Task Adapter, created new Task: task_id="{new_task.id}", domain="{domain}"')
+            self.logger.debug(f'TaskAdapter, created new Task: task_id="{new_task.id}", domain="{domain}"')
             return new_task
 
     def sync_get_or_create_task(self, domain: str) -> CrawlTask:
         """
         Create new CrawlTask object or return existing one.
-        Return Task id.
+        Return Task object.
         - :arg domain: String with domain value.
         """
         try:
             existing_task: CrawlTask = self.task.objects.get(domain=domain)
-            self.logger.debug(f'Task Adapter, found existing Task: task_id="{existing_task.id}", domain="{domain}"')
+            self.logger.debug(f'TaskAdapter, found existing Task: task_id="{existing_task.id}", domain="{domain}"')
             return existing_task
         except CrawlTask.DoesNotExist:
             new_task: CrawlTask = self.task.objects.create(domain=domain)
-            self.logger.debug(f'Task Adapter, created new Task: task_id="{new_task.id}", domain="{domain}"')
+            self.logger.debug(f'TaskAdapter, created new Task: task_id="{new_task.id}", domain="{domain}"')
             return new_task

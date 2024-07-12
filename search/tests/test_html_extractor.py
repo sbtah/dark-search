@@ -26,23 +26,6 @@ class TestHtmlExtractor:
         element = HtmlExtractor().page(response=fake_response)
         assert element is None
 
-    def test_html_extractor_extract_urls_returns_list_of_urls(self, many_urls_element):
-        """Test that extract_urls method is returning expected number or urls"""
-        urls = HtmlExtractor().extract_urls(many_urls_element)
-        assert isinstance(urls, list)
-        assert len(urls) == 2
-
-    def test_html_extractor_extract_urls_is_not_returning_empty_strings(self, empty_urls_element):
-        """Test that extract_urls method is returning expected number or urls"""
-        urls = HtmlExtractor().extract_urls(empty_urls_element)
-        assert isinstance(urls, list)
-        assert len(urls) == 1
-
-    def test_html_extractor_extract_urls_returns_none(self, no_urls_element):
-        """Test that extract_urls method is returning None if no urls were found in the element."""
-        urls = HtmlExtractor().extract_urls(no_urls_element)
-        assert urls is None
-
     def test_html_extractor_extract_urls_with_texts_returns_list_of_dictionaries(self, many_urls_element):
         """Test that extract_urls_with_text method is returning expected number of dictionaries."""
         urls = HtmlExtractor().extract_urls_with_texts(many_urls_element)

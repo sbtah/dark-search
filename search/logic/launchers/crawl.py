@@ -21,7 +21,7 @@ class CrawlLauncher(BaseLauncher):
     launch crawling for task.domain.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self.crawler = Crawler
         self.proxy_adapter: ProxyAdapter = ProxyAdapter()
         self.agent_adapter: UserAgentAdapter = UserAgentAdapter()

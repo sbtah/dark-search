@@ -1,10 +1,11 @@
 """
 Test cases for EntityAdapter class.
 """
+from unittest.mock import MagicMock
+
 import pytest
 from crawled.models import Entity
 from logic.adapters.entity import EntityAdapter
-from unittest.mock import MagicMock
 
 
 pytestmark = pytest.mark.django_db

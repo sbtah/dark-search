@@ -10,7 +10,6 @@ class BaseLauncher:
     Base class for all Launchers.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = logger
         self.url_adapter = UrlAdapter()
-

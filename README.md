@@ -34,47 +34,47 @@ Including but not limited to hacking, ransomware, databases, leaked credentials,
 ## Installation:
 To set up this project locally, follow these steps:
 
-1. Clone the repository:
+- Clone the repository:
 ```bash
 git clone https://github.com/sbtah/dark-search.git
 cd dark-search
 ```
 
-2. Build Images:
+- Build Images:
 ```bash
 make build
 ```
 
-3. Start services:
+- Start services:
 ```bash
 make run
 ```
 
-4. Run a CrawlTask
+- Run a CrawlTask
 ```bash
 make run-crawl-task
 ```
 
-5. Navigate to: `http://localhost:9002/admin`
+- Navigate to: `http://localhost:9002/admin`
    - Here you will see crawling Tasks.
    - login: admin
    - password: admin
 
-6. Navigate to: `http://localhost:9003/admin`
-   - Here you will see your crawled data. Enjoy!
-   - login: admin
-   - password: admin
+- Navigate to: `http://localhost:9003/admin`
+  - Here you will see your crawled data. Enjoy!
+  - login: admin
+  - password: admin
 
-7. Navigate to: `http://localhost:5559`
+- Navigate to: `http://localhost:5559`
    - Here you can debug your Celery crawling tasks.
 
-8. Navigate to: `http://localhost:5558`
+- Navigate to: `http://localhost:5558`
    - Here you can debug your API processing tasks.
 
-9. Navigate to: `http://localhost:9003/api/docs`
+- Navigate to: `http://localhost:9003/api/docs`
    - API Documentation.
 
-10. Navigate to: `http://localhost:3000`
+- Navigate to: `http://localhost:3000`
    - Dedicated front application.
 
 ![alt text](https://github.com/sbtah/dark-search/blob/main/2.png?raw=true)

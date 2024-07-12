@@ -1,5 +1,10 @@
+from typing import Any
+
 from logic.adapters.base import BaseAdapter
-from logic.exceptions.adapters.url import WrongTypeProvidedError, WrongValueProvidedError
+from logic.exceptions.adapters.url import (
+    WrongTypeProvidedError,
+    WrongValueProvidedError
+)
 from logic.parsers.objects.url import Url
 
 
@@ -10,11 +15,13 @@ class UrlAdapter(BaseAdapter):
         and validating inputs.
     """
 
-    def __init___(self, *args, **kwargs):
+    def __init___(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     @staticmethod
-    def create_url_object(value: str, anchor: str=None, number_of_requests: int=None):
+    def create_url_object(
+        value: str, anchor: str | None = None, number_of_requests: int | None = None
+    ) -> Url:
         """
         Create a single Url object.
         Validate values provided for attributes.
@@ -35,7 +42,7 @@ class UrlAdapter(BaseAdapter):
         if number_of_requests is not None and not isinstance(number_of_requests, int):
             raise WrongTypeProvidedError()
 
-        creation_data = {
+        creation_data: dict = {
             'value': value
         }
         if anchor is not None:

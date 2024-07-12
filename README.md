@@ -74,4 +74,7 @@ make run-crawl-task
 7. Navigate to: `http://localhost:9003/api/docs`
    - API Documentation.
 
+7. Navigate to: `http://localhost:3000`
+   - Dedicated front application.
+
 ![alt text](https://github.com/sbtah/dark-search/blob/main/2.png?raw=true)

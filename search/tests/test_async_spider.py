@@ -20,6 +20,7 @@ def spider(example_url_object):
         max_requests=5,
         sleep_time=1,
     )
+    spider.logger = MagicMock()
     return spider
 
 

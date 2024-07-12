@@ -52,18 +52,22 @@ make run-crawl-task
 ```
 
 5. Navigate to: `http://localhost:9002/admin`
- - Here you will see crawling Tasks.
+   - Here you will see crawling Tasks.
+   - login: admin
+   - password: admin
 
 6. Navigate to: `http://localhost:9003/admin`
- - Here you will see your crawled data. Enjoy!
+   - Here you will see your crawled data. Enjoy!
+   - login: admin
+   - password: admin
 
 7. Navigate to: `http://localhost:5559`
- - Here you can debug your Celery crawling tasks.
+   - Here you can debug your Celery crawling tasks.
 
 7. Navigate to: `http://localhost:5558`
- - Here you can debug your API processing tasks.
+   - Here you can debug your API processing tasks.
 
 7. Navigate to: `http://localhost:9003/api/docs`
- - API Documentation.
+   - API Documentation.
 
 ![alt text](https://github.com/sbtah/dark-search/blob/main/2.png?raw=true)

@@ -15,9 +15,9 @@ class Crawler(AsyncSpider):
         self.urls_to_crawl: Collection[Url] = urls_to_crawl
         self.max_retries: int = max_retries
         self.queue: deque[Url] = deque()
-        self.found_internal_urls: set[Url | None] = set()
-        self.requested_urls: set[Url | None] = set()
-        self.external_domains: set[Url | None] = set()
+        self.found_internal_urls: set[Url] = set()
+        self.requested_urls: set[Url] = set()
+        self.external_domains: set[Url] = set()
         self.crawl_start: int = self.now_timestamp()
         self.crawl_end: int | None = None
         super().__init__(*args, **kwargs)

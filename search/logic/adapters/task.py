@@ -1,8 +1,10 @@
-from django.db.models import QuerySet
+from typing import Any
+
+from django.db.models import Model, QuerySet
 from logic.adapters.base import BaseAdapter
 from logic.exceptions.adapters.task import (
     NoActiveTasksError,
-    NoTaskValueProvidedError,
+    NoTaskValueProvidedError
 )
 from tasks.models import CrawlTask
 
@@ -10,7 +12,7 @@ from tasks.models import CrawlTask
 class CrawlTaskAdapter(BaseAdapter):
     """Adapter for interacting with CrawlTasks objects."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.task = CrawlTask
         super().__init__(*args, **kwargs)
 

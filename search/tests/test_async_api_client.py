@@ -1,9 +1,7 @@
 """
 Test cases for AsyncApiClient class.
 """
-import json
-from datetime import timedelta
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from httpx import HTTPError, Response
@@ -12,17 +10,17 @@ from logic.parsers.objects.url import Url
 
 
 @pytest.fixture
-def example_token():
+def example_token() -> str:
     return 'TEST_AUTH_TOKEN'
 
 
 @pytest.fixture
-def example_endpoint_url():
+def example_endpoint_url() -> Url:
     return Url('http://api.com/endpoint')
 
 
 @pytest.fixture
-def client():
+def client() -> AsyncApiClient:
     """Fixture returning an instance of AsyncApiClient class."""
     return AsyncApiClient()
 
@@ -32,7 +30,7 @@ class TestAsyncApiClient:
     Tests for AsyncApiClient functionality.
     """
 
-    def test_prepare_auth_headers_method(self, example_token, client):
+    def test_prepare_auth_headers_method(self, example_token, client) -> None:
         """
         Test that prepare_auth_headers method is creating expected dictionary.
         """
@@ -47,7 +45,7 @@ class TestAsyncApiClient:
         mock_get,
         client,
         example_endpoint_url,
-    ):
+    ) -> None:
         """
         Test that AsyncApiClient get method is returning expected response.
         """

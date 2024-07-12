@@ -20,20 +20,23 @@ def urls_collection() -> list[dict[str, str]]:
     urls_collection = [
         {'url': 'http://example.onion/page', 'anchor': 'Url 1'},
         {'url': 'http://example.onion/path?page=1', 'anchor': 'Url 2'},
-        {'url': 'http://example.onion/path?query=string#fragment', 'anchor': 'Url 3'},
+        {
+            'url': 'http://example.onion/path?query=string#fragment',
+            'anchor': 'Url 3'
+        },
         {'url': 'http://example.onion/path#fragment', 'anchor': 'Url 4'},
         {'url': 'http://other.onion', 'anchor': 'Url 5'},
         {'url': 'http://external.onion', 'anchor': ''},
         {'url': 'page.html', 'anchor': '...'},
         {'url': 'page.php', 'anchor': '....'},
         {'url': '/path', 'anchor': 'Test text'},
-        {'url': 'ftp://example.onion/baz' , 'anchor': ''},
+        {'url': 'ftp://example.onion/baz', 'anchor': ''},
         {'url': 'http://example.onion/some.jpeg', 'anchor': 'Image 1'},
         {'url': 'some-2.jpeg', 'anchor': 'Image 2'},
         {'url': '/some-3.jpeg', 'anchor': 'Image 3'},
         {'url': 'http://example.onion/some.pdf', 'anchor': 'Pdf 1'},
-        {'url': 'example.onion', 'anchor': 'malfomed url',},
-        {'url': 'external-2.onion', 'anchor': 'malfomed url 2',}
+        {'url': 'example.onion', 'anchor': 'malformed url'},
+        {'url': 'external-2.onion', 'anchor': 'malformed url 2'}
     ]
     return urls_collection
 
@@ -45,7 +48,7 @@ def user_agent() -> UserAgent:
 
 @pytest.fixture
 def many_agents() -> None:
-    for _ in range (1, 11):
+    for _ in range(1, 11):
         UserAgent.objects.create(value=f'Mozilla/5.0 Test Agent {_}')
 
 
@@ -59,10 +62,12 @@ def many_proxies() -> None:
 def many_urls_element() -> HtmlElement:
     return fromstring(
         '<html>'
-            '<head></head>'
-            '<body>'
-                '<p>Test</p><a href="http://test-url-1.com">Link 1<a/><a href="http://test-url-2.com">Link 2<a/>'
-            '</body>'
+        '<head></head>'
+        '<body>'
+        '<p>Test</p>'
+        '<a href="http://test-url-1.com">Link 1<a/>'
+        '<a href="http://test-url-2.com">Link 2<a/>'
+        '</body>'
         '</html>'
     )
 
@@ -71,10 +76,11 @@ def many_urls_element() -> HtmlElement:
 def empty_urls_element() -> HtmlElement:
     return fromstring(
         '<html>'
-            '<head></head>'
-            '<body>'
-                '<p>Test</p><a href="http://test-url-1.com">Link 1<a/><a href="">Link 1<a/>'
-            '</body>'
+        '<head></head>'
+        '<body>'
+        '<p>Test</p>'
+        '<a href="http://test-url-1.com">Link 1<a/><a href="">Link 1<a/>'
+        '</body>'
         '</html>'
     )
 
@@ -83,10 +89,12 @@ def empty_urls_element() -> HtmlElement:
 def empty_texts_urls_element() -> HtmlElement:
     return fromstring(
         '<html>'
-            '<head></head>'
-            '<body>'
-                '<p>Test</p><a href="http://test-url-1.com"><a/><a href="http://test-url-2.com"><a/>'
-            '</body>'
+        '<head></head>'
+        '<body>'
+        '<p>Test</p>'
+        '<a href="http://test-url-1.com"><a/>'
+        '<a href="http://test-url-2.com"><a/>'
+        '</body>'
         '</html>'
     )
 
@@ -101,26 +109,38 @@ def no_urls_element() -> HtmlElement:
 @pytest.fixture
 def favicon_url_element() -> HtmlElement:
     return fromstring(
-        '<html><head><link href="/favicon.ico"></head><body><p>Test</p></body></html>'
+        '<html>'
+        '<head><link href="/favicon.ico"></head><body><p>Test</p></body>'
+        '</html>'
     )
 
 
 @pytest.fixture
 def nested_h1_element() -> HtmlElement:
     return fromstring(
-        '<html><head></head><body><h1><div><p>This is a title</p></div></h1></body></html>'
+        '<html>'
+        '<head></head>'
+        '<body><h1><div><p>This is a title</p></div></h1></body>'
+        '</html>'
     )
+
 
 @pytest.fixture
 def meta_title_element() -> HtmlElement:
     return fromstring(
-        '<html><head><title>Test Page</title></head><body><p>Test</p></body></html>'
+        '<html>'
+        '<head><title>Test Page</title></head><body><p>Test</p></body>'
+        '</html>'
     )
+
 
 @pytest.fixture
 def meta_description_element() -> HtmlElement:
     return fromstring(
-        '<html><head><meta name="description" content="Description!"></head><body><p>Test</p></body></html>'
+        '<html>'
+        '<head><meta name="description" content="Description!"></head>'
+        '<body><p>Test</p></body>'
+        '</html>'
     )
 
 
@@ -129,13 +149,15 @@ def example_webpage_element() -> HtmlElement:
     return fromstring(
         """
         <html>
-            <head>
-                <title>Test Page</title><link href="/favicon.ico"><meta name="description" content="Description!">
-            </head>
-            <body>
-                <h1><div><p>This is a title</p></div></h1>
-                <p>Test</p><a href="http://test-url-1.com">Link 1<a/><a href="http://test-url-2.com">Link 1<a/>
-            </body>
+        <head>
+        <title>Test Page</title><link href="/favicon.ico">
+        <meta name="description" content="Description!">
+        </head>
+        <body>
+        <h1><div><p>This is a title</p></div></h1>
+        <p>Test</p><a href="http://test-url-1.com">Link 1<a/>
+        <a href="http://test-url-2.com">Link 1<a/>
+        </body>
         </html>
         """
     )
@@ -145,13 +167,16 @@ def example_webpage_element() -> HtmlElement:
 def example_text_response() -> str:
     text = """
         <html>
-            <head>
-                <title>Test Page</title><link href="/favicon.ico"><meta name="description" content="Description!">
-            </head>
-            <body>
-                <h1><div><p>This is a title</p></div></h1>
-                <p>Test</p><a href="http://test-url-1.com">Link 1<a/><a href="http://test-url-2.com">Link 1<a/>
-            </body>
+        <head>
+        <title>Test Page</title>
+        <link href="/favicon.ico">
+        <meta name="description" content="Description!">
+        </head>
+        <body>
+        <h1><div><p>This is a title</p></div></h1>
+        <p>Test</p><a href="http://test-url-1.com">Link 1<a/>
+        <a href="http://test-url-2.com">Link 1<a/>
+        </body>
         </html>
         """
     return text

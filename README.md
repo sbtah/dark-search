@@ -4,7 +4,7 @@
 Welcome to Dark Search!
 
 Dark Search is a sophisticated Python-based crawler service designed to delve into the depths of the internet. 
-Crafted using Django, Celery, Redis, postgresql, asyncio and tested with pytest.
+Crafted using: Django, Django-Ninja, Celery, Redis, postgresql, asyncio and tested with pytest and mypy.
 This project is dedicated to unearthing Tor(onion) domains,
 while furnishing comprehensive information and insightful statistics about them.
 
@@ -57,13 +57,13 @@ make run-crawl-task
 
 - Navigate to: `http://localhost:9002/admin`
    - Here you will see crawling Tasks.
-   - login: admin
-   - password: admin
+   - login: `admin`
+   - password: `admin`
 
 - Navigate to: `http://localhost:9003/admin`
   - Here you will see your crawled data. Enjoy!
-  - login: admin
-  - password: admin
+  - login: `admin`
+  - password: `admin`
 
 - Navigate to: `http://localhost:5559`
    - Here you can debug your Celery crawling tasks.

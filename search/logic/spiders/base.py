@@ -1,7 +1,8 @@
+import copy
 import time
 from logging import Logger
 from urllib.parse import urlsplit
-import copy
+
 from logic.adapters.task import CrawlTaskAdapter
 from logic.parsers.byte import Converter
 from logic.parsers.html import HtmlExtractor
@@ -70,18 +71,18 @@ class BaseSpider:
         if copied_response.get('processed_urls') is None:
             return serialized_response
 
-        processed_urls: dict[str: set[Url | None], str: set[Url | None]] = copied_response.pop('processed_urls')
+        processed_urls: dict[str, set[Url]] = copied_response.pop('processed_urls')
         processed_urls_new: dict = dict()
 
-        if len(processed_urls.get('internal')) > 0:
+        if len(processed_urls['internal']) > 0:
             internal_set: set[Url] = processed_urls.pop('internal')
             new_internal: list[dict] = [url_obj.serialize() for url_obj in internal_set]
             processed_urls_new['internal'] = new_internal
 
-        if len(processed_urls.get('external')) > 0:
+        if len(processed_urls['external']) > 0:
             external_set: set[Url] = processed_urls.pop('external')
             new_external: list[dict] = [url_ob.serialize() for url_ob in external_set]
             processed_urls_new['external'] = new_external
 
-        serialized_response: dict = {'requested_url': url, **copied_response, 'processed_urls': processed_urls_new}
+        serialized_response = {'requested_url': url, **copied_response, 'processed_urls': processed_urls_new}
         return serialized_response

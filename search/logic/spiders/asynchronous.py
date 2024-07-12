@@ -1,5 +1,4 @@
 import asyncio
-import traceback
 from asyncio import Future
 from collections import deque
 from typing import Iterable
@@ -46,7 +45,7 @@ class AsyncSpider(BaseSpider):
         except Exception as exc:
             self.logger.error(
                 f'({AsyncSpider.get.__qualname__}): Some other exception="{exc.__class__}", '
-                f'message="{exc}", traceback="{traceback.print_exception(exc)}"'
+                f'message="{exc}"', exc_info=True
             )
             return None, url
 
@@ -108,7 +107,7 @@ class AsyncSpider(BaseSpider):
         except Exception as e:
             self.logger.error(
                 f'Response: status="Exception", class="{e.__class__}", message="{e}", '
-                f'traceback="{traceback.print_exception(e)}", url="{url}"'
+                f'url="{url}"', exc_info=True
             )
             return {
                 'requested_url': url,

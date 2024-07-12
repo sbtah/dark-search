@@ -20,12 +20,16 @@ Including but not limited to hacking, ransomware, databases, leaked credentials,
 
 ![alt text](https://github.com/sbtah/dark-search/blob/main/1.png?raw=true)
 ----
-## Features:
+## Working features:
 - Crawl specified webpage,
 - Extract, filter and validate urls on each crawled webpage,
 - Retry requests for urls without response,
 - Schedule crawl tasks for newly found domains,
-- Save extensive data about crawled webpage.
+
+## WIP:
+- Save extensive data about crawled webpage,
+- Translate text content and extract text meaning(AI),
+- Show all kinds of statistics in dedicated front app,
 
 ## Installation:
 To set up this project locally, follow these steps:

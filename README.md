@@ -50,7 +50,7 @@ make build
 make run
 ```
 
-3. Run a CrawlTask
+4. Run a CrawlTask
 ```bash
 make run-crawl-task
 ```
@@ -68,13 +68,13 @@ make run-crawl-task
 7. Navigate to: `http://localhost:5559`
    - Here you can debug your Celery crawling tasks.
 
-7. Navigate to: `http://localhost:5558`
+8. Navigate to: `http://localhost:5558`
    - Here you can debug your API processing tasks.
 
-7. Navigate to: `http://localhost:9003/api/docs`
+9. Navigate to: `http://localhost:9003/api/docs`
    - API Documentation.
 
-7. Navigate to: `http://localhost:3000`
+10. Navigate to: `http://localhost:3000`
    - Dedicated front application.
 
 ![alt text](https://github.com/sbtah/dark-search/blob/main/2.png?raw=true)

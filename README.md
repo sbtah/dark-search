@@ -38,31 +38,32 @@ cd dark-search
 
 2. Build Images:
 ```bash
-docker compose build
-docker compose up
+make build
 ```
 
-3. Current start method:
- - Start the containers, first task is already prepared.
-
-
-4. Create super user for scout service.
+3. Start services:
 ```bash
-docker exec -it search /bin/sh
-python3 manage.py createsuperuser
+make run
+```
+
+3. Run a CrawlTask
+```bash
+make run-crawl-task
 ```
 
 5. Navigate to: `http://localhost:9002/admin`
  - Here you will see crawling Tasks.
 
-
-6. Create super user for api service.
-```bash
-docker exec -it api /bin/sh
-python3 manage.py createsuperuser
-```
-
-7. Navigate to: `http://localhost:9003/admin`
+6. Navigate to: `http://localhost:9003/admin`
  - Here you will see your crawled data. Enjoy!
+
+7. Navigate to: `http://localhost:5559`
+ - Here you can debug your Celery crawling tasks.
+
+7. Navigate to: `http://localhost:5558`
+ - Here you can debug your API processing tasks.
+
+7. Navigate to: `http://localhost:9003/api/docs`
+ - API Documentation.
 
 ![alt text](https://github.com/sbtah/dark-search/blob/main/2.png?raw=true)

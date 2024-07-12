@@ -29,7 +29,10 @@ class SyncSpider(BaseSpider):
                 res = client.get(url.value, headers=headers)
                 return res, url
         except Exception as exc:
-            self.logger.error(f'({SyncSpider.get.__qualname__}): Some other exception="{exc.__class__}", message="{exc}"')
+            self.logger.error(
+                f'({SyncSpider.get.__qualname__}): Some other exception="{exc.__class__}", '
+                f'message="{exc}"', exc_info=True,
+            )
             return None, url
 
     def request(self, url: Url = None) -> dict:
@@ -116,6 +119,7 @@ class SyncSpider(BaseSpider):
         favicon_base_64: str | None = self.converter.convert(response[0].content) if response[0] is not None \
             else None
         self.logger.debug(
-            f'Response: status="{response[0].status_code}", url="{favicon_url}", favicon_base_64="{True if favicon_base_64 is not None else False}"'
+            f'Response: status="{response[0].status_code}", url="{favicon_url}", '
+            f'favicon_base_64="{True if favicon_base_64 is not None else False}"'
         )
         return favicon_base_64

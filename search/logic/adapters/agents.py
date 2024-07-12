@@ -1,5 +1,7 @@
 from random import choice
+from typing import Any
 
+from django.db.models import QuerySet
 from logic.adapters.base import BaseAdapter
 from logic.exceptions.adapters.agents import NoUserAgentsError
 from parameters.models import UserAgent
@@ -8,7 +10,7 @@ from parameters.models import UserAgent
 class UserAgentAdapter(BaseAdapter):
     """Adapter for creating and fetching user agents from database."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.agent = UserAgent
         super().__init__(*args, **kwargs)
 
@@ -36,7 +38,7 @@ class UserAgentAdapter(BaseAdapter):
         """
         Retrieve random UserAgent object from database.
         """
-        agents = self.agent.objects.all()
+        agents: QuerySet[UserAgent | None] = self.agent.objects.all()
         if not agents:
             raise NoUserAgentsError()
         return choice(agents)

@@ -5,14 +5,13 @@ from logic.parsers.objects.url import Url
 from logic.spiders.crawler import Crawler
 
 # Url to crawl.
-str_url = f'http://darkzzx4avcsuofgfez5zq75cqc4mprjvfqywo45dfcaxrwqg6qrlfid.onion'
+str_url = 'http://darkzzx4avcsuofgfez5zq75cqc4mprjvfqywo45dfcaxrwqg6qrlfid.onion' # noqa
 
 
 class Command(BaseCommand):
-    """Base command for restarting Celery workers."""
 
     def handle(self, *args, **kwargs):
-        agent = 'Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0'
+        agent = 'Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0' # noqa
         proxy = 'http://search-privoxy:8118'
         _url = Url(value=str_url)
         crawler = Crawler(

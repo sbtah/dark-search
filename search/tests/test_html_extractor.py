@@ -45,8 +45,8 @@ class TestHtmlExtractor:
         assert len(urls) == 1
 
     def test_html_extractor_extract_urls_with_texts_returns_empty_strings_for_elements_without_anchor(
-            self, empty_texts_urls_element
-        ):
+        self, empty_texts_urls_element
+    ):
         """Test that extract_urls_with_texts is returning expected number of urls."""
         urls = HtmlExtractor().extract_urls_with_texts(empty_texts_urls_element)
         assert isinstance(urls, list)
@@ -103,8 +103,9 @@ class TestHtmlExtractor:
     def test_html_extractor_extract_entire_text_returns_desired_string(self, example_webpage_element):
         """Test that extract_entire_text is returning string with proper content."""
         content = HtmlExtractor().extract_entire_text(example_webpage_element)
+        print(content)
         assert isinstance(content, str)
-        assert content == '\n                This is a title\n                TestLink 1Link 1\n            '
+        assert content == 'This is a titleTestLink 1Link 1'
 
     def test_html_extractor_extract_entire_text_returns_none_on_exception(self, mocker, no_urls_element):
         """Test that extract_html_body is returning an empty string on any Exception."""

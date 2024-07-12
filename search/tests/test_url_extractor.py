@@ -124,15 +124,14 @@ class TestUrlExtractor:
         """Test that UrlExtractor's is_onion method is returning False for other than onion domains."""
         assert url_extractor.is_onion(input) is expected
 
-
     @pytest.mark.parametrize(
         'input, expected',
         [
             ('/file.zip', True), ('/file.7z', True), ('/file.rar', True), ('/file.doc', True), ('/file.docx', True),
-            ('/file.docm', True),('/file.pdf', True), ('/file.ods', True), ('/file.xlsx', True), ('/file.xls', True),
+            ('/file.docm', True), ('/file.pdf', True), ('/file.ods', True), ('/file.xlsx', True), ('/file.xls', True),
             ('/file.txt', True), ('/file.odt', True), ('/file.ods', True), ('/file.tgz', True), ('/file.tar.xz', True),
-            ('/file.tar.Z', True), ('/file.tar.zst', True), ('/file.tar.gz', True), ('/file.tar.lz', True),('/file.tar.bz2', True),
-            ('/file.tar', True), ('/file.tlz', True), ('/file.tbz2', True), ('/file.txz', True),('/file.png', True),
+            ('/file.tar.Z', True), ('/file.tar.zst', True), ('/file.tar.gz', True), ('/file.tar.lz', True), ('/file.tar.bz2', True),
+            ('/file.tar', True), ('/file.tlz', True), ('/file.tbz2', True), ('/file.txz', True), ('/file.png', True),
             ('/file.jpg', True), ('/file.jpeg', True), ('/file.csv', True), ('/file.bin', True), ('/file.bat', True),
             ('/file.accdb', True), ('/file.dll', True), ('/file.exe', True), ('/file.gif', True), ('/file.mov', True),
             ('/file.mp3', True), ('/file.mp4', True), ('/file.mpeg', True), ('/file.mpg', True), ('/file.ppt', True),

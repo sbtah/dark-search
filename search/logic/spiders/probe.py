@@ -1,8 +1,7 @@
-from logic.spiders.synchronous import SyncSpider
 from collections import deque
+
 from logic.parsers.objects.url import Url
-from typing import Collection
-from httpx import Response
+from logic.spiders.synchronous import SyncSpider
 
 
 class Probe(SyncSpider):

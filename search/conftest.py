@@ -147,19 +147,16 @@ def meta_description_element() -> HtmlElement:
 @pytest.fixture
 def example_webpage_element() -> HtmlElement:
     return fromstring(
-        """
-        <html>
-        <head>
-        <title>Test Page</title><link href="/favicon.ico">
-        <meta name="description" content="Description!">
-        </head>
-        <body>
-        <h1><div><p>This is a title</p></div></h1>
-        <p>Test</p><a href="http://test-url-1.com">Link 1<a/>
-        <a href="http://test-url-2.com">Link 1<a/>
-        </body>
-        </html>
-        """
+        '<html>'
+        '<head>'
+        '<title>Test Page</title><link href="/favicon.ico"><meta name="description" content="Description!">'
+        '</head>'
+        '<body>'
+        '<h1><div><p>This is a title</p></div></h1>'
+        '<p>Test</p><a href="http://test-url-1.com">Link 1<a/>'
+        '<a href="http://test-url-2.com">Link 1<a/>'
+        '</body>'
+        '</html>'
     )
 
 

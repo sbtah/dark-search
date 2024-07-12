@@ -7,7 +7,6 @@ import pytest
 from django.db.models import QuerySet
 from logic.adapters.task import CrawlTaskAdapter
 from logic.exceptions.adapters.task import (
-    NoActiveTasksError,
     NoTaskValueProvidedError,
 )
 from tasks.models import CrawlTask

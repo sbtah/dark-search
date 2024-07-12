@@ -1,5 +1,5 @@
 # Dark Search
-## Q: what is it?: An asyncio Tor domain search service.
+## Q: what is it?: An async Tor domain search service.
 
 Welcome to Dark Search!
 

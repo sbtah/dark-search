@@ -15,7 +15,7 @@ class ProxyAdapter(BaseAdapter):
 
     def sync_get_or_create_proxy(self, proxy: str) -> Proxy:
         """
-        Create new Proxy object or return existing one.
+        Create a new Proxy object or return existing one.
         - :arg proxy: String representing Proxy value.
         """
         try:

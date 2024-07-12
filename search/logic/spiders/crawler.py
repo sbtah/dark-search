@@ -94,14 +94,14 @@ class Crawler(AsyncSpider):
                 f'Crawler, finished: domain="{self.domain}", crawled_urls="{len(self.requested_urls)}", '
                 f'found_domains="{len(self.external_domains)}", in_time="{self.crawl_end - self.crawl_start}"'
             )
-            # Send post crawl summary data to API service.
+            # Send 'POST' request with summary data to API service.
             result_data = {
-                    'domain': self.domain,
-                    'urls_crawled': len(self.requested_urls),
-                    'external_domains_found': len(self.external_domains),
-                    'time': int(self.crawl_end - self.crawl_start),
-                    'date': self.now_timestamp()
-                }
+                'domain': self.domain,
+                'urls_crawled': len(self.requested_urls),
+                'external_domains_found': len(self.external_domains),
+                'time': int(self.crawl_end - self.crawl_start),
+                'date': self.now_timestamp()
+            }
             # await self.client.post_summary_data(data=result_data)
             return result_data
 

@@ -1,10 +1,10 @@
 from typing import Any
 
-from django.db.models import Model, QuerySet
+from django.db.models import QuerySet
 from logic.adapters.base import BaseAdapter
 from logic.exceptions.adapters.task import (
     NoActiveTasksError,
-    NoTaskValueProvidedError
+    NoTaskValueProvidedError,
 )
 from tasks.models import CrawlTask
 
@@ -51,7 +51,7 @@ class CrawlTaskAdapter(BaseAdapter):
         - :arg for_launch:
             Bool representing condition to save some additional values on Task,
             while setting status to 'TAKEN'. Defaults to True.
-            If set to False only status of task will be updated.
+            If set to False only the status of a task will be updated.
         - :arg celery_id: String with ID of Celery Task.
         - :arg launch_timestamp: Integer with date of launch (timestamp).
         """

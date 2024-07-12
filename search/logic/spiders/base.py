@@ -18,7 +18,7 @@ class BaseSpider:
     as well as initial url object.
     """
 
-    def __init__(self, initial_url: Url, proxy: str,  user_agent: str) -> None:
+    def __init__(self, initial_url: Url, proxy: str, user_agent: str) -> None:
         self.initial_url: Url = initial_url
         self._domain: str | None = None
         self.proxy: str = proxy

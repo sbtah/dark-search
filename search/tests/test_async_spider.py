@@ -152,7 +152,7 @@ class TestAsyncSpider:
         example_url_objects,
     ):
         """Test that AsyncSpider request method is returning expected list of results."""
-        responses = await spider.run_requests(example_url_objects)
+        await spider.run_requests(example_url_objects)
         expected = [
             call(url=Url('http://found.onion/page0')),
             call(url=Url('http://found.onion/page1')),

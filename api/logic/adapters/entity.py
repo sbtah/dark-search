@@ -11,15 +11,15 @@ class EntityAdapter(BaseAdapter):
         self.entity: Entity = Entity
         super().__init__()
 
-    def sync_get_or_create_entity(
+    def get_or_create_entity(
         self,
         name: str,
         description: str | None = None,
         additional_data: dict | None = None,
     ) -> Entity:
         """
-        Synchnronous version.
-        Create new Entity object or return existing one.
+        Synchronous version.
+        Create a new Entity object or return existing one.
         Return Entity object.
         - :arg name: String representing Entity name.
         - :arg description: String representing extra description about Entity.
@@ -36,6 +36,5 @@ class EntityAdapter(BaseAdapter):
             if additional_data is not None:
                 creation_data['additional_data'] = additional_data
             new_entity: Entity = self.entity.objects.create(**creation_data)
-            self.logger.debug(f'EnityAdapter, created new Entity: entity_id="{new_entity.id}", name="{name}"')
+            self.logger.debug(f'EntityAdapter, created new Entity: entity_id="{new_entity.id}", name="{name}"')
             return new_entity
-

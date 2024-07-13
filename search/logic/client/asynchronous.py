@@ -101,11 +101,11 @@ class AsyncApiClient(BaseApiClient):
     async def post_response_data(self, data: dict) -> tuple[Response | None, Url]:
         """Send crawled response data to dedicated endpoint."""
         response = await self.run_request(request_type='POST', url=self.post_response_url, data=data)
-        # self.logger.debug()
+        self.logger.debug(f'API, parsed crawl data: response="{response}"')
         return response
 
     async def post_summary_data(self, data: dict) -> tuple[Response | None, Url]:
-        """Send post crawl summary data to dedicated endpoint"""
+        """Send 'POST' request with summary data to dedicated endpoint"""
         response = await self.run_request(request_type='POST', url=self.post_summary_url, data=data)
-        # self.logger.debug()
+        self.logger.debug(f'API, parsed summary data: response="{response}"')
         return response

@@ -97,12 +97,12 @@ class Crawler(AsyncSpider):
             # Send 'POST' request with summary data to API service.
             result_data = {
                 'domain': self.domain,
-                'urls_crawled': len(self.requested_urls),
-                'external_domains_found': len(self.external_domains),
+                'num_urls_crawled': int(len(self.requested_urls)),
+                'num_external_domains_found': int(len(self.external_domains)),
                 'time': int(self.crawl_end - self.crawl_start),
                 'date': self.now_timestamp()
             }
-            # await self.client.post_summary_data(data=result_data)
+            await self.client.post_summary_data(data=result_data)
             return result_data
 
     def prepare_urls_queue(self) -> None:

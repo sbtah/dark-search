@@ -20,7 +20,6 @@ class TestUrlExtractor:
     def test_url_extractor_parse(self, url_extractor, urls_collection):
         """Test UrlExtractor's parse method."""
         results = url_extractor.parse(urls_collection)
-        # print(results)
         assert results == {
             'internal': {
                 Url(value='http://example.onion/page', anchor='Url 1', number_of_requests=0),

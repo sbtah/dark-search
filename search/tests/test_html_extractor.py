@@ -103,7 +103,6 @@ class TestHtmlExtractor:
     def test_html_extractor_extract_entire_text_returns_desired_string(self, example_webpage_element):
         """Test that extract_entire_text is returning string with proper content."""
         content = HtmlExtractor().extract_entire_text(example_webpage_element)
-        print(content)
         assert isinstance(content, str)
         assert content == 'This is a titleTestLink 1Link 1'
 

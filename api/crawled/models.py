@@ -29,7 +29,7 @@ class Entity(models.Model):
     name = models.CharField(max_length=255, unique=True, db_index=True)
     # Description for entity. Can be set manually or scraped from any source.
     description = models.TextField(blank=True, null=True)
-    # Any data about entity like: contact info, bitcoin wallets, telegram or jabber channels etc...
+    # Any data about entity like: contact info, bitcoin wallets, telegram or jabber channels, etc...
     additional_data = models.JSONField(blank=True, null=True)
 
     class Meta:
@@ -103,9 +103,9 @@ class Webpage(models.Model):
     description_tags = models.ManyToManyField(Tag)
     # How many times we successfully requested this url? status 200.
     detected_language = models.CharField(max_length=100, blank=True, null=True)
-    # List of texts that other site use in links. This has to be saved via pre-save signal.
+    # List of texts that the other sites are using in links.
     anchor_texts = ArrayField(models.CharField(max_length=2000), null=True, blank=True)
-    # This will be processed by AI model.
+    # AI model will process this.
     translated_anchor_texts = ArrayField(models.CharField(max_length=2000), null=True, blank=True)
 
     class Meta:

@@ -29,7 +29,7 @@ class TestEntityAdapter:
         """
         Test that sync_get_or_create_entity is successfully fetching Entity objects from db.
         """
-        return_value = adapter.sync_get_or_create_entity(name='test-entity')
+        return_value = adapter.get_or_create_entity(name='test-entity')
         assert isinstance(return_value, Entity)
 
     def test_entity_adapter_sync_get_or_create_entity_create_entity_with_name_only(
@@ -37,10 +37,10 @@ class TestEntityAdapter:
         adapter,
     ) -> None:
         """
-        Test that sync_get_or_create_entity successfully creates new Entity object.
+        Test that sync_get_or_create_entity successfully creates a new Entity object.
         """
         assert Entity.objects.count() == 0
-        return_value = adapter.sync_get_or_create_entity(name='test-entity')
+        return_value = adapter.get_or_create_entity(name='test-entity')
         assert Entity.objects.count() == 1
         assert return_value.name == 'test-entity'
 
@@ -60,9 +60,8 @@ class TestEntityAdapter:
             'description': description,
             'additional_data': additional_data,
         }
-        return_value = adapter.sync_get_or_create_entity(**creation_data)
+        return_value = adapter.get_or_create_entity(**creation_data)
         assert Entity.objects.count() == 1
         assert return_value.name == name
         assert return_value.description == description
         assert return_value.additional_data == additional_data
-

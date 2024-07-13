@@ -166,9 +166,17 @@ class UrlExtractor:
             # Extracted anchor.
             anchor: str = url_dict['anchor']
 
+            # Repairing paths and query urls, by joining them with starting_url.
+            if not self.is_valid_url(current_url_split_result) and self.is_path(current_url_split_result.path) and current_url_split_result.query:
+                fixed_url: str = self.join_result(self.starting_url.value, f'{current_url_split_result.path}?{current_url_split_result.query}')
+                # Set new fixed url.
+                url = fixed_url
+                # Set new split result.
+                current_url_split_result = self.split_result(fixed_url)
+
             # Repairing paths only urls, by joining them with starting_url.
             if not self.is_valid_url(current_url_split_result) and self.is_path(current_url_split_result.path):
-                fixed_url: str = self.join_result(self.starting_url.value, current_url_split_result.path)
+                fixed_url = self.join_result(self.starting_url.value, current_url_split_result.path)
                 # Set new fixed url.
                 url = fixed_url
                 # Set new split result.
@@ -204,4 +212,5 @@ class UrlExtractor:
                 url_obj = self.url_adapter.create_url_object(**url_data)
                 # Urls with domain leading outside the current domain are added to the external set.
                 parse_results['external'].add(url_obj)
+        print(parse_results)
         return parse_results

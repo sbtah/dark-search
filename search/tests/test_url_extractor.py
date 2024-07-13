@@ -13,7 +13,7 @@ class TestUrlExtractor:
 
     def test_url_extractor_root_domain(self):
         """Test that root domain is properly set from starting_url."""
-        url = Url(value='http://found.onion/')
+        url = Url(value='http://found.onion')
         extractor = UrlExtractor(starting_url=url)
         assert extractor.root_domain == 'found.onion'
 
@@ -25,6 +25,9 @@ class TestUrlExtractor:
             'internal': {
                 Url(value='http://example.onion/page', anchor='Url 1', number_of_requests=0),
                 Url(value='http://example.onion/path?page=1', anchor='Url 2', number_of_requests=0),
+                Url(value='http://example.onion/page.php?q=canary', anchor='Canary', number_of_requests=0),
+                Url(value='http://example.onion/page.php?q=main&l=it', anchor='Italiano', number_of_requests=0),
+                Url(value='http://example.onion/page.php?q=shell', anchor='Shell Accounts', number_of_requests=0),
                 Url(value='http://example.onion/path?query=string', anchor='Url 3', number_of_requests=0),
                 Url(value='http://example.onion/path', anchor='Url 4', number_of_requests=0),
                 Url(value='http://example.onion/page.html', anchor='...', number_of_requests=0),
@@ -41,7 +44,7 @@ class TestUrlExtractor:
 
     def test_url_extractor_parse_favicon_url(self, url_extractor):
         """
-        Test that UrlExtractor's parse_favicon_url is returning desired Url object.
+        Test that UrlExtractor's parse_favicon_url is returning the desired Url object.
         """
         result = url_extractor.parse_favicon_url('/favicon.ico')
         assert result == Url(value="http://example.onion/favicon.ico")

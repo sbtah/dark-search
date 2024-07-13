@@ -64,7 +64,7 @@ services:
     image: postgres:16.2
     container_name: search-db
     volumes:
-      - search-db-data-dev:/var/lib/postgresql/data/
+      - ./local/search/postgres:/var/lib/postgresql/data/
     ports:
       - "127.0.0.1:45432:5432"
     environment:
@@ -78,7 +78,7 @@ services:
     image: postgres:16.2
     container_name: api-db
     volumes:
-      - api-db-data-dev:/var/lib/postgresql/data/
+      - ./local/api/postgres:/var/lib/postgresql/data/
     ports:
       - "127.0.0.1:55432:5432"
     environment:
@@ -128,7 +128,7 @@ services:
     image: redis:7.2.0-alpine
     container_name: search-redis
     volumes:
-      - search-redis-dev:/data
+      - ./local/redis:/data
     networks:
       - search-network
 
@@ -214,11 +214,6 @@ services:
       - "127.0.0.1:8118:8118" # Privoxy
     networks:
       - search-network
-
-volumes:
-  search-redis-dev:
-  search-db-data-dev:
-  api-db-data-dev:
 
 networks:
   search-network:

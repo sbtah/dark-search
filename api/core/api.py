@@ -9,7 +9,7 @@ api = NinjaAPI(
 
 
 @api.get('/')
-async def home(request):
+def home(request):
     return {"message": "Hello World"}
 
 

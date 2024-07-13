@@ -24,10 +24,11 @@ check-linting-api:
 	docker compose run --rm api sh -c 'flake8'
 
 run-crawl:
-	@echo "This will run a CrawlTask"
+	@echo "Starting a CrawlTask..."
 	@sleep 5
 	docker compose run --rm search sh -c 'python manage.py crawl'
 
-run-crawl-task:
-	# Usage: make run-crawl-task argument=task_id
-	@echo "This will run a CrawlTask of ID: $(argument)"
+trash-local-databases:
+	@echo "Warning this command will remove local databases!"
+	@sleep 5
+	sudo rm -rfv ./local/*

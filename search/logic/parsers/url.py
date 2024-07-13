@@ -13,8 +13,8 @@ FILE_PATTERN: Pattern = re.compile(
     \.csv|\.bin|\.bat|\.accdb|\.dll|\.exe|\.gif|\.mov|\.mp3|\.mp4|\.mpeg|\.mpg|\.ppt|\.pptx|\.xps|\.cbz|\.cbr)$""", re.VERBOSE
 )
 
-# Pattern for domains identification,
-# for cases when href attribute will contain only a domain without proper scheme.
+# Pattern for domain identification,
+# for cases when href attribute will contain only a domain without a proper scheme.
 DOMAIN_PATTERN: str = r'^(?=.{1,255}$)(?!-)[A-Za-z0-9\-]{1,63}(\.[A-Za-z0-9\-]{1,63})*\.?(?<!-)$'
 
 
@@ -125,7 +125,7 @@ class UrlExtractor:
         """
         Parse str representing favicon url.
         Favicon urls are usually a path urls,
-        this method is building full url and converting it to Url object.
+        this method is building a full url and converting it to the Url object.
         - :arg favicon_url: String if favicon url was successfully extracted.
         """
         if favicon_url is None:
@@ -182,7 +182,7 @@ class UrlExtractor:
                 # Set new split result.
                 current_url_split_result = self.split_result(fixed_url)
 
-            # Repairing urls without scheme. Urlsplit will categorize these as paths.
+            # Repairing urls without a scheme. Urlsplit will categorize these as paths.
             if not self.is_valid_url(current_url_split_result) and self.is_domain(current_url_split_result.path):
                 fixed_url = f'http://{current_url_split_result.path}'
                 url = fixed_url
@@ -212,5 +212,4 @@ class UrlExtractor:
                 url_obj = self.url_adapter.create_url_object(**url_data)
                 # Urls with domain leading outside the current domain are added to the external set.
                 parse_results['external'].add(url_obj)
-        print(parse_results)
         return parse_results

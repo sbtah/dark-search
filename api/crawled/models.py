@@ -51,21 +51,25 @@ class Domain(models.Model):
     )
     value = models.CharField(max_length=2000, unique=True, db_index=True)
     # Some entities host the same site on multiple different domains.
-    # We want to easily identify them, saving favicon as base64 is basically a one way to do it.
+    # To easily identify them, saving favicon image as base64 is basically a one way to do it.
     favicon_base64 = models.TextField(blank=True, null=True, db_index=True)
     server = models.CharField(max_length=100, blank=True, null=True)
+    last_crawl_date = models.IntegerField(default=0)
+    # This value increment on a crawl start.
+    number_of_crawls = models.IntegerField(default=0)
+    # This value increment on a crawl end.
+    number_of_successful_crawls = models.IntegerField(default=0)
+    # Calculated from the number of incoming links.
+    average_crawl_time = models.IntegerField(default=0)
+    domain_rank = models.FloatField(blank=True, null=True)
     site_structure = models.JSONField(blank=True, null=True)
     # Domains that this domain is linking to.
-    linking_to = models.ManyToManyField('self')
-    last_crawl_date = models.IntegerField(default=0)
-    average_crawl_time = models.IntegerField(default=0)
-    # Will increment on a crawl start.
-    number_of_crawls = models.IntegerField(default=0)
-    # Will increment on a crawl end.
-    number_of_successful_crawls = models.IntegerField(default=0)
+    # related_name=''
+    linking_to = models.ManyToManyField('self', related_name='linking_from', symmetrical=False)
+    # A simple timeseries implementation of outbound links over time.
+    # Where key will be a timestamp and value will be a list of domains.
+    linking_to_logs = models.JSONField(blank=True, null=True)
     created = models.IntegerField(blank=True, null=True)
-    # Calculated via number of incoming links.
-    domain_rank = models.FloatField(blank=True, null=True)
 
     class Meta:
         db_table = 'domains'
@@ -78,6 +82,27 @@ class Domain(models.Model):
 
     def __str__(self):
         return self.value
+
+    @property
+    def num_of_linking_to_domains(self):
+        """
+        Return number of current number of Domains that this Domain is linking to.
+        """
+        return int(self.linking_to.count())
+
+    @property
+    def num_of_linking_from_domains(self):
+        """
+        Return number of links that this Domain is receiving from all other Domains.
+        """
+        return int(self.linking_from.count())
+
+    @property
+    def linking_from(self):
+        """
+        Return Queryset of all Domains that this Domain is receiving links from.
+        """
+        return self.linking_from.all()
 
 
 class Webpage(models.Model):

@@ -12,8 +12,8 @@ class Webpage(models.Model):
     Object representing a single Webpage(url) found while crawling TOR Domain.
     """
     parent_domain = models.ForeignKey(Domain, on_delete=models.CASCADE)
-    is_homepage = models.BooleanField(default=False)
     url = models.URLField(max_length=2000, unique=True, db_index=True)
+    is_homepage = models.BooleanField(default=False)
     # Since we could get redirected. This url does not have to be unique.
     url_after_request = models.URLField(max_length=2000)
     last_request_date = models.IntegerField(default=0)
@@ -21,13 +21,13 @@ class Webpage(models.Model):
     last_http_status = models.CharField(max_length=3, blank=True, null=True)
     # Calculated for successful responses.
     average_response_time = models.FloatField(default=0)
+    number_of_requests = models.IntegerField(default=0)
     number_of_successful_requests = models.IntegerField(default=0)
-    number_of_unsuccessful_requests = models.IntegerField(default=0)
     is_active = models.BooleanField(default=False)
     created = models.IntegerField(blank=True, null=True)
 
     # What is this Webpage about.
-    description_tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag)
     # How many times we successfully requested this url? status 200.
     detected_language = models.CharField(max_length=100, blank=True, null=True)
     # List of texts that the other sites are using in links.

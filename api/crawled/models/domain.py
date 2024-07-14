@@ -27,7 +27,7 @@ class Domain(models.Model):
     average_crawl_time = models.IntegerField(default=0)
     domain_rank = models.FloatField(blank=True, null=True)
     # What is this Domain about.
-    description_tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag)
     site_structure = models.JSONField(blank=True, null=True)
     # Domains that this domain is linking to.
     linking_to = models.ManyToManyField('self', related_name='_linking_from', symmetrical=False)

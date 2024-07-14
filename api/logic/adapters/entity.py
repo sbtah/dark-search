@@ -13,14 +13,13 @@ class EntityAdapter(BaseAdapter):
 
     def get_or_create_entity(
         self,
+        *,
         name: str,
         description: str | None = None,
         additional_data: dict | None = None,
     ) -> Entity:
         """
-        Synchronous version.
         Create a new Entity object or return existing one.
-        Return Entity object.
         - :arg name: String representing Entity name.
         - :arg description: String representing extra description about Entity.
         - :arg additional_data: Dictionary with any extra data about Entity

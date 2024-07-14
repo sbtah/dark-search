@@ -98,6 +98,7 @@ class Crawler(AsyncSpider):
             result_data = {
                 'domain': self.domain,
                 'num_urls_crawled': int(len(self.requested_urls)),
+                'external_domains_found': list(self.external_domains),
                 'num_external_domains_found': int(len(self.external_domains)),
                 'time': int(self.crawl_end - self.crawl_start),
                 'date': self.now_timestamp()

@@ -4,7 +4,7 @@ Test cases for EntityAdapter class.
 from unittest.mock import MagicMock
 
 import pytest
-from crawled.models import Entity
+from crawled.models.entity import Entity
 from logic.adapters.entity import EntityAdapter
 
 

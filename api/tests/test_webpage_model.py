@@ -2,7 +2,7 @@
 # Test cases for Webpage objects.
 # """
 import pytest
-from crawled.models import Webpage
+from crawled.models.webpage import Webpage
 from django.db.utils import IntegrityError
 
 
@@ -10,7 +10,7 @@ pytestmark = pytest.mark.django_db
 
 
 class TestWebpageModel:
-    """Test cases for Webpage model."""
+    """Test cases for the Webpage model."""
 
     def test_create_webpage(self, example_domain):
         """Test creating Webpage object is successful."""

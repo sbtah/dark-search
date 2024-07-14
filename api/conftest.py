@@ -2,7 +2,9 @@
 Pytest fixtures for api service.
 """
 import pytest
-from crawled.models import Entity, Domain, Webpage
+from crawled.models.domain import Domain
+from crawled.models.entity import Entity
+from crawled.models.webpage import Webpage
 
 
 @pytest.fixture

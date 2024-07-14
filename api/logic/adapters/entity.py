@@ -1,5 +1,5 @@
 from logic.adapters.base import BaseAdapter
-from crawled.models import Entity
+from crawled.models.entity import Entity
 
 
 class EntityAdapter(BaseAdapter):

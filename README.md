@@ -13,15 +13,12 @@ Including but not limited to hacking, ransomware, databases, leaked credentials,
 
 ### Current state:
 - The project is being redesigned. Previous working (POC) version is on `archived` branch.
-- The main Crawler class is finished!
-- The Task model is ready.
-- Almost all tests for search service components are ready.
-
 
 ![alt text](https://github.com/sbtah/dark-search/blob/main/1.png?raw=true)
 ----
 ## Working features:
 - Crawl specified webpage,
+- Send data to API service,
 - Extract, filter and validate urls on each crawled webpage,
 - Retry requests for urls without response,
 - Schedule crawl tasks for newly found domains,

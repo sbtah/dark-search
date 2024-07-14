@@ -4,7 +4,7 @@ Test cases for DomainAdapter class.
 from unittest.mock import MagicMock
 
 import pytest
-from crawled.models import Domain, Entity
+from crawled.models.domain import Domain
 from logic.adapters.domain import DomainAdapter
 
 
@@ -53,7 +53,7 @@ class TestDomainAdapter:
         adapter,
         example_domain,
         example_entity,
-        collection_of_domains,
+        collection_of_domains,  # list of domains to be added to M2M.
     ) -> None:
         """Test that update_domain is properly updating fields on a Domain object."""
         return_value = adapter.update_domain(

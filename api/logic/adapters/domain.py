@@ -1,6 +1,7 @@
 from typing import Collection
 
-from crawled.models import Domain, Entity
+from crawled.models.domain import Domain
+from crawled.models.entity import Entity
 from logic.adapters.base import BaseAdapter
 
 

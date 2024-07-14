@@ -1,14 +1,15 @@
 import pytest
-from crawled.models import Entity
+from crawled.models.entity import Entity
+
 
 pytestmark = pytest.mark.django_db
 
 
 class TestEntityModel:
-    """Test cases for Entity object."""
+    """Test cases for the Entity object."""
 
     def test_create_entity(self):
-        """Test creating entity object is successful."""
+        """Test creating an entity object is successful."""
         assert Entity.objects.count() == 0
         entity = Entity.objects.create(name='test-entity')
         assert Entity.objects.count() == 1

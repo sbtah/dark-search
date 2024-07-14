@@ -1,5 +1,5 @@
 import pytest
-from crawled.models import Domain
+from crawled.models.domain import Domain
 
 
 pytestmark = pytest.mark.django_db

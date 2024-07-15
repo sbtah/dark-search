@@ -1,3 +1,6 @@
+"""
+Test cases for the Domain model.
+"""
 import pytest
 from crawled.models.domain import Domain
 

@@ -1,5 +1,5 @@
 # """
-# Test cases for Webpage objects.
+# Test cases for Webpage object.
 # """
 import pytest
 from crawled.models.webpage import Webpage
@@ -38,7 +38,7 @@ class TestWebpageModel:
     def test_webpage_is_homepage_unique_constraint(self, example_domain):
         """Test that only one Webpage can have is_homepage field set to True."""
         webpage_1 = Webpage.objects.create(parent_domain=example_domain, url='http://test.com', is_homepage=True)
-        assert webpage_1.is_homepage == True
+        assert webpage_1.is_homepage is True
         assert Webpage.objects.count() == 1
         with pytest.raises(IntegrityError):
             Webpage.objects.create(parent_domain=example_domain, url='http://test-second.com', is_homepage=True)

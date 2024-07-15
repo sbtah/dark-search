@@ -1,3 +1,6 @@
+"""
+Test cases for the Entity model.
+"""
 import pytest
 from crawled.models.entity import Entity
 

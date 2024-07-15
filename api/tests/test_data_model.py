@@ -1,5 +1,5 @@
 # """
-# Test cases for Data objects.
+# Test cases for Data object.
 # """
 import pytest
 from crawled.models.webpage import Data

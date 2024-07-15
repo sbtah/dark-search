@@ -30,10 +30,12 @@ class Domain(models.Model):
     tags = models.ManyToManyField(Tag)
     site_structure = models.JSONField(blank=True, null=True)
     # Domains that this domain is linking to.
-    linking_to = models.ManyToManyField('self', related_name='_linking_from', symmetrical=False)
+    linking_to_domains = models.ManyToManyField(
+        'self', related_name='_linking_from_domains', symmetrical=False,
+    )
     # A simple timeseries implementation of outbound links over time.
     # Where key will be a timestamp and value will be a list of domains.
-    linking_to_logs = models.JSONField(blank=True, null=True)
+    linking_to_domains_logs = models.JSONField(blank=True, null=True)
     created = models.IntegerField(blank=True, null=True)
 
     class Meta:
@@ -53,18 +55,18 @@ class Domain(models.Model):
         """
         Return number of current number of Domains that this Domain is linking to.
         """
-        return int(self.linking_to.count())
+        return int(self.linking_to_domains.count())
 
     @property
     def num_of_linking_from_domains(self):
         """
         Return number of links that this Domain is receiving from all other Domains.
         """
-        return int(self._linking_from.count())
+        return int(self._linking_from_domains.count())
 
     @property
-    def linking_from(self):
+    def linking_from_domains(self):
         """
         Return Queryset of all Domains that this Domain is receiving links from.
         """
-        return self._linking_from.all()
+        return self._linking_from_domains.all()

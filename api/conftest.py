@@ -22,7 +22,7 @@ def example_linked_domain(example_domain):
     list_of_domains = [Domain.objects.create(value=f'test-{_}.onion') for _ in range(1, 11)]
     for idx, domain in enumerate(list_of_domains):
         if idx % 2 == 0:
-            domain.linking_to.add(example_domain)
+            domain.linking_to_domains.add(example_domain)
     return example_domain
 
 

@@ -44,8 +44,8 @@ class DomainAdapter(BaseAdapter):
         domain_rank: float | None = None,
         tags: Collection[str] | None = None,
         site_structure: dict | None = None,
-        linking_to: Collection[str] | None = None,
-        linking_to_logs: dict[int, str] | None = None,
+        linking_to_domains: Collection[str] | None = None,
+        linking_to_domains_logs: dict[int, str] | None = None,
     ) -> Domain:
         """
         Update a Domain object if necessary.
@@ -98,16 +98,16 @@ class DomainAdapter(BaseAdapter):
         if site_structure is not None:
             domain.site_structure = site_structure
 
-        if linking_to is not None:
-            domain.linking_to.clear()
+        if linking_to_domains is not None:
+            domain.linking_to_domains.clear()
             collection_of_domains: list = [
-                self.get_or_create_domain_by_value(value=domain_value) for domain_value in linking_to
+                self.get_or_create_domain_by_value(value=domain_value) for domain_value in linking_to_domains
             ]
             for found_domain in collection_of_domains:
-                domain.linking_to.add(found_domain)
+                domain.linking_to_domains.add(found_domain)
 
-        if linking_to_logs is not None:
-            domain.linking_to_logs = linking_to_logs
+        if linking_to_domains_logs is not None:
+            domain.linking_to_domains_logs = linking_to_domains_logs
 
         domain.save()
         self.logger.debug(f'DomainAdapter, updated Domain: domain_id="{domain.id}"')

@@ -41,7 +41,7 @@ class TestDomainAdapter:
         adapter,
     ) -> None:
         """
-        Test that get_or_create_domain_by_value successfully create a new Domain object.
+        Test that get_or_create_domain_by_value successfully creates a new Domain object.
         """
         assert Domain.objects.count() == 0
         return_value = adapter.get_or_create_domain_by_value(value='some-domain.onion')
@@ -53,6 +53,7 @@ class TestDomainAdapter:
         adapter,
         example_domain,
         example_entity,
+        collection_of_tags,
         collection_of_domains,  # list of domains to be added to M2M.
     ) -> None:
         """Test that update_domain is properly updating fields on a Domain object."""
@@ -66,6 +67,7 @@ class TestDomainAdapter:
             number_of_successful_crawls=2,
             average_crawl_time=22,
             domain_rank=1.77,
+            tags=collection_of_tags,
             site_structure={'key': 'value'},
             linking_to=collection_of_domains,
             linking_to_logs={11111: collection_of_domains}
@@ -79,6 +81,7 @@ class TestDomainAdapter:
         assert return_value.number_of_successful_crawls == 2
         assert return_value.average_crawl_time == 22
         assert return_value.domain_rank == 1.77
+        assert return_value.tags.count() == 5
         assert return_value.site_structure == {'key': 'value'}
         assert return_value.linking_to.count() == 4
         assert return_value.linking_to_logs == {11111: collection_of_domains}

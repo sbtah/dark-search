@@ -3,7 +3,7 @@
 
 Welcome to Dark Search!
 
-Dark Search is a sophisticated Python-based crawler service designed to delve into the depths of the internet. 
+Dark Search is a sophisticated Python-based search engine designed to delve into the depths of the internet. 
 Crafted using: Django, Django-Ninja, Celery, Redis, postgresql, asyncio and tested with pytest and mypy.
 This project is dedicated to unearthing Tor(onion) domains,
 while furnishing comprehensive information and insightful statistics about them.

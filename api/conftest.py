@@ -27,10 +27,15 @@ def example_linked_domain(example_domain):
 
 
 @pytest.fixture
+def example_webpage(example_domain):
+    return Webpage.objects.create(parent_domain=example_domain, url='http://test.com')
+
+
+@pytest.fixture
 def collection_of_domains():
     return ['domain1.onion', 'domain2.onion', 'domain3.onion', 'domain3.onion', 'domain4.onion']
 
 
 @pytest.fixture
-def example_webpage(example_domain):
-    return Webpage.objects.create(parent_domain=example_domain, url='http://test.com')
+def collection_of_tags() -> list[str]:
+    return ['Tag1', 'Tag2', 'Tag3', 'Tag4', 'Tag5']

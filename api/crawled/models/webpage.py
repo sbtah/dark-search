@@ -14,26 +14,21 @@ class Webpage(models.Model):
     parent_domain = models.ForeignKey(Domain, on_delete=models.CASCADE)
     url = models.URLField(max_length=2000, unique=True, db_index=True)
     is_homepage = models.BooleanField(default=False)
-    # Since we could get redirected. This url does not have to be unique.
     url_after_request = models.URLField(max_length=2000)
     last_request_date = models.IntegerField(default=0)
     last_successful_request_date = models.IntegerField(default=0)
     last_http_status = models.CharField(max_length=3, blank=True, null=True)
-    # Calculated for successful responses.
     average_response_time = models.FloatField(default=0)
     number_of_requests = models.IntegerField(default=0)
     number_of_successful_requests = models.IntegerField(default=0)
     is_active = models.BooleanField(default=False)
-    created = models.IntegerField(blank=True, null=True)
-
-    # What is this Webpage about.
     tags = models.ManyToManyField(Tag)
-    # How many times we successfully requested this url? status 200.
-    detected_language = models.CharField(max_length=100, blank=True, null=True)
-    # List of texts that the other sites are using in links.
+    linking_to_webpages = models.ManyToManyField(
+        'self', related_name='_linking_from_webpages', symmetrical=False,)
+    linking_to_webpages_logs = models.JSONField(blank=True, null=True)
     anchor_texts = ArrayField(models.CharField(max_length=2000), null=True, blank=True)
-    # AI model will process this.
     translated_anchor_texts = ArrayField(models.CharField(max_length=2000), null=True, blank=True)
+    created = models.IntegerField(blank=True, null=True)
 
     class Meta:
         db_table = 'webpages'
@@ -52,6 +47,27 @@ class Webpage(models.Model):
     def __str__(self):
         return self.url
 
+    @property
+    def num_of_linking_to_webpages(self):
+        """
+        Return number of current number of Webpages that this Webpage is linking to.
+        """
+        return int(self.linking_to_webpages.count())
+
+    @property
+    def num_of_linking_from_webpages(self):
+        """
+        Return number of links that this Webpage is receiving from all other Webpages.
+        """
+        return int(self._linking_from_webpages.count())
+
+    @property
+    def linking_from_webpages(self):
+        """
+        Return Queryset of all Domains that this Domain is receiving links from.
+        """
+        return self._linking_from_webpages.all()
+
 
 class Data(models.Model):
     """
@@ -59,8 +75,8 @@ class Data(models.Model):
     """
     webpage = models.OneToOneField(Webpage, on_delete=models.CASCADE)
     raw_text = models.TextField(blank=True, null=True)
+    detected_language = models.CharField(max_length=100, blank=True, null=True)
     translated_text = models.TextField(blank=True, null=True)
-    # h1 tag...
     page_title = models.CharField(max_length=2000, blank=True, null=True, db_index=True)
     meta_title = models.CharField(max_length=2000, blank=True, null=True, db_index=True)
     meta_description = models.TextField(blank=True, null=True, db_index=True)
@@ -73,4 +89,4 @@ class Data(models.Model):
         verbose_name_plural = 'Data'
 
     def __str__(self):
-        return f'Data of: {self.webpage.url}'
+        return f'Data of: {self.webpage}'

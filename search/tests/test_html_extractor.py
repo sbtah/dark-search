@@ -104,7 +104,7 @@ class TestHtmlExtractor:
         """Test that extract_entire_text is returning string with proper content."""
         content = HtmlExtractor().extract_entire_text(example_webpage_element)
         assert isinstance(content, str)
-        assert content == 'This is a titleTestLink 1Link 1'
+        assert content == '#\n\nThis is a title\n\nTest\n\n[Link 1](http://test-url-1.com)[Link 1](http://test-url-2.com)\n\n'
 
     def test_html_extractor_extract_entire_text_returns_none_on_exception(self, mocker, no_urls_element):
         """Test that extract_html_body is returning an empty string on any Exception."""

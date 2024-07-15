@@ -1,5 +1,6 @@
 from httpx import Response
-from lxml.html import HtmlElement, HTMLParser, fromstring
+from lxml.html import HtmlElement, HTMLParser, fromstring, tostring
+import html2text
 from lxml.html.clean import Cleaner
 
 
@@ -20,11 +21,11 @@ class HtmlExtractor:
         - :arg html_element: Lxml HtmlElement.
         - :arg favicon: If set to `True` parser will try extracting favicon url.
         """
-        text: str | None = self.extract_entire_text(html_element)
         page_title: str | None = self.extract_page_title(html_element)
         meta_title: str | None = self.extract_meta_title(html_element)
         meta_description: str | None = self.extract_meta_description(html_element)
         on_page_urls: list[dict[str, str]] | None = self.extract_urls_with_texts(html_element)
+        text: str | None = self.extract_entire_text(html_element)
         result = {
             'text': text,
             'page_title': page_title,
@@ -114,11 +115,12 @@ class HtmlExtractor:
     def extract_entire_text(html_element: HtmlElement) -> str | None:
         """
         Extract body from HtmlElement.
-        Clean html of dangerous elements and attributes
         Return entire text from all nodes on success.
-        - :arg html_element: Lxml HtmlElement.
+        - :arg html_element: Lxml HtmlElement
         """
         body: list[HtmlElement | None] = html_element.xpath('/html/body')
+        if len(body) == 0:
+            return None
         cleaner = Cleaner(
             style=True,
             inline_style=True,
@@ -128,9 +130,9 @@ class HtmlExtractor:
             frames=True,
             meta=True,
             annoying_tags=True,
+            kill_tags=['img']
         )
-        try:
-            content: str | None = cleaner.clean_html(body[0]).text_content() if body else None
-        except Exception:
-            content = None
+        cleaned_body: HtmlElement = cleaner.clean_html(body[0])
+        body_text: str = tostring(cleaned_body).decode('utf-8')
+        content: str = html2text.html2text(body_text)
         return content

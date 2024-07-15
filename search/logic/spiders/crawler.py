@@ -55,7 +55,7 @@ class Crawler(AsyncSpider):
                 #   we want to keep this Url in the found_internal_urls set.
                 if response['status'] is None and response['requested_url'].number_of_requests < self.max_retries:
                     continue
-
+                print(response.get('text'))
                 # Add url to the requested_urls set and remove from found_internal_urls if request was successful.
                 self.requested_urls.add(response['requested_url'])
                 self.found_internal_urls.remove(response['requested_url'])
@@ -98,7 +98,8 @@ class Crawler(AsyncSpider):
             result_data = {
                 'domain': self.domain,
                 'num_urls_crawled': int(len(self.requested_urls)),
-                'external_domains_found': list(self.external_domains),
+                # serialize this!
+                'external_domains_found': [url.serialize() for url in self.external_domains],
                 'num_external_domains_found': int(len(self.external_domains)),
                 'time': int(self.crawl_end - self.crawl_start),
                 'date': self.now_timestamp()

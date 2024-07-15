@@ -3,6 +3,7 @@ from typing import Collection
 from crawled.models.domain import Domain
 from crawled.models.entity import Entity
 from logic.adapters.base import BaseAdapter
+from logic.adapters.tag import TagAdapter
 
 
 class DomainAdapter(BaseAdapter):
@@ -12,6 +13,7 @@ class DomainAdapter(BaseAdapter):
 
     def __init__(self) -> None:
         self.domain: Domain = Domain
+        self.tag_adapter: TagAdapter = TagAdapter()
         super().__init__()
 
     def get_or_create_domain_by_value(self, *, value: str) -> Domain:
@@ -40,12 +42,14 @@ class DomainAdapter(BaseAdapter):
         number_of_successful_crawls: int | None = None,
         average_crawl_time: int | None = None,
         domain_rank: float | None = None,
+        tags: Collection[str] | None = None,
         site_structure: dict | None = None,
         linking_to: Collection[str] | None = None,
         linking_to_logs: dict[int, str] | None = None,
     ) -> Domain:
         """
         Update a Domain object if necessary.
+        Updates on M2M fields are clearing fields first.
         - :arg domain: Domain objects to be updated.
         - :arg parent_entity: Entity object parent that we want to change or add.
         - :arg favicon_base_64: String representing favicon image in base64 format.
@@ -82,6 +86,14 @@ class DomainAdapter(BaseAdapter):
 
         if domain_rank is not None:
             domain.domain_rank = domain_rank
+
+        if tags is not None:
+            domain.tags.clear()
+            collection_of_tags: list = [
+                self.tag_adapter.get_or_create_tag(value=tag_value) for tag_value in tags
+            ]
+            for found_tag in collection_of_tags:
+                domain.tags.add(found_tag)
 
         if site_structure is not None:
             domain.site_structure = site_structure

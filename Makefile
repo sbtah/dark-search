@@ -16,7 +16,6 @@ test-api:
 check-types-search:
 	docker compose run --rm search sh -c 'mypy /search --explicit-package-bases'
 
-
 check-linting-search:
 	docker compose run --rm search sh -c 'flake8'
 
@@ -27,6 +26,12 @@ run-crawl:
 	@echo "Starting a CrawlTask..."
 	@sleep 5
 	docker compose run --rm search sh -c 'python manage.py crawl'
+
+run-manual:
+	@echo "Starting Manual crawling..."
+	@sleep 5
+	docker compose run --rm search sh -c 'python manage.py manual'
+
 
 trash-local-databases:
 	@echo "Warning this command will remove local databases!"

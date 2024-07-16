@@ -48,14 +48,14 @@ class Crawler(AsyncSpider):
             responses: list[dict] = await self.run_requests(iterable_of_urls=self.queue)
 
             for response in responses:
-
-                requested_url: Url = response['requested_url']
+                print(response)
 
                 # If response is None and Url.number_of_request is under max_retries threshold,
                 #   we want to keep this Url in the found_internal_urls set.
                 if response['status'] is None and response['requested_url'].number_of_requests < self.max_retries:
                     continue
                 print(response.get('text'))
+
                 # Add url to the requested_urls set and remove from found_internal_urls if request was successful.
                 self.requested_urls.add(response['requested_url'])
                 self.found_internal_urls.remove(response['requested_url'])
@@ -64,27 +64,23 @@ class Crawler(AsyncSpider):
                 serialized_response: dict = self.serialized_response(response)
                 await self.client.post_response_data(data=serialized_response)
 
-                # If both sets in processed_urls are empty we move to next response.
-                if not response.get('processed_urls', {}).get('internal') and \
-                        not response.get('processed_urls', {}).get('external'):
+                # If the response does not contain results for urls parsing, we move to the next response.
+                if response.get('processed_urls') is None:
                     continue
 
-                # Parsing results of newly found external domains.
+                # If both sets in processed_urls are empty we move to next response.
+                internal_urls: set = response['processed_urls']['internal_urls']
+                external_urls: set = response['processed_urls']['external_urls']
+                if len(internal_urls) == 0 and len(external_urls) == 0:
+                    continue
+
+                # Parsing the results of newly found external urls.
                 # Creating CrawlTask for each new domain found.
-                for domain in response.get('processed_urls').get('external'):
-                    if domain not in self.external_domains:
-                        self.external_domains.add(domain)
-                        await self.task_adapter.async_get_or_create_task(domain=domain)
+                await self.parse_external_results(results=external_urls)
 
                 # Add results from internal results set to found_internal_urls.
-                for url in response.get('processed_urls').get('internal'):
-                    # If an url was not requested already or is not waiting to be requested,
-                    #   we want to add it to the found_internal_urls set.
-                    if url not in self.requested_urls and url not in self.found_internal_urls:
-                        self.found_internal_urls.add(url)
-                        self.logger.info(
-                            f'Crawler, new url found: new_internal_url="{url}" at url="{requested_url.value}"'
-                        )
+                self.parse_internal_results(results=internal_urls)
+
             else:
                 # Clear the queue.
                 self.queue.clear()
@@ -99,8 +95,6 @@ class Crawler(AsyncSpider):
                 'domain': self.domain,
                 'num_urls_crawled': int(len(self.requested_urls)),
                 # serialize this!
-                'external_domains_found': [url.serialize() for url in self.external_domains],
-                'num_external_domains_found': int(len(self.external_domains)),
                 'time': int(self.crawl_end - self.crawl_start),
                 'date': self.now_timestamp()
             }
@@ -114,4 +108,39 @@ class Crawler(AsyncSpider):
         for url in self.found_internal_urls:
             if len(self.queue) < self.max_requests:
                 self.queue.append(url)
+        return
+
+    def parse_internal_results(self, results: set) -> None:
+        """
+        Parse Url objects in the internal_urls set.
+        Newly discovered urls are added to self.found_internal_urls for future crawling.
+        - :arg results: Set containing found urls that are withing Domain that is currently being crawled.
+        """
+        if len(results) == 0:
+            return
+        for internal_url in results:
+            # If an url was not requested already or is not waiting to be requested,
+            # we want to add it to the found_internal_urls set.
+            if internal_url not in self.requested_urls and internal_url not in self.found_internal_urls:
+                self.found_internal_urls.add(internal_url)
+                self.logger.info(
+                    f'Crawler, new url found: new_internal_url="{internal_url}"'
+                )
+        return
+
+    async def parse_external_results(self, results: set) -> None:
+        """
+        Parse Url objects in the external_urls set.
+        Newly discovered domains are added to self.external_domains set.
+        CrawlTask is created for each new domain.
+        - :arg results:
+            Set containing found urls that are leading outside Domain that is currently being crawled.
+        """
+        if len(results) == 0:
+            return
+        for external_url in results:
+            domain: str = self.url_extractor.split_result(external_url.value).netloc
+            if domain not in self.external_domains:
+                self.external_domains.add(domain)
+                await self.task_adapter.async_get_or_create_task(domain=domain)
         return

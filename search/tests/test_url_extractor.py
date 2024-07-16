@@ -21,7 +21,7 @@ class TestUrlExtractor:
         """Test UrlExtractor's parse method."""
         results = url_extractor.parse(urls_collection)
         assert results == {
-            'internal': {
+            'internal_urls': {
                 Url(value='http://example.onion/page', anchor='Url 1', number_of_requests=0),
                 Url(value='http://example.onion/path?page=1', anchor='Url 2', number_of_requests=0),
                 Url(value='http://example.onion/page.php?q=canary', anchor='Canary', number_of_requests=0),
@@ -34,10 +34,10 @@ class TestUrlExtractor:
                 Url(value='http://example.onion/path', anchor='Test text', number_of_requests=0),
                 Url(value='http://example.onion', anchor='malformed url', number_of_requests=0),
             },
-            'external': {
-                Url(value='external.onion', anchor='', number_of_requests=0),
-                Url(value='other.onion', anchor='Url 5', number_of_requests=0),
-                Url(value='external-2.onion', anchor='malformed url 2', number_of_requests=0),
+            'external_urls': {
+                Url(value='http://external.onion', anchor='', number_of_requests=0),
+                Url(value='http://other.onion', anchor='Url 5', number_of_requests=0),
+                Url(value='http://external-2.onion', anchor='malformed url 2', number_of_requests=0),
             },
         }
 
@@ -53,8 +53,8 @@ class TestUrlExtractor:
         raw_urls = None
         results = url_extractor.parse(raw_urls)
         assert results == {
-            'internal': set(),
-            'external': set(),
+            'internal_urls': set(),
+            'external_urls': set(),
         }
 
     def test_url_extractor_is_valid_url_returns_true(self, url_extractor):

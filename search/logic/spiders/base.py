@@ -74,13 +74,13 @@ class BaseSpider:
         processed_urls: dict[str, set[Url]] = copied_response.pop('processed_urls')
         processed_urls_new: dict = dict()
 
-        if len(processed_urls['internal']) > 0:
-            internal_set: set[Url] = processed_urls.pop('internal')
+        if len(processed_urls['internal_urls']) > 0:
+            internal_set: set[Url] = processed_urls.pop('internal_urls')
             new_internal: list[dict] = [url_obj.serialize() for url_obj in internal_set]
             processed_urls_new['internal'] = new_internal
 
-        if len(processed_urls['external']) > 0:
-            external_set: set[Url] = processed_urls.pop('external')
+        if len(processed_urls['external_urls']) > 0:
+            external_set: set[Url] = processed_urls.pop('external_urls')
             new_external: list[dict] = [url_ob.serialize() for url_ob in external_set]
             processed_urls_new['external'] = new_external
 

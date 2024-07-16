@@ -144,15 +144,15 @@ class UrlExtractor:
     ) -> dict[str, set[Url | None]]:
         """
         Parse urls provided in urls_collection.
-        Add internal urls to parse_results['internal'] set.
+        Add internal urls to parse_results['internal_urls'] set.
         Urls leading outside currently crawled domain (root_domain)
-            are added to parse_results['external'] but only domain part.
+            are added to parse_results['external_urls']
         - :arg urls_collection: List with dictionaries representing url elements from a webpage.
         """
         # Prepare parse_results dictionary.
         parse_results: dict[str, set[Url | None]] = {
-            'internal': set(),
-            'external': set(),
+            'internal_urls': set(),
+            'external_urls': set(),
         }
         if urls_collection is None:
             return parse_results
@@ -200,16 +200,43 @@ class UrlExtractor:
             if not self.is_onion(current_url_split_result.netloc):
                 continue
 
+            url_data: dict = {'value': url, 'anchor': anchor}
             if current_url_split_result.netloc == self.root_domain:
                 # Create a new url object.
-                url_data: dict = {'value': url, 'anchor': anchor}
                 url_obj: Url = self.url_adapter.create_url_object(**url_data)
                 # Add an Url object with domain matching to starting url to the internal set.
-                parse_results['internal'].add(url_obj)
+                parse_results['internal_urls'].add(url_obj)
             else:
                 # Create a new url object.
-                url_data = {'value': current_url_split_result.netloc, 'anchor': anchor}
                 url_obj = self.url_adapter.create_url_object(**url_data)
                 # Urls with domain leading outside the current domain are added to the external set.
-                parse_results['external'].add(url_obj)
+                parse_results['external_urls'].add(url_obj)
+
         return parse_results
+
+
+dummy_collection = [
+        {'url': 'http://example.onion/page', 'anchor': 'Url 1'},
+        {'url': 'http://example.onion/path?page=1', 'anchor': 'Url 2'},
+        {
+            'url': 'http://example.onion/path?query=string#fragment',
+            'anchor': 'Url 3'
+        },
+        {'url': '/page.php?q=canary', 'anchor': 'Canary'},
+        {'url': '/page.php?q=main&l=it', 'anchor': 'Italiano'},
+        {'url': '/page.php?q=shell', 'anchor': 'Shell Accounts'},
+        {'url': 'http://example.onion/path#fragment', 'anchor': 'Url 4'},
+        {'url': 'http://other.onion', 'anchor': 'Url 5'},
+        {'url': 'http://external.onion', 'anchor': ''},
+        {'url': 'page.html', 'anchor': '...'},
+        {'url': 'page.php', 'anchor': '....'},
+        {'url': '/file.txt', 'anchor': 'page.php.'},
+        {'url': '/path', 'anchor': 'Test text'},
+        {'url': 'ftp://example.onion/baz', 'anchor': ''},
+        {'url': 'http://example.onion/some.jpeg', 'anchor': 'Image 1'},
+        {'url': 'some-2.jpeg', 'anchor': 'Image 2'},
+        {'url': '/some-3.jpeg', 'anchor': 'Image 3'},
+        {'url': 'http://example.onion/some.pdf', 'anchor': 'Pdf 1'},
+        {'url': 'example.onion', 'anchor': 'malformed url'},
+        {'url': 'external-2.onion', 'anchor': 'malformed url 2'}
+    ]

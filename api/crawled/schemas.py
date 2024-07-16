@@ -25,6 +25,6 @@ class SummarySchema(Schema):
     """
     domain: str
     num_urls_crawled: int
-    num_external_domains_found: int
+    # num_external_domains_found: int
     time: int
     date: int

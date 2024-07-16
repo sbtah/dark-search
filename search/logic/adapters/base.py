@@ -1,4 +1,4 @@
-from utilities.logging import logger
+from utilities.log import logger
 
 
 class BaseAdapter:

@@ -5,7 +5,7 @@ from logic.parsers.objects.url import Url
 from logic.spiders.crawler import Crawler
 
 # Url to crawl.
-str_url = 'http://darkzzx4avcsuofgfez5zq75cqc4mprjvfqywo45dfcaxrwqg6qrlfid.onion' # noqa
+str_url = 'http://wiki6dtqpuvwtc5hopuj33eeavwa6sik7sy57cor35chkx5nrbmmolqd.onion' # noqa
 
 
 class Command(BaseCommand):

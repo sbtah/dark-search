@@ -3,7 +3,7 @@ import os
 from celery import Celery
 from celery.utils.log import get_task_logger
 from django.conf import settings
-from utilities.logging import logger
+from utilities.log import logger
 
 
 # Set the default Django settings module for the celery app.

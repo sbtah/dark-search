@@ -8,7 +8,7 @@ from logic.parsers.byte import Converter
 from logic.parsers.html import HtmlExtractor
 from logic.parsers.objects.url import Url
 from logic.parsers.url import UrlExtractor
-from utilities.logging import logger
+from utilities.log import logger
 
 
 class BaseSpider:

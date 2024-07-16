@@ -2,7 +2,7 @@
 Base logic for launching Crawling or Probing of domains.
 """
 from logic.adapters.url import UrlAdapter
-from utilities.logging import logger
+from utilities.log import logger
 
 
 class BaseLauncher:

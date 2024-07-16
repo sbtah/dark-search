@@ -18,9 +18,11 @@ class Webpage(models.Model):
     last_request_date = models.IntegerField(default=0)
     last_successful_request_date = models.IntegerField(default=0)
     last_http_status = models.CharField(max_length=3, blank=True, null=True)
+    last_http_status_logs = models.JSONField(blank=True, null=True)
     average_response_time = models.FloatField(default=0)
     number_of_requests = models.IntegerField(default=0)
     number_of_successful_requests = models.IntegerField(default=0)
+    page_rank = models.FloatField(blank=True, null=True)
     is_active = models.BooleanField(default=False)
     tags = models.ManyToManyField(Tag)
     linking_to_webpages = models.ManyToManyField(

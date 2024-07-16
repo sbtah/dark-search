@@ -33,10 +33,3 @@ class TestDomainModel:
         """Test that Domain's str method is generating proper output."""
         domain = Domain.objects.create(value='test.com')
         assert str(domain) == domain.value
-
-    def test_domain_linking_to_field_and_properties(self, example_linked_domain) -> None:
-        """Test linking_to field and all based properties on the Domain object."""
-        assert len(example_linked_domain.linking_from_domains) == 5
-        assert example_linked_domain.num_of_linking_from_domains == 5
-        assert len(example_linked_domain.linking_to_domains.all()) == 0
-        assert example_linked_domain.num_of_linking_to_domains == 0

@@ -55,7 +55,6 @@ class TestDomainAdapter:
         example_domain,
         example_entity,
         collection_of_tags,
-        collection_of_domains,  # list of domains to be added to M2M.
     ) -> None:
         """Test that update_domain is properly updating fields on a Domain object."""
         return_value = adapter.update_domain(
@@ -70,8 +69,6 @@ class TestDomainAdapter:
             domain_rank=1.77,
             tags=collection_of_tags,
             site_structure={'key': 'value'},
-            linking_to_domains=collection_of_domains,
-            linking_to_domains_logs={11111: collection_of_domains}
         )
         assert isinstance(return_value, Domain)
         assert return_value.parent_entity == example_entity
@@ -84,5 +81,3 @@ class TestDomainAdapter:
         assert return_value.domain_rank == 1.77
         assert return_value.tags.count() == 5
         assert return_value.site_structure == {'key': 'value'}
-        assert return_value.linking_to_domains.count() == 4
-        assert return_value.linking_to_domains_logs == {11111: collection_of_domains}

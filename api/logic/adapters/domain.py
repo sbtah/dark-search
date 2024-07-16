@@ -44,11 +44,9 @@ class DomainAdapter(BaseAdapter):
         domain_rank: float | None = None,
         tags: Collection[str] | None = None,
         site_structure: dict | None = None,
-        linking_to_domains: Collection[str] | None = None,
-        linking_to_domains_logs: dict[int, str] | None = None,
     ) -> Domain:
         """
-        Update a Domain object if necessary.
+        Update a Domain object.
         Updates on M2M fields are clearing fields first.
         - :arg domain: Domain objects to be updated.
         - :arg parent_entity: Entity object parent that we want to change or add.
@@ -60,8 +58,6 @@ class DomainAdapter(BaseAdapter):
         - :arg average_crawl_time: Integer representing time in seconds needed for crawling entire Domain.
         - :arg domain_rank: Float representing rank of Domain,
         - :arg site_structure: Dictionary/Json representing a mapping of Domain's structure.
-        - :arg linking_to: Collection with Domains that updated Domain is linking to.
-        - :arg linking_to_logs: Dictionary/Json representing a timeseries of outbound links for updated Domain.
         """
         if parent_entity is not None:
             domain.parent_entity = parent_entity
@@ -97,17 +93,6 @@ class DomainAdapter(BaseAdapter):
 
         if site_structure is not None:
             domain.site_structure = site_structure
-
-        if linking_to_domains is not None:
-            domain.linking_to_domains.clear()
-            collection_of_domains: list = [
-                self.get_or_create_domain_by_value(value=domain_value) for domain_value in linking_to_domains
-            ]
-            for found_domain in collection_of_domains:
-                domain.linking_to_domains.add(found_domain)
-
-        if linking_to_domains_logs is not None:
-            domain.linking_to_domains_logs = linking_to_domains_logs
 
         domain.save()
         self.logger.debug(f'DomainAdapter, updated Domain: domain_id="{domain.id}"')

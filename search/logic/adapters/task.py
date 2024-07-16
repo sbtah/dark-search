@@ -82,7 +82,7 @@ class CrawlTaskAdapter(BaseAdapter):
         """
         task.status = 'FAILED'
         task.save()
-        self.logger.debu(f'TaskAdapter, marked task: status="FAILED", task_id="{task.id}"')
+        self.logger.debug(f'TaskAdapter, marked task: status="FAILED", task_id="{task.id}"')
         return True
 
     def mark_task_finished(
@@ -123,6 +123,7 @@ class CrawlTaskAdapter(BaseAdapter):
             task=task, crawl_time_seconds=crawl_time_seconds
         )
         task.average_time_to_finish = average_time_to_finish
+        task.current_celery_id = None
         task.save()
         self.logger.debug(message)
         return True

@@ -18,17 +18,20 @@ def example_domain():
 
 
 @pytest.fixture
-def example_linked_domain(example_domain):
-    list_of_domains = [Domain.objects.create(value=f'test-{_}.onion') for _ in range(1, 11)]
-    for idx, domain in enumerate(list_of_domains):
-        if idx % 2 == 0:
-            domain.linking_to_domains.add(example_domain)
-    return example_domain
+def example_webpage(example_domain):
+    return Webpage.objects.create(parent_domain=example_domain, url='http://test.com')
 
 
 @pytest.fixture
-def example_webpage(example_domain):
-    return Webpage.objects.create(parent_domain=example_domain, url='http://test.com')
+def example_linked_webpage(example_webpage):
+    domain: str = 'some-other-test-domain.onion'
+    parent_domain: Domain = Domain.objects.create(value=domain)
+    list_of_webpages: list = [
+        Webpage.objects.create(url=f'htttp://{domain}/page-{_}', parent_domain=parent_domain) for _ in range(1, 11)
+    ]
+    for webpage in list_of_webpages:
+        webpage.linking_to_webpages.add(example_webpage)
+    return example_webpage
 
 
 @pytest.fixture

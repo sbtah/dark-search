@@ -8,8 +8,12 @@ class CrawlTask(models.Model):
         max_length=255, unique=True, blank=False, default=None, db_index=True
     )
     current_celery_id: models.CharField = models.CharField(max_length=100, blank=True, null=True)
-    last_launch_date: models.IntegerField = models.IntegerField(default=0, db_index=True)
-    last_finished_date: models.IntegerField = models.IntegerField(default=0, db_index=True)
+    last_launch_date: models.DateTimeField = models.DateTimeField(
+        db_index=True, blank=True, null=True
+    )
+    last_finished_date: models.DateTimeField = models.DateTimeField(
+        db_index=True, blank=True, null=True
+    )
     number_of_launches: models.IntegerField = models.IntegerField(default=0)
     number_of_finished_launches: models.IntegerField = models.IntegerField(default=0)
     average_time_to_finish: models.IntegerField = models.IntegerField(default=0)

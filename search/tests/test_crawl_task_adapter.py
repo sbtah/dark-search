@@ -1,7 +1,7 @@
 """
 Test cases for CrawlTask adapter.
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 import pytest
 from django.db.models import QuerySet
@@ -19,13 +19,12 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture
 def example_tasks() -> None:
     """Fixture for generating 10 test CrawlTask objects."""
-    date = datetime.now()
+    date_obj: date = datetime.now()
     for _ in range(11):
         days = timedelta(_)
-        date_of_creation = date + days
-        stamp = int(datetime.timestamp(date_of_creation))
+        date_of_creation: date = date_obj + days
         CrawlTask.objects.create(
-            domain=f'example-{_}.onion', last_launch_date=stamp, importance=_
+            domain=f'example-{_}.onion', last_launch_date=date_of_creation, importance=_
         )
 
 
@@ -80,14 +79,15 @@ class TestCrawlTaskAdapter:
 
     def test_crawl_task_adapter_mark_task_taken(self, adapter, example_active_task):
         """Test that mark_task_taken method is properly saving new status of CrawlTask."""
+        date_object: date = datetime.now()
         result = adapter.mark_task_taken(
-            task=example_active_task, celery_id='Test ID', launch_timestamp=11111111
+            task=example_active_task, celery_id='Test ID', launch_date=date_object
         )
         assert result is True
         example_active_task.refresh_from_db()
         assert example_active_task.status == 'TAKEN'
         assert example_active_task.current_celery_id == 'Test ID'
-        assert example_active_task.last_launch_date == 11111111
+        assert example_active_task.last_launch_date == date_object
 
     def test_crawl_task_adapter_mark_task_taken_raises_exception(self, adapter, example_active_task):
         """Test that mark_task_taken method is raising exception when arguments are missing."""
@@ -103,9 +103,9 @@ class TestCrawlTaskAdapter:
 
     def test_crawl_task_adapter_mark_task_finished(self, adapter, example_taken_task):
         """Test that mark_task_finished is properly saving all needed data on CrawlTask object."""
-        date_timestamp: int = int(datetime.now().timestamp())
+        date_timestamp: date = datetime.now()
         result = adapter.mark_task_finished(
-            task=example_taken_task, finished_timestamp=date_timestamp, crawl_time_seconds=2
+            task=example_taken_task, finished_date=date_timestamp, crawl_time_seconds=2
         )
         assert result is True
         example_taken_task.refresh_from_db()

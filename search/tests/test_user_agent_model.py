@@ -22,4 +22,4 @@ class TestUserAgentsModel:
     def test_user_agent_str_method(self, user_agent):
         """Test that UserAgent's __str__ is generating proper output."""
         agent = user_agent
-        assert str(agent) == f'{agent.type}:{agent.value}:{agent.created}'
+        assert str(agent) == f'{agent.type}:{agent.value}:{agent.created_at}'

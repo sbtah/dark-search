@@ -7,6 +7,7 @@ from logic.exceptions.adapters.task import (
     NoTaskValueProvidedError,
 )
 from tasks.models import CrawlTask
+from datetime import date
 
 
 class CrawlTaskAdapter(BaseAdapter):
@@ -43,7 +44,7 @@ class CrawlTaskAdapter(BaseAdapter):
         task: CrawlTask,
         for_launch: bool = True,
         celery_id: str | None = None,
-        launch_timestamp: int | None = None,
+        launch_date: date | None = None,
     ) -> bool:
         """
         Set CrawlTask status to 'TAKEN'.
@@ -53,7 +54,7 @@ class CrawlTaskAdapter(BaseAdapter):
             while setting status to 'TAKEN'. Defaults to True.
             If set to False only the status of a task will be updated.
         - :arg celery_id: String with ID of Celery Task.
-        - :arg launch_timestamp: Integer with date of launch (timestamp).
+        - :arg launch_date: Date object with date of launch.
         """
         message = f'TaskAdapter, marked task: status="TAKEN", task_id="{task.id}"'
         task.status = 'TAKEN'
@@ -65,11 +66,11 @@ class CrawlTaskAdapter(BaseAdapter):
         if for_launch is True and celery_id is None:
             raise NoTaskValueProvidedError()
 
-        if for_launch is True and launch_timestamp is None:
+        if for_launch is True and launch_date is None:
             raise NoTaskValueProvidedError()
 
         task.current_celery_id = celery_id
-        task.last_launch_date = launch_timestamp
+        task.last_launch_date = launch_date
         task.number_of_launches += 1
         task.save()
         self.logger.debug(message)
@@ -90,7 +91,7 @@ class CrawlTaskAdapter(BaseAdapter):
         *,
         task: CrawlTask,
         after_launch: bool = True,
-        finished_timestamp: int | None = None,
+        finished_date: date | None = None,
         crawl_time_seconds: int | None = None,
     ) -> bool:
         """
@@ -99,8 +100,8 @@ class CrawlTaskAdapter(BaseAdapter):
         - :arg after_launch:
             Bool representing condition to save some additional values on Task,
             while setting status to 'FINISHED'. Defaults to True.
-            If set to False only status of task will be updated.
-        - :arg finished_timestamp: An Integer representing timestamp of date when task was finished.
+            If set to False only the status of the task will be updated.
+        - :arg finished_date: Date object representing date when the task was finished.
         - :arg crawl_time_seconds: An integer representing the number of seconds it took to complete this task.
         """
         message = f'TaskAdapter, marked task: status="FINISHED", task_id="{task.id}"'
@@ -111,13 +112,13 @@ class CrawlTaskAdapter(BaseAdapter):
             self.logger.debug(message)
             return True
 
-        if after_launch is True and finished_timestamp is None:
+        if after_launch is True and finished_date is None:
             raise NoTaskValueProvidedError()
 
         if after_launch is True and crawl_time_seconds is None:
             raise NoTaskValueProvidedError()
 
-        task.last_finished_date = finished_timestamp
+        task.last_finished_date = finished_date
         task.number_of_finished_launches += 1
         average_time_to_finish: int = self.calculate_average_time_to_finish(
             task=task, crawl_time_seconds=crawl_time_seconds
@@ -142,21 +143,21 @@ class CrawlTaskAdapter(BaseAdapter):
         self,
         *,
         celery_id: str,
-        launch_timestamp: int,
+        launch_date: date,
     ) -> CrawlTask:
         """
         Start logic for launching CrawlTasks.
         Filter database for 'ACTIVE' CrawlTasks.
         Return first task from ordered queryset which is marked as 'TAKEN'.
         - :arg celery_id: String representing ID of Celery Task.
-        - :arg launch_timestamp: Integer representing date when task was launched.
+        - :arg launch_date: Date object representing date when the task was launched.
         """
         tasks: QuerySet[CrawlTask | None] = self._get_active_tasks()
         if len(tasks) == 0:
             raise NoActiveTasksError()
 
         task: CrawlTask = tasks.first()
-        self.mark_task_taken(task=task, celery_id=celery_id, launch_timestamp=launch_timestamp)
+        self.mark_task_taken(task=task, celery_id=celery_id, launch_date=launch_date)
         self.logger.info(
             f'TaskAdapter, prepared task: task_id="{task.id}", celery_id="{task.current_celery_id}", '
             f'domain="{task.domain}"'
@@ -166,7 +167,7 @@ class CrawlTaskAdapter(BaseAdapter):
     async def async_get_or_create_task(self, domain: str) -> CrawlTask:
         """
         Try to create a new Task object or return existing one.
-        Return Task object.
+        Return the Task object.
         - :arg domain: String with domain value.
         """
         try:
@@ -180,8 +181,8 @@ class CrawlTaskAdapter(BaseAdapter):
 
     def sync_get_or_create_task(self, domain: str) -> CrawlTask:
         """
-        Create new CrawlTask object or return existing one.
-        Return Task object.
+        Create a new CrawlTask object or return existing one.
+        Return the Task object.
         - :arg domain: String with domain value.
         """
         try:

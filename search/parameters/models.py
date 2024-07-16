@@ -15,12 +15,7 @@ class UserAgent(models.Model):
 
     type: models.CharField = models.CharField(max_length=10, choices=Type.choices, default=Type.firefox)
     value: models.CharField = models.CharField(max_length=255, unique=True, blank=False, default=None)
-    created: models.IntegerField = models.IntegerField(blank=True, null=True)
-
-    def save(self, *args: Any, **kwargs: Any) -> None:
-        if self.created is None:
-            self.created = int(time.time())
-        super().save(*args, **kwargs)
+    created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'user-agents'
@@ -28,7 +23,7 @@ class UserAgent(models.Model):
         verbose_name_plural = 'UserAgents'
 
     def __str__(self) -> str:
-        return f'{self.type}:{self.value}:{self.created}'
+        return f'{self.type}:{self.value}:{self.created_at}'
 
 
 class Proxy(models.Model):

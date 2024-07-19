@@ -1,5 +1,3 @@
-import time
-
 from crawled.models.entity import Entity
 from crawled.models.tag import Tag
 from django.db import models
@@ -18,7 +16,7 @@ class Domain(models.Model):
     # Saving 'favicon' images in base64 will help in identifying these cases.
     favicon_base64 = models.TextField(blank=True, null=True, db_index=True)
     server = models.CharField(max_length=100, blank=True, null=True)
-    last_crawl_date = models.IntegerField(default=0)
+    last_crawl_date = models.DateTimeField(blank=True, null=True)
     # This value increment on a crawl start.
     number_of_crawls = models.IntegerField(default=0)
     # This value increment on a crawl end.
@@ -30,16 +28,11 @@ class Domain(models.Model):
     tags = models.ManyToManyField(Tag)
     site_structure = models.JSONField(blank=True, null=True)
     # Domains that this domain is linking to.
-    created = models.IntegerField(blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'domains'
         db_table_comment = 'Found Tor domains. Domain has many Webpages.'
-
-    def save(self, *args, **kwargs):
-        if self.created is None:
-            self.created = int(time.time())
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.value

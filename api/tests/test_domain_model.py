@@ -18,17 +18,6 @@ class TestDomainModel:
         assert Domain.objects.count() == 1
         assert isinstance(domain, Domain)
 
-    def test_domain_save_method(self) -> None:
-        """Test that Domain's save method is properly saving data only on creation."""
-        domain = Domain.objects.create(value='test.com')
-        current_created = domain.created
-        assert current_created is not None
-        domain.value = 'new-test.com'
-        domain.save()
-        domain.refresh_from_db()
-        assert current_created == domain.created
-        assert isinstance(domain.created, int)
-
     def test_domain_str_method(self) -> None:
         """Test that Domain's str method is generating proper output."""
         domain = Domain.objects.create(value='test.com')

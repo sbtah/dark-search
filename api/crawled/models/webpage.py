@@ -1,5 +1,3 @@
-import time
-
 from crawled.models.domain import Domain
 from crawled.models.tag import Tag
 from django.contrib.postgres.fields import ArrayField
@@ -15,8 +13,8 @@ class Webpage(models.Model):
     url = models.URLField(max_length=2000, unique=True, db_index=True)
     is_homepage = models.BooleanField(default=False)
     url_after_request = models.URLField(max_length=2000)
-    last_request_date = models.IntegerField(default=0)
-    last_successful_request_date = models.IntegerField(default=0)
+    last_request_date = models.DateTimeField(blank=True, null=True)
+    last_successful_request_date = models.DateTimeField(blank=True, null=True)
     last_http_status = models.CharField(max_length=3, blank=True, null=True)
     last_http_status_logs = models.JSONField(blank=True, null=True)
     average_response_time = models.FloatField(default=0)
@@ -30,7 +28,7 @@ class Webpage(models.Model):
     linking_to_webpages_logs = models.JSONField(blank=True, null=True)
     anchor_texts = ArrayField(models.CharField(max_length=2000), null=True, blank=True)
     translated_anchor_texts = ArrayField(models.CharField(max_length=2000), null=True, blank=True)
-    created = models.IntegerField(blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'webpages'
@@ -40,11 +38,6 @@ class Webpage(models.Model):
                 fields=['is_homepage'], condition=Q(is_homepage=True), name='There can be only one homepage.'
             ),
         ]
-
-    def save(self, *args, **kwargs):
-        if self.created is None:
-            self.created = int(time.time())
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.url

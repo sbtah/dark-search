@@ -2,7 +2,7 @@
 Test cases for DomainAdapter class.
 """
 from unittest.mock import MagicMock
-
+from datetime import datetime
 import pytest
 from crawled.models.domain import Domain
 from logic.adapters.domain import DomainAdapter
@@ -57,12 +57,13 @@ class TestDomainAdapter:
         collection_of_tags,
     ) -> None:
         """Test that update_domain is properly updating fields on a Domain object."""
+        crawl_date = datetime.now()
         return_value = adapter.update_domain(
             domain=example_domain,
             parent_entity=example_entity,
             favicon_base64='Test base64',
             server='test-server',
-            last_crawl_date=10565,
+            last_crawl_date=crawl_date,
             number_of_crawls=2,
             number_of_successful_crawls=2,
             average_crawl_time=22,
@@ -74,7 +75,7 @@ class TestDomainAdapter:
         assert return_value.parent_entity == example_entity
         assert return_value.favicon_base64 == 'Test base64'
         assert return_value.server == 'test-server'
-        assert return_value.last_crawl_date == 10565
+        assert return_value.last_crawl_date == crawl_date
         assert return_value.number_of_crawls == 2
         assert return_value.number_of_successful_crawls == 2
         assert return_value.average_crawl_time == 22

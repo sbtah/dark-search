@@ -1,5 +1,5 @@
 from typing import Collection
-
+from datetime import date
 from crawled.models.domain import Domain
 from crawled.models.entity import Entity
 from logic.adapters.base import BaseAdapter
@@ -37,7 +37,7 @@ class DomainAdapter(BaseAdapter):
         parent_entity: Entity | None = None,
         favicon_base64: str | None = None,
         server: str | None = None,
-        last_crawl_date: str | None = None,
+        last_crawl_date: date | None = None,
         number_of_crawls: int | None = None,
         number_of_successful_crawls: int | None = None,
         average_crawl_time: int | None = None,
@@ -52,7 +52,7 @@ class DomainAdapter(BaseAdapter):
         - :arg parent_entity: Entity object parent that we want to change or add.
         - :arg favicon_base_64: String representing favicon image in base64 format.
         - :arg server: String representing server technology used for hosting domain.
-        - :arg last_crawl_date: Integer representing date(timestamp) of last crawl.
+        - :arg last_crawl_date: Date object representing date of last crawl.
         - :arg number_of_crawls: Integer representing number of launched crawls for Domain.
         - :arg number_of_successful_crawls: Integer representing number of successful crawls for Domain.
         - :arg average_crawl_time: Integer representing time in seconds needed for crawling entire Domain.

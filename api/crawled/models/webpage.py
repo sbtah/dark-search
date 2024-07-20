@@ -10,9 +10,9 @@ class Webpage(models.Model):
     Object representing a single Webpage(url) found while crawling TOR Domain.
     """
     parent_domain = models.ForeignKey(Domain, on_delete=models.CASCADE)
-    url = models.URLField(max_length=2000, unique=True, db_index=True)
+    url = models.URLField(max_length=2000, unique=True, db_index=True, blank=False, null=False)
     is_homepage = models.BooleanField(default=False)
-    url_after_request = models.URLField(max_length=2000)
+    url_after_request = models.URLField(max_length=2000, blank=True, null=True)
     last_request_date = models.DateTimeField(blank=True, null=True)
     last_successful_request_date = models.DateTimeField(blank=True, null=True)
     last_http_status = models.CharField(max_length=3, blank=True, null=True)
@@ -22,9 +22,9 @@ class Webpage(models.Model):
     number_of_successful_requests = models.IntegerField(default=0)
     page_rank = models.FloatField(blank=True, null=True)
     is_active = models.BooleanField(default=False)
-    tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag, blank=True, null=True)
     linking_to_webpages = models.ManyToManyField(
-        'self', related_name='_linking_from_webpages', symmetrical=False,)
+        'self', related_name='_linking_from_webpages', symmetrical=False, blank=True, null=True)
     linking_to_webpages_logs = models.JSONField(blank=True, null=True)
     anchor_texts = ArrayField(models.CharField(max_length=2000), null=True, blank=True)
     translated_anchor_texts = ArrayField(models.CharField(max_length=2000), null=True, blank=True)
@@ -69,12 +69,12 @@ class Data(models.Model):
     Object representing data saved from requesting a single Webpage.
     """
     webpage = models.OneToOneField(Webpage, on_delete=models.CASCADE)
-    raw_text = models.TextField(blank=True, null=True)
-    detected_language = models.CharField(max_length=100, blank=True, null=True)
-    translated_text = models.TextField(blank=True, null=True)
     page_title = models.CharField(max_length=2000, blank=True, null=True, db_index=True)
     meta_title = models.CharField(max_length=2000, blank=True, null=True, db_index=True)
     meta_description = models.TextField(blank=True, null=True, db_index=True)
+    raw_text = models.TextField(blank=True, null=True)
+    detected_languages = ArrayField(models.CharField(max_length=200), null=True, blank=True)
+    translated_text = models.TextField(blank=True, null=True)
     on_page_urls = ArrayField(models.URLField(max_length=2000), null=True, blank=True)
     on_page_processed_urls = ArrayField(models.URLField(max_length=2000), null=True, blank=True)
 

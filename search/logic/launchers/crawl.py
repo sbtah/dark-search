@@ -1,8 +1,5 @@
 import asyncio
-import time
-import traceback
-from datetime import datetime, date
-from django.conf import settings
+from datetime import date, datetime
 
 from logic.adapters.agents import UserAgentAdapter
 from logic.adapters.proxy import ProxyAdapter
@@ -17,7 +14,7 @@ from tasks.models import CrawlTask
 class CrawlLauncher(BaseLauncher):
     """
     Launcher for crawlers.
-    Fetch tasks from database,
+    Fetch tasks from the database,
     mark them with proper status,
     launch crawling for task.domain.
     """
@@ -40,7 +37,7 @@ class CrawlLauncher(BaseLauncher):
         Prepare Proxy, UserAgent and CrawlTask.
         Launch crawling for task's domain.
         """
-        # Starting timer and fetching active CrawlTask from db.
+        # Setting time_start date and fetching active CrawlTask from db.
         time_start: date = self.now_date()
         task: CrawlTask = self.crawl_task_adapter.get_and_prepare_crawling_task(
             celery_id=celery_task_id, launch_date=time_start
@@ -84,6 +81,6 @@ class CrawlLauncher(BaseLauncher):
             self.logger.error(
                 f'Launcher, task failed: task_id="{task.id}", domain="{task.domain}", '
                 f'failed_at="{time_end}", error="{exc.__class__}", '
-                f'error_message="{traceback.print_exception(exc)}"'
+                f'message="{exc}"', exc_info=True
             )
             self.crawl_task_adapter.mark_task_failed(task=task)

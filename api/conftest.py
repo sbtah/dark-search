@@ -42,3 +42,15 @@ def collection_of_domains():
 @pytest.fixture
 def collection_of_tags() -> list[str]:
     return ['Tag1', 'Tag2', 'Tag3', 'Tag4', 'Tag5']
+
+
+@pytest.fixture
+def collection_of_webpages_urls():
+    return [
+        'http://some-page.onion/page1',
+        'http://some-page-2.onion/page2',
+        'http://some-page.onion/page3',
+        'http://some-page.onion/page1',
+        'http://some-page.onion/page-other',
+        'http://other.onion/page1',
+    ]

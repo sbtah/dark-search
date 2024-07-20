@@ -27,7 +27,6 @@ class Domain(models.Model):
     # What is this Domain about.
     tags = models.ManyToManyField(Tag)
     site_structure = models.JSONField(blank=True, null=True)
-    # Domains that this domain is linking to.
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -1,16 +1,38 @@
 from pydantic import BaseModel, Field
 
 
+class UrlSchema(BaseModel):
+    """
+    Class representing a schema for Url.
+    """
+    href: str
+    anchor: str
+
+
+class OnPageUrlsSchema(BaseModel):
+    """
+    Class representing a schema for Data JsonFields for storing urls.
+    Example:
+    {
+        'on_page_urls': [
+            {'href': 'http://test.com', 'anchor': 'Some Text'},
+            {'href': 'http://test-other.com/page', 'anchor': 'text!'}
+        ]
+    }
+    """
+    on_page_urls: list[UrlSchema]
+
+
 class ResponseSchema(BaseModel):
     """
     Class representing a schema for Response received from crawler.
     """
     requested_url: dict
     status: str | None
-    responded_url: str = None
+    responded_url: str | None = None
     server: str | None = None
-    elapsed: int = None
-    visited: int = None
+    elapsed: int | None = None
+    visited: int | None = None
     text: str | None = None
     page_title: str | None = None
     meta_title: str | None = None

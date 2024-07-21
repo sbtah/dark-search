@@ -50,7 +50,7 @@ def collection_of_webpages_urls():
         'http://some-page.onion/page1',
         'http://some-page-2.onion/page2',
         'http://some-page.onion/page3',
-        'http://some-page.onion/page1',
+        'http://some-page.onion/page1',  # Duplicated!
         'http://some-page.onion/page-other',
         'http://other.onion/page1',
     ]

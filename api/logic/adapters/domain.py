@@ -1,9 +1,10 @@
-from typing import Collection
 from datetime import date
+from typing import Collection
+
 from crawled.models.domain import Domain
 from crawled.models.entity import Entity
 from logic.adapters.base import BaseAdapter
-from logic.adapters.tag import TagAdapter
+from logic.adapters.tag import Tag, TagAdapter
 
 
 class DomainAdapter(BaseAdapter):
@@ -85,7 +86,7 @@ class DomainAdapter(BaseAdapter):
 
         if tags is not None:
             domain.tags.clear()
-            collection_of_tags: list = [
+            collection_of_tags: list[Tag] = [
                 self.tag_adapter.get_or_create_tag(value=tag_value) for tag_value in tags
             ]
             for found_tag in collection_of_tags:

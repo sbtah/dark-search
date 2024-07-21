@@ -3,14 +3,15 @@ from typing import Collection
 from urllib.parse import urlsplit
 
 from crawled.models.domain import Domain
-from crawled.models.webpage import Webpage
+from crawled.models.webpage import Data, Webpage
 from crawled.schemas import (
     LastHttpStatusLogsSchema,
-    LinkingToWebpagesLogsSchema
+    LinkingToWebpagesLogsSchema,
+    OnPageUrlsSchema,
 )
 from logic.adapters.base import BaseAdapter
 from logic.adapters.domain import DomainAdapter
-from logic.adapters.tag import TagAdapter
+from logic.adapters.tag import Tag, TagAdapter
 
 
 class WebpageAdapter(BaseAdapter):
@@ -20,6 +21,7 @@ class WebpageAdapter(BaseAdapter):
 
     def __init__(self) -> None:
         self.webpage: Webpage = Webpage
+        self.data: Data = Data
         self.tag_adapter: TagAdapter = TagAdapter()
         self.domain_adapter: Domain = DomainAdapter()
         super().__init__()
@@ -51,6 +53,7 @@ class WebpageAdapter(BaseAdapter):
             self.logger.debug(f'WebpageAdapter, created new Webpage: webpage_id="{new_webpage.id}", url="{url}"')
             return new_webpage
 
+
     def update_webpage(
         self,
         *,
@@ -60,7 +63,7 @@ class WebpageAdapter(BaseAdapter):
         last_request_date: date | None = None,
         last_successful_request_date: date | None = None,
         last_http_status: str | None = None,
-        last_http_status_logs: dict[str, str] | None = None,
+        last_http_status_logs: dict | None = None,
         average_response_time: float | None = None,
         number_of_requests: int | None = None,
         number_of_successful_requests: int | None = None,
@@ -68,7 +71,7 @@ class WebpageAdapter(BaseAdapter):
         is_active: bool | None = None,
         tags: Collection[str] | None = None,
         linking_to_webpages: Collection[str] | None = None,
-        linking_to_webpages_logs: dict[str, list[int]] | None = None,
+        linking_to_webpages_logs: dict | None = None,
         anchor_texts: list[str] | None = None,
         translated_anchor_texts: list[str] | None = None,
     ) -> Webpage:
@@ -113,8 +116,11 @@ class WebpageAdapter(BaseAdapter):
             webpage.last_http_status = last_http_status
 
         if last_http_status_logs is not None:
-            status_logs_model: LastHttpStatusLogsSchema = LastHttpStatusLogsSchema.model_validate(last_http_status_logs)
-            webpage.last_http_status_logs = status_logs_model.model_dump()
+            status_logs_model: LastHttpStatusLogsSchema = LastHttpStatusLogsSchema.model_validate(
+                last_http_status_logs
+            )
+            validated_status_logs_data: dict = status_logs_model.model_dump()
+            webpage.last_http_status_logs = validated_status_logs_data
 
         if average_response_time is not None:
             webpage.average_response_time = average_response_time
@@ -133,7 +139,7 @@ class WebpageAdapter(BaseAdapter):
 
         if tags is not None:
             webpage.tags.clear()
-            collection_of_tags: list = [
+            collection_of_tags: list[Tag] = [
                 self.tag_adapter.get_or_create_tag(value=tag_value) for tag_value in tags
             ]
             for found_tag in collection_of_tags:
@@ -141,7 +147,7 @@ class WebpageAdapter(BaseAdapter):
 
         if linking_to_webpages is not None:
             webpage.linking_to_webpages.clear()
-            collection_of_webpages: list = [
+            collection_of_webpages: list[Webpage] = [
                 self.get_or_create_webpage_by_url(url=found_url) for found_url in linking_to_webpages
             ]
             for found_webpage in collection_of_webpages:
@@ -151,7 +157,8 @@ class WebpageAdapter(BaseAdapter):
             webpages_logs_model: LinkingToWebpagesLogsSchema = LinkingToWebpagesLogsSchema.model_validate(
                 linking_to_webpages_logs
             )
-            webpage.linking_to_webpages_logs = webpages_logs_model.model_dump()
+            validated_webpages_logs_data: dict = webpages_logs_model.model_dump()
+            webpage.linking_to_webpages_logs = validated_webpages_logs_data
 
         if anchor_texts is not None:
             webpage.anchor_texts = anchor_texts
@@ -162,3 +169,72 @@ class WebpageAdapter(BaseAdapter):
         webpage.save()
         self.logger.debug(f'WebpageAdapter, updated Webpage: webpage_id="{webpage.id}"')
         return webpage
+
+
+    def create_data_for_webpage(
+        self,
+        *,
+        webpage: Webpage,
+        page_title: str | None = None,
+        meta_title: str | None = None,
+        meta_description: str | None = None,
+        raw_text: str | None = None,
+        on_page_raw_urls: dict | None = None,
+        on_page_processed_internal_urls: dict | None = None,
+        on_page_processed_external_urls: dict | None = None,
+    ) -> Data:
+        """
+        Create a Data object for a given Webpage.
+        Raise AssertionError if the Webpage already has a Data object.
+        - :arg webpage: Webpage object for which Data object should be created or updated.
+        """
+        assert webpage.has_data is False, 'The given Webpage object already has a defined Data.'
+        creation_data = {
+            'webpage': webpage,
+        }
+        if page_title is not None:
+            creation_data['page_title'] = page_title
+
+        if meta_title is not None:
+            creation_data['meta_title'] = meta_title
+
+        if meta_description is not None:
+            creation_data['meta_description'] = meta_description
+
+        if raw_text is not None:
+            creation_data['raw_text'] = raw_text
+
+        if on_page_raw_urls is not None:
+            on_page_raw_urls_model = OnPageUrlsSchema.model_validate(on_page_raw_urls)
+            on_page_raw_urls: dict = on_page_raw_urls_model.model_dump()
+            creation_data['on_page_raw_urls'] = on_page_raw_urls
+
+        if on_page_processed_internal_urls is not None:
+            on_page_processed_internal_model = OnPageUrlsSchema.model_validate(on_page_processed_internal_urls)
+            on_page_processed_internal_urls: dict = on_page_processed_internal_model.model_dump()
+            creation_data['on_page_processed_internal_urls'] = on_page_processed_internal_urls
+
+        if on_page_processed_external_urls is not None:
+            on_page_processed_external_model = OnPageUrlsSchema.model_validate(on_page_processed_external_urls)
+            on_page_processed_external_urls: dict = on_page_processed_external_model.model_dump()
+            creation_data['on_page_processed_external_urls'] = on_page_processed_external_urls
+
+        data: Data = self.data.objects.create(**creation_data)
+        self.logger.debug(f'WebpageAdapter, created new Data: data_id="{data.id}"')
+        return data
+
+    def update_data_for_webpage(
+        self,
+        *,
+        webpage: Webpage,
+        page_title: str | None = None,
+        meta_title: str | None = None,
+        meta_description: str | None = None,
+        raw_text: str | None = None,
+        on_page_raw_urls: dict | None = None,
+        on_page_processed_internal_urls: dict | None = None,
+        on_page_processed_external_urls: dict | None = None,
+        detected_languages: list[str] | None = None,
+        translated_text: str | None = None,
+    ):
+        ...

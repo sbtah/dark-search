@@ -3,7 +3,7 @@ FROM node:lts-alpine
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY /front/package.json  /front/package-lock.json* .
+COPY /front/package.json  /front/package-lock.json* ./
 COPY ./compose/local/front/start /start
 RUN chmod +x /start
 

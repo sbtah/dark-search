@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/search/Dockerfile
+      network: host
       args:
         - DEV=true
     image: search
@@ -24,6 +25,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/api/Dockerfile
+      network: host
       args:
         - DEV=true
     image: api
@@ -44,6 +46,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/front/Dockerfile
+      network: host
       args:
         - DEV=true
     image: front
@@ -94,6 +97,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/search/Dockerfile
+      network: host
     restart: always
     command: /cstart
     volumes:
@@ -112,6 +116,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/api/Dockerfile
+      network: host
     restart: always
     command: /cstart
     volumes:
@@ -136,6 +141,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/search/Dockerfile
+      network: host
     image: search-beat
     container_name: search-beat
     command: /bstart
@@ -153,6 +159,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/api/Dockerfile
+      network: host
     image: api-beat
     container_name: api-beat
     command: /bstart
@@ -170,6 +177,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/search/Dockerfile
+      network: host
     image: search-flower
     container_name: search-flower
     command: /fstart
@@ -189,6 +197,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/api/Dockerfile
+      network: host
     image: api-flower
     container_name: api-flower
     command: /fstart

@@ -26,7 +26,7 @@ class Crawler(AsyncSpider):
         """Initiate a crawling process for urls in self.urls_to_crawl Collection."""
         self.logger.info(f'Crawler, initiated: domain="{self.domain}"')
         self.found_internal_urls.add(*self.urls_to_crawl)
-        result = await self.crawl()
+        result: dict = await self.crawl()
         return result
 
     async def crawl(self) -> dict:
@@ -48,13 +48,11 @@ class Crawler(AsyncSpider):
             responses: list[dict] = await self.run_requests(iterable_of_urls=self.queue)
 
             for response in responses:
-                print(response)
 
                 # If response is None and Url.number_of_request is under max_retries threshold,
                 #   we want to keep this Url in the found_internal_urls set.
                 if response['status'] is None and response['requested_url'].number_of_requests < self.max_retries:
                     continue
-                print(response.get('text'))
 
                 # Add url to the requested_urls set and remove from found_internal_urls if request was successful.
                 self.requested_urls.add(response['requested_url'])
@@ -114,7 +112,7 @@ class Crawler(AsyncSpider):
         """
         Parse Url objects in the internal_urls set.
         Newly discovered urls are added to self.found_internal_urls for future crawling.
-        - :arg results: Set containing found urls that are withing Domain that is currently being crawled.
+        - :arg results: Set containing found urls that are within the Domain that is currently being crawled.
         """
         if len(results) == 0:
             return
@@ -132,9 +130,9 @@ class Crawler(AsyncSpider):
         """
         Parse Url objects in the external_urls set.
         Newly discovered domains are added to self.external_domains set.
-        CrawlTask is created for each new domain.
+        CrawlTask is created for each domain.
         - :arg results:
-            Set containing found urls that are leading outside Domain that is currently being crawled.
+            Set containing found urls that are leading outside the Domain that is currently being crawled.
         """
         if len(results) == 0:
             return

@@ -208,3 +208,21 @@ class TestWebpageAdapter:
                 anchor_texts=['BULLSHIT', 'LOLS', 'GUNS'],
                 translated_anchor_texts=['BULLSHIT', 'LOLS', 'GUNS'],
             )
+
+    def test_webpage_adapter_create_data_for_webpage_is_successful(
+        self,
+        adapter,
+        example_webpage,
+    ) -> None:
+        """Test that create_data_for_webpage method is successfully creating Data object."""
+        on_page_raw_urls = {
+            'on_page_urls': [{'url': 'http://test.onion/page-1', 'href': 'Site'}]}
+        adapter.create_data_for_webpage(
+            webpage=example_webpage,
+            page_title='Some test title',
+            meta_title='Some meta title',
+            meta_description='Webpage description',
+            raw_text='TEXT FROM THE ACTUAL WEBPAGE!',
+            on_page_raw_urls={'on_page_urls': [{'url': 'http://test.onion/page-1', 'href': 'Site'}]},
+            on_page_processed_internal_urls=
+        )

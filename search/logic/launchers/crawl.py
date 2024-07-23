@@ -9,6 +9,7 @@ from logic.launchers.base import BaseLauncher
 from logic.parsers.objects.url import Url
 from logic.spiders.crawler import Crawler
 from tasks.models import CrawlTask
+from django.conf import settings
 
 
 class CrawlLauncher(BaseLauncher):
@@ -44,7 +45,7 @@ class CrawlLauncher(BaseLauncher):
         )
         self.logger.info(
             f'Launcher, launching task: task_id="{task.id}", domain="{task.domain}", '
-            f'started="{time_start}"'
+            f'started="{time_start.strftime(settings.PROJECT_DATE_FORMAT)}"'
         )
 
         # Fetching UserAgent and Proxy from db.
@@ -74,13 +75,15 @@ class CrawlLauncher(BaseLauncher):
             )
             self.logger.info(
                 f'Launcher, finished task: task_id="{task.id}", domain="{task.domain}", '
-                f'finished="{time_end}", crawl_time="{crawl_time}"'
+                f'finished="{time_end.strftime(settings.PROJECT_DATE_FORMAT)}", '
+                f'crawl_time="{crawl_time}"'
             )
         except Exception as exc:
             time_end: date = self.now_date()
             self.logger.error(
                 f'Launcher, task failed: task_id="{task.id}", domain="{task.domain}", '
-                f'failed_at="{time_end}", error="{exc.__class__}", '
+                f'failed_at="{time_end.strftime(settings.PROJECT_DATE_FORMAT)}", '
+                f'error="{exc.__class__}", '
                 f'message="{exc}"', exc_info=True
             )
             self.crawl_task_adapter.mark_task_failed(task=task)

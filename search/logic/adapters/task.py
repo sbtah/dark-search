@@ -129,12 +129,12 @@ class CrawlTaskAdapter(BaseAdapter):
         self.logger.debug(message)
         return True
 
-    def _get_active_tasks(self) -> QuerySet[CrawlTask | None]:
+    def _get_active_tasks(self) -> QuerySet[CrawlTask]:
         """
         Get the first ACTIVE Task object for crawling.
         Tasks are filtered by last_launch_date ASC and importance DESC.
         """
-        tasks = self.task.objects.filter(
+        tasks: QuerySet[CrawlTask] = self.task.objects.filter(
             status='ACTIVE', current_celery_id=None,
         ).order_by('last_launch_date', '-importance')
         return tasks
@@ -152,7 +152,7 @@ class CrawlTaskAdapter(BaseAdapter):
         - :arg celery_id: String representing ID of Celery Task.
         - :arg launch_date: Date object representing date when the task was launched.
         """
-        tasks: QuerySet[CrawlTask | None] = self._get_active_tasks()
+        tasks: QuerySet[CrawlTask] = self._get_active_tasks()
         if len(tasks) == 0:
             raise NoActiveTasksError()
 

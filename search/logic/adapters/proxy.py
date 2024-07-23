@@ -29,7 +29,7 @@ class ProxyAdapter(BaseAdapter):
 
     def get_proxy(self) -> Proxy:
         """Retrieve the least used Proxy from the database."""
-        proxies: QuerySet[Proxy | None] = self.proxy.objects.all().order_by('current_spiders')
+        proxies: QuerySet[Proxy] = self.proxy.objects.all().order_by('current_spiders')
         if not proxies:
             raise NoProxiesError()
         return proxies.first()

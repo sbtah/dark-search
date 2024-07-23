@@ -8,7 +8,7 @@ from utilities.log import logger
 
 class BaseApiClient:
     """
-    Base class for Api client.
+    Base class for the Api client.
     """
 
     def __init__(self) -> None:
@@ -25,7 +25,7 @@ class BaseApiClient:
         )
 
     def prepare_auth_headers(self) -> dict:
-        """Prepare authorization headers for next request."""
+        """Prepare authorization headers for the next request."""
         return {
             'Authorization': f'Token {self.api_key}',
         }

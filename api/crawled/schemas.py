@@ -22,7 +22,6 @@ class OnPageUrlsSchema(BaseModel):
     }
     """
     model_config = ConfigDict(strict=True)
-
     on_page_urls: list[UrlSchema]
 
 
@@ -31,7 +30,6 @@ class ResponseSchema(BaseModel):
     Class representing a schema for Response received from crawler.
     """
     model_config = ConfigDict(strict=True)
-
     requested_url: dict
     status: str | None
     responded_url: str | None = None
@@ -51,7 +49,6 @@ class SummarySchema(BaseModel):
     Class representing a schema for payload received after finished crawl.
     """
     model_config = ConfigDict(strict=True)
-
     domain: str
     num_urls_crawled: int
     # num_external_domains_found: int
@@ -64,7 +61,6 @@ class SingleHttpStatusLogSchema(BaseModel):
     Class representing a schema for single log in 'last_http_status_logs'.
     """
     model_config = ConfigDict(strict=True)
-
     date: str = Field(pattern=r'\d{2}-\d{2}-\d{4} \d{2}:\d{2}')
     status: str = Field(pattern=r'\d{3}')
 
@@ -81,7 +77,6 @@ class LastHttpStatusLogsSchema(BaseModel):
     }
     """
     model_config = ConfigDict(strict=True)
-
     status_logs: list[SingleHttpStatusLogSchema]
 
 
@@ -90,7 +85,6 @@ class SingleLinkingToWebpagesLogSchema(BaseModel):
     Class representing a schema for single log in 'lining_to_webpages_logs'.
     """
     model_config = ConfigDict(strict=True)
-
     date: str = Field(pattern=r'\d{2}-\d{2}-\d{4} \d{2}:\d{2}')
     urls: list[str]
 
@@ -107,5 +101,4 @@ class LinkingToWebpagesLogsSchema(BaseModel):
     }
     """
     model_config = ConfigDict(strict=True)
-
     webpages_logs: list[SingleLinkingToWebpagesLogSchema]

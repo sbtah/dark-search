@@ -7,7 +7,7 @@ router = Router()
 
 @router.post('/process-response')
 def test(request, crawled_response: ResponseSchema):
-    # print(crawled_response.dict())
+    print(crawled_response.dict())
     return crawled_response
 
 

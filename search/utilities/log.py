@@ -4,7 +4,7 @@ from logging import Formatter, StreamHandler
 
 
 logger = logging.getLogger('SEARCH')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 handler = StreamHandler(stream=sys.stdout)
 handler.setFormatter(Formatter(fmt="[%(asctime)s: %(levelname)s] %(message)s"))
 logger.addHandler(handler)

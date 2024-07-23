@@ -24,11 +24,11 @@ class AsyncApiClient(BaseApiClient):
 
     async def get(self, url: Url) -> tuple[Response | None, Url]:
         """
-        Send GET requests to url value in Url object.
+        Send the GET request to url value in the Url object.
         Return tuple with Response object and Url object on success.
         - :arg url: Url object representing requested endpoint.
         """
-        headers = self.prepare_auth_headers()
+        headers: dict = self.prepare_auth_headers()
         url.number_of_requests += 1
         try:
             async with self.client(
@@ -46,12 +46,12 @@ class AsyncApiClient(BaseApiClient):
 
     async def post(self, url: Url, data: dict) -> tuple[Response | None, Url]:
         """
-        Send POST request to value of Url object.
+        Send the POST request to url value of the Url object.
         Return tuple with Response and Url objects on success.
         - :arg url: Url object.
         - :data: Dictionary with data payload.
         """
-        headers = self.prepare_auth_headers()
+        headers: dict = self.prepare_auth_headers()
         url.number_of_requests += 1
         try:
             async with self.client(
@@ -73,7 +73,7 @@ class AsyncApiClient(BaseApiClient):
         self, request_type: str, url: Url, data: dict | None = None
     ) -> tuple[Response | None, Url]:
         """
-        Create an asyncio task for GET or POST request to endpoint specified via Url object.
+        Create an asyncio task for GET or POST request to endpoint specified via the Url object.
         - :arg type: String representing a request method. Ie: 'POST' or 'GET'
         - :arg url: Url object with requested endpoint.
         - :arg data: Dictionary with data for POST request.
@@ -88,7 +88,8 @@ class AsyncApiClient(BaseApiClient):
                 if response[0] is not None:
                     return response
 
-        if request_type == 'POST' and data is not None:
+        if request_type == 'POST':
+            assert data is not None, 'Received no data for POST request'
             while True:
                 async with asyncio.TaskGroup() as tg:
                     task = tg.create_task(self.post(url=url, data=data))

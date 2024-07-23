@@ -217,12 +217,16 @@ class WebpageAdapter(BaseAdapter):
             creation_data['on_page_raw_urls'] = on_page_raw_urls
 
         if on_page_processed_internal_urls is not None:
-            on_page_processed_internal_model = OnPageUrlsSchema.model_validate(on_page_processed_internal_urls)
+            on_page_processed_internal_model: OnPageUrlsSchema = OnPageUrlsSchema.model_validate(
+                on_page_processed_internal_urls
+            )
             on_page_processed_internal_urls: dict = on_page_processed_internal_model.model_dump()
             creation_data['on_page_processed_internal_urls'] = on_page_processed_internal_urls
 
         if on_page_processed_external_urls is not None:
-            on_page_processed_external_model = OnPageUrlsSchema.model_validate(on_page_processed_external_urls)
+            on_page_processed_external_model: OnPageUrlsSchema = OnPageUrlsSchema.model_validate(
+                on_page_processed_external_urls
+            )
             on_page_processed_external_urls: dict = on_page_processed_external_model.model_dump()
             creation_data['on_page_processed_external_urls'] = on_page_processed_external_urls
 

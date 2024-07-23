@@ -16,7 +16,7 @@ class UserAgentAdapter(BaseAdapter):
 
     def sync_get_or_create_user_agent(self, user_agent: str) -> UserAgent:
         """
-        Create new UserAgent object or return existing one.
+        Create a new UserAgent object or return existing one.
         - :arg user_agent: String representing browser User Agent.
         """
         try:
@@ -38,7 +38,7 @@ class UserAgentAdapter(BaseAdapter):
         """
         Retrieve random UserAgent object from database.
         """
-        agents: QuerySet[UserAgent | None] = self.agent.objects.all()
+        agents: QuerySet[UserAgent] = self.agent.objects.all()
         if not agents:
             raise NoUserAgentsError()
         return choice(agents)

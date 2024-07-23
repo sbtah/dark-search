@@ -53,7 +53,6 @@ class WebpageAdapter(BaseAdapter):
             self.logger.debug(f'WebpageAdapter, created new Webpage: webpage_id="{new_webpage.id}", url="{url}"')
             return new_webpage
 
-
     def update_webpage(
         self,
         *,
@@ -95,9 +94,9 @@ class WebpageAdapter(BaseAdapter):
         - :arg tags: Collection of strings representing a Tag objects.
         - :arg linking_to_webpages: Collection of string representing urls of Webpages that this page is linking to.
         - :arg linking_to_webpages_logs: Dictionary representing time series of links to webpages over time.
-         - :arg anchor_texts: List of strings representing all anchor texts,
+        - :arg anchor_texts: List of strings representing all anchor texts,
             that come with links to the Webpage.
-         - :arg translated_anchor_texts: List of strings representing all anchor translated texts,
+        - :arg translated_anchor_texts: List of strings representing all anchor translated texts,
             that come with links to the Webpage.
         """
         if is_homepage is not None:
@@ -170,7 +169,6 @@ class WebpageAdapter(BaseAdapter):
         self.logger.debug(f'WebpageAdapter, updated Webpage: webpage_id="{webpage.id}"')
         return webpage
 
-
     def create_data_for_webpage(
         self,
         *,
@@ -186,7 +184,16 @@ class WebpageAdapter(BaseAdapter):
         """
         Create a Data object for a given Webpage.
         Raise AssertionError if the Webpage already has a Data object.
-        - :arg webpage: Webpage object for which Data object should be created or updated.
+        - :arg webpage: Webpage object for which the Data object should be created or updated.
+        - :arg page_title: String with extracted page title (h1).
+        - :arg meta_title: String with extracted text from meta title.
+        - :arg meta_description: String with extracted text from meta description.
+        - :arg raw_text: String with extracted text content from a Webpage.
+        - :arg on_page_raw_urls: Dictionary with list of all urls found on a Webpage.
+        - :arg on_page_processed_internal_urls:
+            Dictionary with a list of processed urls that are within the parent Domain of the current Webpage.
+        - :arg on_page_processed_external_urls:
+            Dictionary with a list of processed urls that leads outside the parent Domain of the current Webpage.
         """
         assert webpage.has_data is False, 'The given Webpage object already has a defined Data.'
         creation_data = {
@@ -237,4 +244,66 @@ class WebpageAdapter(BaseAdapter):
         detected_languages: list[str] | None = None,
         translated_text: str | None = None,
     ):
-        ...
+        """
+        Update a Data object for a given Webpage.
+        Raise AssertionError if the Webpage ha no Data defined.
+        - :arg webpage: Webpage object for which the Data object should be created or updated.
+        - :arg page_title: String with extracted page title (h1).
+        - :arg meta_title: String with extracted text from meta title.
+        - :arg meta_description: String with extracted text from meta description.
+        - :arg raw_text: String with extracted text content from a Webpage.
+        - :arg on_page_raw_urls: Dictionary with list of all urls found on a Webpage.
+        - :arg on_page_processed_internal_urls:
+            Dictionary with a list of processed urls that are within the parent Domain of the current Webpage.
+        - :arg on_page_processed_external_urls:
+            Dictionary with a list of processed urls that leads outside the parent Domain of the current Webpage.
+        - :arg detected_languages: List of detected languages on page.
+        - :arg translated_text: String with translated text from raw_text.
+        """
+        assert webpage.has_data is True, 'The give Webpage object has no defined Data.'
+
+        # Get Data object for given Webpage.
+        data: Data = webpage.data
+
+        if page_title is not None:
+            data.page_title = page_title
+
+        if meta_title is not None:
+            data.meta_title = meta_title
+
+        if meta_description is not None:
+            data.meta_description = meta_description
+
+        if raw_text is not None:
+            data.raw_text = raw_text
+
+        if on_page_raw_urls is not None:
+            on_page_raw_urls_model: OnPageUrlsSchema = OnPageUrlsSchema.model_validate(
+                on_page_raw_urls
+            )
+            on_page_raw_urls: dict = on_page_raw_urls_model.model_dump()
+            data.on_page_raw_urls = on_page_raw_urls
+
+        if on_page_processed_internal_urls is not None:
+            on_page_processed_internal_model: OnPageUrlsSchema = OnPageUrlsSchema.model_validate(
+                on_page_processed_internal_urls
+            )
+            on_page_processed_internal_urls: dict = on_page_processed_internal_model.model_dump()
+            data.on_page_processed_internal_urls = on_page_processed_internal_urls
+
+        if on_page_processed_external_urls is not None:
+            on_page_processed_external_model: OnPageUrlsSchema = OnPageUrlsSchema.model_validate(
+                on_page_processed_external_urls
+            )
+            on_page_processed_external_urls: dict = on_page_processed_external_model.model_dump()
+            data.on_page_processed_external_urls = on_page_processed_external_urls
+
+        if detected_languages is not None:
+            data.detected_languages = detected_languages
+
+        if translated_text is not None:
+            data.translated_text = translated_text
+
+        data.save()
+        self.logger.debug(f'WebpageAdapter, updated Data: data_id="{data.id}"')
+        return data

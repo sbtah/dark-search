@@ -234,6 +234,30 @@ class TestWebpageAdapter:
         assert isinstance(result_value, Data)
         assert Data.objects.count() == 1
 
+    def test_webpage_adapter_create_data_for_webpage_is_raising_validation_error_for_json_fields(
+        self,
+        adapter,
+        example_webpage,
+    ) -> None:
+        """
+        Test that create_data_for_webpage method is raising ValidationError
+        when data for JsonFields does not match schema.
+        """
+        json_on_page_urls_bad: dict = {
+            'on_page_urls': [{'href': 'http://test.onion/page-1', 'text': 1}]
+        }
+        with pytest.raises(ValidationError):
+            adapter.create_data_for_webpage(
+                webpage=example_webpage,
+                page_title='Some test title',
+                meta_title='Some meta title',
+                meta_description='Webpage description',
+                raw_text='TEXT FROM THE ACTUAL WEBPAGE!',
+                on_page_raw_urls=json_on_page_urls_bad,
+                on_page_processed_internal_urls=json_on_page_urls_bad,
+                on_page_processed_external_urls=json_on_page_urls_bad,
+            )
+
     def test_webpage_adapter_create_data_for_webpage_is_raising_assertion_error(
         self,
         adapter,
@@ -291,3 +315,27 @@ class TestWebpageAdapter:
         """
         with pytest.raises(AssertionError):
             adapter.update_data_for_webpage(webpage=example_webpage)
+
+    def test_webpage_adapter_update_data_for_webpage_is_raising_validation_error_for_json_fields(
+        self,
+        adapter,
+        example_webpage_with_data,
+    ) -> None:
+        """
+        Test that update_data_for_webpage method is raising ValidationError
+        when data for JsonFields does not match schema.
+        """
+        json_on_page_urls_bad: dict = {
+            'on_page_urls': [{'href': 'http://test.onion/page-1', 'text': 1}]
+        }
+        with pytest.raises(ValidationError):
+            adapter.update_data_for_webpage(
+                webpage=example_webpage_with_data,
+                page_title='Some test title',
+                meta_title='Some meta title',
+                meta_description='Webpage description',
+                raw_text='TEXT FROM THE ACTUAL WEBPAGE!',
+                on_page_raw_urls=json_on_page_urls_bad,
+                on_page_processed_internal_urls=json_on_page_urls_bad,
+                on_page_processed_external_urls=json_on_page_urls_bad,
+            )

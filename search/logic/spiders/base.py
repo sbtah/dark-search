@@ -9,6 +9,7 @@ from logic.parsers.html import HtmlExtractor
 from logic.objects.url import Url
 from logic.parsers.url import UrlExtractor
 from utilities.log import logger
+from logic.schemas.url import UrlSchema
 
 
 class BaseSpider:
@@ -65,8 +66,9 @@ class BaseSpider:
 
         copied_response: dict = copy.deepcopy(response_dict)
         url: Url = copied_response.pop('requested_url')
-        url = url.serialize()
-        serialized_response: dict = {'requested_url': url, **copied_response}
+        url_model: UrlSchema = UrlSchema.model_validate(url.serialize())
+        url_dict: dict = url_model.model_dump()
+        serialized_response: dict = {'requested_url': url_dict, **copied_response}
 
         if copied_response.get('processed_urls') is None:
             return serialized_response
@@ -76,13 +78,23 @@ class BaseSpider:
 
         if len(processed_urls['internal_urls']) > 0:
             internal_set: set[Url] = processed_urls.pop('internal_urls')
-            new_internal: list[dict] = [url_obj.serialize() for url_obj in internal_set]
+            new_internal: list[dict] = [
+                UrlSchema.model_validate(url_obj.serialize()).model_dump(exclude={'number_of_requests'})
+                for url_obj in internal_set
+            ]
             processed_urls_new['internal'] = new_internal
 
         if len(processed_urls['external_urls']) > 0:
             external_set: set[Url] = processed_urls.pop('external_urls')
-            new_external: list[dict] = [url_ob.serialize() for url_ob in external_set]
+            new_external: list[dict] = [
+                UrlSchema.model_validate(url_ob.serialize()).model_dump(exclude={'number_of_requests'})
+                for url_ob in external_set
+            ]
             processed_urls_new['external'] = new_external
 
-        serialized_response = {'requested_url': url, **copied_response, 'processed_urls': processed_urls_new}
+        serialized_response = {
+            'requested_url': url_dict,
+            **copied_response,
+            'processed_urls': processed_urls_new
+        }
         return serialized_response

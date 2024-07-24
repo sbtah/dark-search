@@ -60,8 +60,9 @@ class BaseSpider:
     @staticmethod
     def serialized_response(response_dict: dict) -> dict:
         """
-        Make a copy of response and change Url objects in response to dictionary.
+        Make a copy of response and change Url objects in response to dictionaries.
         Used while sending data to the API.
+        Use UrlSchema for validation and serialization.
         """
 
         copied_response: dict = copy.deepcopy(response_dict)

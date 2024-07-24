@@ -6,7 +6,7 @@ from logic.adapters.proxy import ProxyAdapter
 from logic.adapters.task import CrawlTaskAdapter
 from logic.adapters.url import UrlAdapter
 from logic.launchers.base import BaseLauncher
-from logic.parsers.objects.url import Url
+from logic.objects.url import Url
 from logic.spiders.crawler import Crawler
 from tasks.models import CrawlTask
 from django.conf import settings

@@ -1,7 +1,7 @@
 from collections import deque
 from typing import Collection
 
-from logic.parsers.objects.url import Url
+from logic.objects.url import Url
 from logic.spiders.asynchronous import AsyncSpider
 
 

@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from httpx import Response
 from logic.client.asynchronous import AsyncApiClient
-from logic.parsers.objects.url import Url
+from logic.objects.url import Url
 
 
 @pytest.fixture

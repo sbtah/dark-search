@@ -7,7 +7,7 @@ from logic.exceptions.adapters.url import (
     WrongTypeProvidedError,
     WrongValueProvidedError,
 )
-from logic.parsers.objects.url import Url
+from logic.objects.url import Url
 
 
 class TestUrlObject:

@@ -4,7 +4,7 @@ from typing import Any
 import httpx
 from httpx import Response
 from logic.client.base import BaseApiClient
-from logic.parsers.objects.url import Url
+from logic.objects.url import Url
 
 
 class AsyncApiClient(BaseApiClient):

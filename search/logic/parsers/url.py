@@ -3,7 +3,7 @@ from re import Pattern
 from urllib.parse import SplitResult, urljoin, urlsplit
 
 from logic.adapters.url import UrlAdapter
-from logic.parsers.objects.url import Url
+from logic.objects.url import Url
 
 
 # File pattern used in identifying urls leading to a file.

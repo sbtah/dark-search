@@ -2,7 +2,7 @@ from logging import Logger
 
 from django.conf import settings
 from logic.adapters.url import UrlAdapter
-from logic.parsers.objects.url import Url
+from logic.objects.url import Url
 from utilities.log import logger
 
 

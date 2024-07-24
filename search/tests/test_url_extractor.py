@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 from urllib.parse import SplitResult
 
 import pytest
-from logic.parsers.objects.url import Url
+from logic.objects.url import Url
 from logic.parsers.url import UrlExtractor
 
 

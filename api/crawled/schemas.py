@@ -6,7 +6,7 @@ class UrlSchema(BaseModel):
     Class representing a schema for Url.
     """
     model_config = ConfigDict(strict=True)
-    href: str
+    value: str
     anchor: str
 
 

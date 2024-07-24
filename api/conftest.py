@@ -4,7 +4,7 @@ Pytest fixtures for api service.
 import pytest
 from crawled.models.domain import Domain
 from crawled.models.entity import Entity
-from crawled.models.webpage import Webpage
+from crawled.models.webpage import Webpage, Data
 
 
 @pytest.fixture
@@ -31,6 +31,14 @@ def example_linked_webpage(example_webpage):
     ]
     for webpage in list_of_webpages:
         webpage.linking_to_webpages.add(example_webpage)
+    return example_webpage
+
+
+@pytest.fixture
+def example_webpage_with_data(example_webpage):
+    Data.objects.create(
+        webpage=example_webpage,
+    )
     return example_webpage
 
 

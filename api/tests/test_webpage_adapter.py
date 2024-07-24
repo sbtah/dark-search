@@ -214,15 +214,80 @@ class TestWebpageAdapter:
         adapter,
         example_webpage,
     ) -> None:
-        """Test that create_data_for_webpage method is successfully creating Data object."""
-        on_page_raw_urls = {
-            'on_page_urls': [{'url': 'http://test.onion/page-1', 'href': 'Site'}]}
-        adapter.create_data_for_webpage(
+        """
+        Test that create_data_for_webpage method is successfully creating Data object.
+        """
+        assert Data.objects.count() == 0
+        json_on_page_urls: dict = {
+            'on_page_urls': [{'value': 'http://test.onion/page-1', 'anchor': 'Site'}]
+        }
+        result_value = adapter.create_data_for_webpage(
             webpage=example_webpage,
             page_title='Some test title',
             meta_title='Some meta title',
             meta_description='Webpage description',
             raw_text='TEXT FROM THE ACTUAL WEBPAGE!',
-            on_page_raw_urls={'on_page_urls': [{'url': 'http://test.onion/page-1', 'href': 'Site'}]},
-            on_page_processed_internal_urls=
+            on_page_raw_urls=json_on_page_urls,
+            on_page_processed_internal_urls=json_on_page_urls,
+            on_page_processed_external_urls=json_on_page_urls,
         )
+        assert isinstance(result_value, Data)
+        assert Data.objects.count() == 1
+
+    def test_webpage_adapter_create_data_for_webpage_is_raising_assertion_error(
+        self,
+        adapter,
+        example_webpage_with_data
+    ) -> None:
+        """
+        Test that create_data_for_webpage is raising AssertionError,
+        for Webpage with existing Data.
+        """
+        with pytest.raises(AssertionError):
+            adapter.create_data_for_webpage(webpage=example_webpage_with_data)
+
+    def test_webpage_adapter_update_data_for_webpage_is_successful(
+        self,
+        adapter,
+        example_webpage_with_data,
+    ) -> None:
+        """
+        Test that update_data_for_webpage is successfully updating Data object.
+        """
+        json_on_page_urls: dict = {
+            'on_page_urls': [{'value': 'http://test.onion/page-1', 'anchor': 'Site'}]
+        }
+        return_value = adapter.update_data_for_webpage(
+            webpage=example_webpage_with_data,
+            page_title='Test title',
+            meta_title='Meta title',
+            meta_description='Test description',
+            raw_text='Some text',
+            on_page_raw_urls=json_on_page_urls,
+            on_page_processed_internal_urls=json_on_page_urls,
+            on_page_processed_external_urls=json_on_page_urls,
+            detected_languages=['German'],
+            translated_text='Some text',
+        )
+        assert isinstance(return_value, Data)
+        assert return_value.page_title == 'Test title'
+        assert return_value.meta_title == 'Meta title'
+        assert return_value.meta_description == 'Test description'
+        assert return_value.raw_text == 'Some text'
+        assert return_value.on_page_raw_urls == json_on_page_urls
+        assert return_value.on_page_processed_internal_urls == json_on_page_urls
+        assert return_value.on_page_processed_external_urls == json_on_page_urls
+        assert return_value.detected_languages == ['German']
+        assert return_value.translated_text == 'Some text'
+
+    def test_webpage_adapter_update_data_for_webpage_is_raising_assertion_error(
+        self,
+        adapter,
+        example_webpage,
+    ) -> None:
+        """
+        Test that update_data_for_webpage is raising AssertionError,
+        for Webpage with no Data.
+        """
+        with pytest.raises(AssertionError):
+            adapter.update_data_for_webpage(webpage=example_webpage)

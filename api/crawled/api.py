@@ -1,5 +1,5 @@
 from ninja import Router
-from crawled.schemas import ResponseSchema, SummarySchema
+from logic.schemas.response import ResponseSchema, SummarySchema
 
 
 router = Router()

@@ -4,11 +4,8 @@ from urllib.parse import urlsplit
 
 from crawled.models.domain import Domain
 from crawled.models.webpage import Data, Webpage
-from crawled.schemas import (
-    LastHttpStatusLogsSchema,
-    LinkingToWebpagesLogsSchema,
-    OnPageUrlsSchema,
-)
+from logic.schemas.url import OnPageUrlsSchema
+from logic.schemas.fields import LastHttpStatusLogsSchema, LinkingToWebpagesLogsSchema
 from logic.adapters.base import BaseAdapter
 from logic.adapters.domain import DomainAdapter
 from logic.adapters.tag import Tag, TagAdapter

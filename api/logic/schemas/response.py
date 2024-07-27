@@ -12,7 +12,7 @@ class ResponseSchema(BaseModel):
     responded_url: str | None = None
     server: str | None = None
     content_type: str | None = None
-    elapsed: int | None = None
+    response_time: int | None = None
     visited: int | None = None
     text: str | None = None
     page_title: str | None = None

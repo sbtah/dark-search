@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict
+from logic.schemas.url import ResponseUrlSchema
 
 
 class ResponseSchema(BaseModel):
@@ -6,10 +7,11 @@ class ResponseSchema(BaseModel):
     Class representing a schema for Response received from crawler.
     """
     model_config = ConfigDict(strict=True)
-    requested_url: dict
+    requested_url: ResponseUrlSchema
     status: str | None
     responded_url: str | None = None
     server: str | None = None
+    content_type: str | None = None
     elapsed: int | None = None
     visited: int | None = None
     text: str | None = None

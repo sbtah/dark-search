@@ -1,7 +1,17 @@
 from pydantic import BaseModel, ConfigDict
 
 
-class UrlSchema(BaseModel):
+class ResponseUrlSchema(BaseModel):
+    """
+    Class representing a schema for 'response_url' in response dictionary.
+    """
+    model_config = ConfigDict(strict=True)
+    value: str
+    anchor: str
+    number_of_requests: int
+
+
+class OnPageUrlSchema(BaseModel):
     """
     Class representing a schema for Url.
     """
@@ -22,4 +32,4 @@ class OnPageUrlsSchema(BaseModel):
     }
     """
     model_config = ConfigDict(strict=True)
-    on_page_urls: list[UrlSchema]
+    on_page_urls: list[OnPageUrlSchema]

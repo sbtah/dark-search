@@ -226,6 +226,7 @@ class TestWebpageAdapter:
             page_title='Some test title',
             meta_title='Some meta title',
             meta_description='Webpage description',
+            content_type='text/html; charset=UTF-8',
             raw_text='TEXT FROM THE ACTUAL WEBPAGE!',
             on_page_raw_urls=json_on_page_urls,
             on_page_processed_internal_urls=json_on_page_urls,
@@ -286,6 +287,7 @@ class TestWebpageAdapter:
             page_title='Test title',
             meta_title='Meta title',
             meta_description='Test description',
+            content_type='text/html; charset=UTF-8',
             raw_text='Some text',
             on_page_raw_urls=json_on_page_urls,
             on_page_processed_internal_urls=json_on_page_urls,
@@ -297,6 +299,7 @@ class TestWebpageAdapter:
         assert return_value.page_title == 'Test title'
         assert return_value.meta_title == 'Meta title'
         assert return_value.meta_description == 'Test description'
+        assert return_value.content_type == 'text/html; charset=UTF-8'
         assert return_value.raw_text == 'Some text'
         assert return_value.on_page_raw_urls == json_on_page_urls
         assert return_value.on_page_processed_internal_urls == json_on_page_urls
@@ -334,6 +337,7 @@ class TestWebpageAdapter:
                 page_title='Some test title',
                 meta_title='Some meta title',
                 meta_description='Webpage description',
+                content_type='text/html; charset=UTF-8',
                 raw_text='TEXT FROM THE ACTUAL WEBPAGE!',
                 on_page_raw_urls=json_on_page_urls_bad,
                 on_page_processed_internal_urls=json_on_page_urls_bad,

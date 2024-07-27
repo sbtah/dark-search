@@ -56,8 +56,14 @@ class AsyncSpider(BaseSpider):
         :arg url: Url object.
         """
 
-        # Response from requesting a webpage. HtmlElement generated from the response text.
+        # Start measuring response time for url.
+        request_start: int = self.now_timestamp()
+        # Response from requesting a webpage.
         response: tuple[Response | None, Url] = await self.get(url)
+        # Calculate time for response.
+        request_end: int = self.now_timestamp()
+        response_time: int = request_end - request_start
+        # HtmlElement generated from the response text.
         element: HtmlElement | None = self.html_extractor.page(response[0]) if response[0] is not None else None
 
         try:
@@ -78,7 +84,7 @@ class AsyncSpider(BaseSpider):
                         'responded_url': str(response[0].url),
                         'server': response[0].headers.get('server', None),
                         'content_type': response[0].headers.get('content-type'),
-                        'elapsed': int(response[0].elapsed.total_seconds()),
+                        'response_time': response_time,
                         'visited': int(self.now_timestamp()),
                         'text': parse_html_results['text'],
                         'page_title': parse_html_results['page_title'],
@@ -94,7 +100,7 @@ class AsyncSpider(BaseSpider):
                         'responded_url': str(response[0].url),
                         'server': response[0].headers.get('server', None),
                         'content_type': response[0].headers.get('content-type'),
-                        'elapsed': int(response[0].elapsed.total_seconds()),
+                        'response_time': response_time,
                         'visited': int(self.now_timestamp()),
                     }
 

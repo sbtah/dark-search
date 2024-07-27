@@ -5,6 +5,7 @@ from crawled.models.domain import Domain
 from crawled.models.entity import Entity
 from logic.adapters.base import BaseAdapter
 from logic.adapters.tag import Tag, TagAdapter
+from urllib.parse import urlsplit
 
 
 class DomainAdapter(BaseAdapter):
@@ -16,6 +17,15 @@ class DomainAdapter(BaseAdapter):
         self.domain: Domain = Domain
         self.tag_adapter: TagAdapter = TagAdapter()
         super().__init__()
+
+    @staticmethod
+    def extract_domain(*, url: str) -> str:
+        """
+        Extract domain value from url.
+        - :arg url: String representing provided url.
+        """
+        domain: str = urlsplit(url).netloc
+        return domain
 
     def get_or_create_domain_by_value(self, *, value: str) -> Domain:
         """

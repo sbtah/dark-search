@@ -77,6 +77,7 @@ class AsyncSpider(BaseSpider):
                         'status': str(response[0].status_code),
                         'responded_url': str(response[0].url),
                         'server': response[0].headers.get('server', None),
+                        'content_type': response[0].headers.get('content-type'),
                         'elapsed': int(response[0].elapsed.total_seconds()),
                         'visited': int(self.now_timestamp()),
                         'text': parse_html_results['text'],
@@ -92,6 +93,7 @@ class AsyncSpider(BaseSpider):
                         'status': str(response[0].status_code),
                         'responded_url': str(response[0].url),
                         'server': response[0].headers.get('server', None),
+                        'content_type': response[0].headers.get('content-type'),
                         'elapsed': int(response[0].elapsed.total_seconds()),
                         'visited': int(self.now_timestamp()),
                     }

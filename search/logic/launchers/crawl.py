@@ -30,7 +30,7 @@ class CrawlLauncher(BaseLauncher):
 
     @staticmethod
     def now_date() -> date:
-        """Return integer from current timestamp."""
+        """Return datetime object, representing current date."""
         return datetime.now()
 
     def launch(self, celery_task_id: str) -> None:

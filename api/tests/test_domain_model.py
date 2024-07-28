@@ -22,3 +22,10 @@ class TestDomainModel:
         """Test that Domain's str method is generating proper output."""
         domain = Domain.objects.create(value='test.com')
         assert str(domain) == domain.value
+
+    def test_domain_num_of_webpages_property(self, example_domain_with_webpages) -> None:
+        """
+        Test that Domain's num_of_webpages property is returning expected number.
+        """
+        return_value = example_domain_with_webpages.num_of_webpages
+        assert return_value == 5

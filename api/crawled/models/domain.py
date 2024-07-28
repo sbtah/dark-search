@@ -33,5 +33,12 @@ class Domain(models.Model):
         db_table = 'domains'
         db_table_comment = 'Found Tor domains. Domain has many Webpages.'
 
+    @property
+    def num_of_webpages(self) -> int:
+        """
+        Return number of all children webpages for current Domain.
+        """
+        return self.webpage_set.count()
+
     def __str__(self):
         return self.value

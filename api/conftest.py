@@ -18,6 +18,13 @@ def example_domain():
 
 
 @pytest.fixture
+def example_domain_with_webpages(example_domain):
+    for _ in range(5):
+        Webpage.objects.create(parent_domain=example_domain, url=f'http://test.com/page-{_}')
+    return example_domain
+
+
+@pytest.fixture
 def example_webpage(example_domain):
     return Webpage.objects.create(parent_domain=example_domain, url='http://test.com')
 

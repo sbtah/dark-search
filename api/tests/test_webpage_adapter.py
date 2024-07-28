@@ -53,6 +53,18 @@ class TestWebpageAdapter:
         assert return_value.url == 'http://test.com'
         assert return_value.parent_domain == example_domain
 
+    def test_webpage_adapter_get_or_create_webpage_by_url_is_raisin_assertion_error(
+        self,
+        adapter,
+        example_domain,
+    ) -> None:
+        """
+        Test that get_or_create_webpage_by_url is raising assertion error,
+        while trying to create a Webpage with different domain if provided parent domain.
+        """
+        with pytest.raises(AssertionError):
+            adapter.get_or_create_webpage_by_url(domain=example_domain, url='http://other.com/page-1')
+
     def test_webpage_adapter_update_webpage_is_successful(
         self,
         adapter,
@@ -64,7 +76,7 @@ class TestWebpageAdapter:
         Test that update_webpage is properly updating fields on the provided Webpage object.
         """
         crawl_date = datetime.now()
-        log_data = crawl_date.strftime(settings._DATE_FORMAT)
+        log_data = crawl_date.strftime(settings.PROJECT_DATE_FORMAT)
 
         status_logs_data = {
             'status_logs': [
@@ -127,7 +139,7 @@ class TestWebpageAdapter:
         'last_http_status_logs' is not matching a provided Schema.
         """
         crawl_date = datetime.now()
-        log_data = crawl_date.strftime(settings._DATE_FORMAT)
+        log_data = crawl_date.strftime(settings.PROJECT_DATE_FORMAT)
 
         bad_data = {
             'status_logs': [
@@ -174,7 +186,7 @@ class TestWebpageAdapter:
         'linking_to_webpages_logs' is not matching a provided Schema.
         """
         crawl_date = datetime.now()
-        log_data = crawl_date.strftime(settings._DATE_FORMAT)
+        log_data = crawl_date.strftime(settings.PROJECT_DATE_FORMAT)
 
         status_logs_data = {
             'status_logs': [

@@ -1,7 +1,7 @@
 """
 Test cases for Webpage Adapter class.
 """
-from datetime import datetime
+from datetime import datetime, date
 from unittest.mock import MagicMock
 
 import pytest
@@ -28,13 +28,31 @@ def adapter() -> WebpageAdapter:
 class TestWebpageAdapter:
     """Test cases for WebpageAdapter functionality."""
 
+    def test_webpage_adapter_now_date_returns_date_object(self, adapter) -> None:
+        """
+        Test that `now_date` property is returning datetime object.
+        """
+        return_value = adapter.now_date
+        assert isinstance(return_value, date)
+
+    def test_webpage_adapter_now_date_str_returns_date_in_desired_format(
+        self,
+        adapter,
+    ) -> None:
+        """
+        Test that `now_date_str` property is returning string representing date in desired format.
+        """
+        return_value = adapter.now_date_str
+        assert isinstance(return_value, str)
+
     def test_webpage_adapter_get_or_create_webpage_by_url_return_existing_webpage(
         self,
         adapter,
         example_webpage,
     ) -> None:
         """
-        Test that get_or_create_webpage_by_url is successfully returning an existing Webpage object.
+        Test that get_or_create_webpage_by_url
+        is successfully returning an existing Webpage object.
         """
         return_value = adapter.get_or_create_webpage_by_url(url='http://test.com')
         assert isinstance(return_value, Webpage)
@@ -48,7 +66,9 @@ class TestWebpageAdapter:
         """
         Test that get_or_create_webpage_by_url is successfully creating a new Webpage object.
         """
-        return_value = adapter.get_or_create_webpage_by_url(domain=example_domain, url='http://test.com')
+        return_value = adapter.get_or_create_webpage_by_url(
+            domain=example_domain, url='http://test.com'
+        )
         assert isinstance(return_value, Webpage)
         assert return_value.url == 'http://test.com'
         assert return_value.parent_domain == example_domain

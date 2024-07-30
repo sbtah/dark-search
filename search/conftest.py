@@ -18,29 +18,29 @@ def url_extractor() -> UrlExtractor:
 @pytest.fixture
 def urls_collection() -> list[dict[str, str]]:
     urls_collection = [
-        {'url': 'http://example.onion/page', 'anchor': 'Url 1'},
-        {'url': 'http://example.onion/path?page=1', 'anchor': 'Url 2'},
+        {'value': 'http://example.onion/page', 'anchor': 'Url 1'},
+        {'value': 'http://example.onion/path?page=1', 'anchor': 'Url 2'},
         {
-            'url': 'http://example.onion/path?query=string#fragment',
+            'value': 'http://example.onion/path?query=string#fragment',
             'anchor': 'Url 3'
         },
-        {'url': '/page.php?q=canary', 'anchor': 'Canary'},
-        {'url': '/page.php?q=main&l=it', 'anchor': 'Italiano'},
-        {'url': '/page.php?q=shell', 'anchor': 'Shell Accounts'},
-        {'url': 'http://example.onion/path#fragment', 'anchor': 'Url 4'},
-        {'url': 'http://other.onion', 'anchor': 'Url 5'},
-        {'url': 'http://external.onion', 'anchor': ''},
-        {'url': 'page.html', 'anchor': '...'},
-        {'url': 'page.php', 'anchor': '....'},
-        {'url': '/file.txt', 'anchor': 'page.php.'},
-        {'url': '/path', 'anchor': 'Test text'},
-        {'url': 'ftp://example.onion/baz', 'anchor': ''},
-        {'url': 'http://example.onion/some.jpeg', 'anchor': 'Image 1'},
-        {'url': 'some-2.jpeg', 'anchor': 'Image 2'},
-        {'url': '/some-3.jpeg', 'anchor': 'Image 3'},
-        {'url': 'http://example.onion/some.pdf', 'anchor': 'Pdf 1'},
-        {'url': 'example.onion', 'anchor': 'malformed url'},
-        {'url': 'external-2.onion', 'anchor': 'malformed url 2'}
+        {'value': '/page.php?q=canary', 'anchor': 'Canary'},
+        {'value': '/page.php?q=main&l=it', 'anchor': 'Italiano'},
+        {'value': '/page.php?q=shell', 'anchor': 'Shell Accounts'},
+        {'value': 'http://example.onion/path#fragment', 'anchor': 'Url 4'},
+        {'value': 'http://other.onion', 'anchor': 'Url 5'},
+        {'value': 'http://external.onion', 'anchor': ''},
+        {'value': 'page.html', 'anchor': '...'},
+        {'value': 'page.php', 'anchor': '....'},
+        {'value': '/file.txt', 'anchor': 'page.php.'},
+        {'value': '/path', 'anchor': 'Test text'},
+        {'value': 'ftp://example.onion/baz', 'anchor': ''},
+        {'value': 'http://example.onion/some.jpeg', 'anchor': 'Image 1'},
+        {'value': 'some-2.jpeg', 'anchor': 'Image 2'},
+        {'value': '/some-3.jpeg', 'anchor': 'Image 3'},
+        {'value': 'http://example.onion/some.pdf', 'anchor': 'Pdf 1'},
+        {'value': 'example.onion', 'anchor': 'malformed url'},
+        {'value': 'external-2.onion', 'anchor': 'malformed url 2'}
     ]
     return urls_collection
 

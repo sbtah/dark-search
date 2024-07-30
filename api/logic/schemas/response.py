@@ -1,10 +1,18 @@
 from pydantic import BaseModel, ConfigDict
-from logic.schemas.url import ResponseUrlSchema
+from logic.schemas.url import ResponseUrlSchema, OnPageUrlSchema
+
+
+class ProcessedUrlsSchema(BaseModel):
+    """
+    Class representing a Schema for processed_urls key in response.
+    """
+    internal: list[OnPageUrlSchema] | None = None
+    external: list[OnPageUrlSchema] | None = None
 
 
 class ResponseSchema(BaseModel):
     """
-    Class representing a schema for Response received from crawler.
+    Class representing a schema for response received from Crawler.
     """
     model_config = ConfigDict(strict=True)
     requested_url: ResponseUrlSchema
@@ -18,8 +26,16 @@ class ResponseSchema(BaseModel):
     page_title: str | None = None
     meta_title: str | None = None
     meta_description: str | None = None
-    on_page_urls: list[dict] | None = None
-    processed_urls: dict | None = None
+    on_page_urls: list[OnPageUrlSchema] | None = None
+    processed_urls: ProcessedUrlsSchema | None = None
+
+
+class ProbeResponseSchema(ResponseSchema):
+    """
+    Class representing a schema for response received from Probe spider.
+    """
+    favicon_url: ResponseUrlSchema | None = None
+    favicon_base64: str | None = None
 
 
 class SummarySchema(BaseModel):

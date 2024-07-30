@@ -63,7 +63,7 @@ class HtmlExtractor:
         urls: list[HtmlElement, ...] = html_element.xpath('/html/body//a[@href and not(@href="") and not(@href=" ")]')
         return [
             {
-                'url': url.xpath('./@href')[0],
+                'value': url.xpath('./@href')[0],
                 'anchor': url.text_content().strip()
             } for url in urls if isinstance(url, HtmlElement)
         ] if urls else None

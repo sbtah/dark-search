@@ -33,8 +33,8 @@ class TestHtmlExtractor:
         assert len(urls) == 2
         assert isinstance(urls[0], dict)
         assert isinstance(urls[1], dict)
-        assert isinstance(urls[0]['url'], str)
-        assert isinstance(urls[1]['url'], str)
+        assert isinstance(urls[0]['value'], str)
+        assert isinstance(urls[1]['value'], str)
         assert isinstance(urls[0]['anchor'], str)
         assert isinstance(urls[1]['anchor'], str)
 

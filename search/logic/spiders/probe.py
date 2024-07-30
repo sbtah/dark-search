@@ -1,6 +1,6 @@
 from collections import deque
 
-from logic.parsers.objects.url import Url
+from logic.objects.url import Url
 from logic.spiders.synchronous import SyncSpider
 
 
@@ -33,10 +33,15 @@ class Probe(SyncSpider):
             if response['status'] is None and response['requested_url'].number_of_requests < self.max_retries:
                 continue
 
+            if response['favicon_url'] is not None:
+                favicon_url: Url = response['favicon_url']
+                favicon_base64: str = self.request_favicon(favicon_url=response['favicon_url'])
+                response['favicon_base64'] = favicon_base64
             # TODO:
             # Work on API client.
             # Url object must be serialized to dict...
             # self.client.post_response_data(data=response)
+            print(response)
             return response
 
     def prepare_urls_queue(self) -> None:

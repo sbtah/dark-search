@@ -44,8 +44,17 @@ class SyncSpider(BaseSpider):
         # Setting url value.
         url = url if url is not None else self.initial_url
 
-        # Response from requesting a webpage. HtmlElement generated from the response text.
+        # Start measuring response time for url.
+        request_start: int = self.now_timestamp()
+
+        # Response from requesting a webpage.
         response: tuple[Response | None, Url] = self.get(url)
+
+        # Calculate time for response.
+        request_end: int = self.now_timestamp()
+        response_time: int = request_end - request_start
+
+        # HtmlElement generated from the response text.
         element: HtmlElement | None = self.html_extractor.page(response[0]) if response[0] is not None else None
 
         try:
@@ -67,10 +76,11 @@ class SyncSpider(BaseSpider):
                     return {
                         # Serialize me later...
                         'requested_url': url,
-                        'responded_url': str(response[0].url),
                         'status': str(response[0].status_code),
+                        'responded_url': str(response[0].url),
                         'server': response[0].headers.get('server', None),
-                        'elapsed': int(response[0].elapsed.total_seconds()),
+                        'content_type': response[0].headers.get('content-type'),
+                        'response_time': response_time,
                         'visited': int(self.now_timestamp()),
                         'text': parse_html_results['text'],
                         'page_title': parse_html_results['page_title'],
@@ -82,13 +92,14 @@ class SyncSpider(BaseSpider):
                         'favicon_url': favicon_url_obj,
                     }
 
-                if str(response[0].status_code)[0] not in {'2', '3'}:
+                if str(response[0].status_code)[0] not in {'2', '3'} or element is None:
                     return {
                         'requested_url': url,
-                        'responded_url': str(response[0].url),
                         'status': str(response[0].status_code),
+                        'responded_url': str(response[0].url),
                         'server': response[0].headers.get('server', None),
-                        'elapsed': int(response[0].elapsed.total_seconds()),
+                        'content_type': response[0].headers.get('content-type'),
+                        'response_time': response_time,
                         'visited': int(self.now_timestamp()),
                     }
 
@@ -102,24 +113,23 @@ class SyncSpider(BaseSpider):
                 }
         except Exception as e:
             self.logger.error(
-                f'Response: status="Exception: {e}", url="{url}", html="False"'
+                f'Response: status="Exception", class="{e.__class__}", message="{e}", '
+                f'url="{url}"', exc_info=True
             )
             return {
                 'requested_url': url,
                 'status': None,
             }
 
-    def request_favicon(self, favicon_url: Url):
+    def request_favicon(self, favicon_url: Url) -> str | None:
         """
         Request Url object for favicon url.
         Return base64 representation of icon.
         - :arg favicon_url: Url object.
         """
+        # Request favicon url.
         response: tuple[Response | None, Url] = self.get(url=favicon_url)
-        favicon_base_64: str | None = self.converter.convert(response[0].content) if response[0] is not None \
-            else None
-        self.logger.debug(
-            f'Response: status="{response[0].status_code}", url="{favicon_url}", '
-            f'favicon_base_64="{True if favicon_base_64 is not None else False}"'
-        )
+        # Process response to base64 string.
+        favicon_base_64: str | None = self.converter.convert(response[0].content) if \
+            response[0] is not None and str(response[0].status_code)[0] in {'2', '3'} else None
         return favicon_base_64

@@ -106,7 +106,7 @@ class AsyncSpider(BaseSpider):
 
             if response[0] is None:
                 self.logger.debug(
-                    f'Response: status="None", url="{url}", html="{True if element is not None else False}"'
+                    f'Response: status="None", url="{url}", html="False"'
                 )
                 return {
                     'requested_url': url,

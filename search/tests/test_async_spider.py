@@ -20,7 +20,7 @@ def spider(example_url_object):
         max_requests=5,
         sleep_time=1,
     )
-    spider.logger = MagicMock()
+    # spider.logger = MagicMock()
     return spider
 
 
@@ -77,7 +77,7 @@ class TestAsyncSpider:
         mock_response.text = example_text_response
         mock_response.url = example_url_object.value
         mock_response.headers = {'server': 'test_server'}
-        mock_response.elapsed = timedelta(seconds=10)
+        mock_response.response_time = 10
         mock_get.return_value = mock_response, example_url_object
 
         response = await spider.request(spider.initial_url)
@@ -86,10 +86,11 @@ class TestAsyncSpider:
         assert isinstance(response, dict)
         assert {
             'requested_url',
-            'responded_url',
             'status',
+            'responded_url',
             'server',
-            'elapsed',
+            'content_type',
+            'response_time',
             'visited',
             'text',
             'page_title',
@@ -120,10 +121,11 @@ class TestAsyncSpider:
         assert isinstance(response, dict)
         assert {
             'requested_url',
-            'responded_url',
             'status',
+            'responded_url',
             'server',
-            'elapsed',
+            'content_type',
+            'response_time',
             'visited',
         } == set(response.keys())
 

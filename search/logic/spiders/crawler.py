@@ -48,6 +48,7 @@ class Crawler(AsyncSpider):
             responses: list[dict] = await self.run_requests(iterable_of_urls=self.queue)
 
             for response in responses:
+                # print(response)
 
                 # If response is None and Url.number_of_request is under max_retries threshold,
                 #   we want to keep this Url in the found_internal_urls set.
@@ -60,6 +61,7 @@ class Crawler(AsyncSpider):
 
                 # Serialize and send response to API service.
                 serialized_response: dict = self.serialized_response(response)
+                print(serialized_response)
                 await self.client.post_response_data(data=serialized_response)
 
                 # If the response does not contain results for urls parsing, we move to the next response.

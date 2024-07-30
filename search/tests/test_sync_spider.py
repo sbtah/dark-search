@@ -76,10 +76,11 @@ class TestSyncSpider:
         assert isinstance(response, dict)
         assert {
             'requested_url',
-            'responded_url',
             'status',
+            'responded_url',
             'server',
-            'elapsed',
+            'content_type',
+            'response_time',
             'visited',
             'text',
             'page_title',
@@ -110,10 +111,11 @@ class TestSyncSpider:
         assert isinstance(response, dict)
         assert {
             'requested_url',
-            'responded_url',
             'status',
+            'responded_url',
             'server',
-            'elapsed',
+            'content_type',
+            'response_time',
             'visited',
         } == set(response.keys())
 

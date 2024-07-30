@@ -172,11 +172,11 @@ class CrawlTaskAdapter(BaseAdapter):
         """
         try:
             existing_task: CrawlTask = await self.task.objects.aget(domain=domain)
-            self.logger.debug(f'TaskAdapter, found existing Task: task_id="{existing_task.id}", domain="{domain}"')
+            self.logger.info(f'TaskAdapter, found existing Task: task_id="{existing_task.id}", domain="{domain}"')
             return existing_task
         except CrawlTask.DoesNotExist:
             new_task: CrawlTask = await self.task.objects.acreate(domain=domain)
-            self.logger.debug(f'TaskAdapter, created new Task: task_id="{new_task.id}", domain="{domain}"')
+            self.logger.info(f'TaskAdapter, created new Task: task_id="{new_task.id}", domain="{domain}"')
             return new_task
 
     def sync_get_or_create_task(self, domain: str) -> CrawlTask:

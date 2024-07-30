@@ -14,7 +14,7 @@ Including but not limited to hacking, ransomware, databases, leaked credentials,
 ### Current state:
 - The project is being redesigned. Previous working (POC) version is on `archived` branch.
 
-![alt text](https://github.com/sbtah/dark-search/blob/main/1.png?raw=true)
+![alt text](https://github.com/sbtah/dark-search/blob/main/darksearch_ui.jpg?raw=true)
 ----
 ## Working features:
 - Crawl specified webpage,

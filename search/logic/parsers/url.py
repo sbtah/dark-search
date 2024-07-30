@@ -157,7 +157,7 @@ class UrlExtractor:
         for url_dict in urls_collection:
 
             # Extracted url after cleaning query params and fragments.
-            url: str = self.clean_url(url_dict['url'])
+            url: str = self.clean_url(url_dict['value'])
             # # Set current parse result, to minimize numer of calls to urlsplit.
             current_url_split_result: SplitResult = self.split_result(url)
             # Extracted anchor.

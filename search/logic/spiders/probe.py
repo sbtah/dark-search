@@ -1,10 +1,16 @@
 from collections import deque
 
-from logic.objects.url import Url
+
 from logic.spiders.synchronous import SyncSpider
 
+import httpx
+from httpx import Response
+from logic.objects.url import Url
+from logic.spiders.base import BaseSpider
+from lxml.html import HtmlElement
 
-class Probe(SyncSpider):
+
+class Probe(BaseSpider):
     """
     Probing spider used for first request.
     Saves initial data for requested domain.
@@ -16,37 +22,46 @@ class Probe(SyncSpider):
         self.queue: deque[Url] = deque()
         super().__init__(*args, **kwargs)
 
-    def probe(self):
+    def get(self, url: Url) -> tuple[Response | None, Url]:
         """
-        Send probing request to initial_url.
+        Send request to Url.value.
+        Return tuple with Response object and Url object on success.
+        - :arg url: Url object.
         """
+        headers: dict = self.prepare_headers()
+        url.number_of_requests += 1
+        try:
+            with httpx.Client(
+                verify=False,
+                timeout=httpx.Timeout(60.0),
+                follow_redirects=True,
+                proxy=self.proxy,
+            ) as client:
+                res = client.get(url.value, headers=headers)
+                return res, url
+        except Exception as exc:
+            self.logger.error(
+                f'({SyncSpider.get.__qualname__}): Some other exception="{exc.__class__}", '
+                f'message="{exc}"', exc_info=True,
+            )
+            return None, url
 
-        self.logger.info(f'Probe Start: domain="{self.domain}", url="{self.initial_url}"')
-
-        self.prepare_urls_queue()
-
-        while len(self.queue) > 0:
-
-            # Run requests for url in the queue.
-            response: dict = self.request()
-
-            if response['status'] is None and response['requested_url'].number_of_requests < self.max_retries:
+    def run_request(self, url: Url | None = None) -> tuple[Response, Url] | None:
+        """
+        Send get request to provided url.
+        If response is not successful retry request up to max_retries.
+        - :arg url: Url object.
+        """
+        while True:
+            response: tuple[Response | None, Url] = self.get(url=url)
+            if response[0] is None and url.number_of_requests < self.max_retries:
                 continue
+            if response[0] is not None:
+                return response
+        else:
+            return
 
-            if response['favicon_url'] is not None:
-                favicon_url: Url = response['favicon_url']
-                favicon_base64: str = self.request_favicon(favicon_url=response['favicon_url'])
-                response['favicon_base64'] = favicon_base64
-            # TODO:
-            # Work on API client.
-            # Url object must be serialized to dict...
-            # self.client.post_response_data(data=response)
-            print(response)
-            return response
-
-    def prepare_urls_queue(self) -> None:
-        """
-        Add initial_url to Queue.
-        """
-        self.queue.append(self.initial_url)
-        return
+    def probe(self, url: Url | None = None) -> dict:
+        """"""
+        # Set url variable.
+        url: Url = url if url is not None else self.initial_url

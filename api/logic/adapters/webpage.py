@@ -1,6 +1,5 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Collection
-from urllib.parse import urlsplit
 
 from crawled.models.domain import Domain
 from crawled.models.webpage import Data, Webpage
@@ -9,6 +8,7 @@ from logic.schemas.fields import LastHttpStatusLogsSchema, LinkingToWebpagesLogs
 from logic.adapters.base import BaseAdapter
 from logic.adapters.domain import DomainAdapter
 from logic.adapters.tag import Tag, TagAdapter
+from django.conf import settings
 
 
 class WebpageAdapter(BaseAdapter):
@@ -23,6 +23,16 @@ class WebpageAdapter(BaseAdapter):
         self.domain_adapter: Domain = DomainAdapter()
         super().__init__()
 
+    @property
+    def now_date(self) -> date:
+        """Return datetime object, representing current date."""
+        return datetime.now()
+
+    @property
+    def now_date_str(self) -> str:
+        """Return string representation of current date."""
+        return self.now_date.strftime(settings.PROJECT_DATE_FORMAT)
+
     def get_or_create_webpage_by_url(
         self,
         *,
@@ -35,9 +45,12 @@ class WebpageAdapter(BaseAdapter):
         - :arg url: String representing a Webpage url.
         - :arg domain: Parent Domain object.
         """
+        # Extract domain from webpage url.
+        domain_value: str = self.domain_adapter.extract_domain(url=url)
+
+        # Create new Domain if domain argument is None.
         if domain is None:
-            value: str = urlsplit(url).netloc
-            domain = self.domain_adapter.get_or_create_domain_by_value(value=value)
+            domain = self.domain_adapter.get_or_create_domain_by_value(value=domain_value)
 
         try:
             existing_webpage: Webpage = self.webpage.objects.get(parent_domain=domain, url=url)
@@ -46,6 +59,8 @@ class WebpageAdapter(BaseAdapter):
             )
             return existing_webpage
         except Webpage.DoesNotExist:
+            # Additional validation when Domain object is provided.
+            assert domain.value == domain_value, f'Url {url} is not a proper child for Domain: {domain}'
             new_webpage: Webpage = self.webpage.objects.create(parent_domain=domain, url=url)
             self.logger.debug(f'WebpageAdapter, created new Webpage: webpage_id="{new_webpage.id}", url="{url}"')
             return new_webpage
@@ -166,6 +181,109 @@ class WebpageAdapter(BaseAdapter):
         self.logger.debug(f'WebpageAdapter, updated Webpage: webpage_id="{webpage.id}"')
         return webpage
 
+    @staticmethod
+    def process_anchor_texts(
+        *,
+        webpage: Webpage,
+        incoming_anchor: str
+    ) -> list[str] | None:
+        """
+        Get list of current anchor texts from Webpage object.
+        Add new anchor text to existing anchors.
+        Return list of strings with unique anchor texts.
+        - :arg webpage: Webpage object for which anchors should be saved.
+        - :arg incoming_anchor: String representing newly found anchor text to be added.
+        """
+        if len(incoming_anchor) == 0:
+            return None
+        current_anchors: list[str] = webpage.anchor_texts
+        # Add new anchor text.
+        # To ensure that each item is unique we are casting list to set.
+        anchors_set: set = set(current_anchors)
+        anchors_set.add(incoming_anchor)
+        return list(anchors_set)
+
+    @staticmethod
+    def process_number_of_requests(
+        *,
+        webpage: Webpage,
+    ) -> int:
+        """
+        Calculate new number_of_requests for Webpage object.
+        - :arg number_of_requests: Number of requests for current url in 'requested_url'.
+        """
+        current_number_of_requests: int = webpage.number_of_requests
+        new_number_of_requests: int = current_number_of_requests + 1
+        return new_number_of_requests
+
+    @staticmethod
+    def process_number_of_successful_requests(
+        *,
+        webpage: Webpage,
+        status: str | None,
+    ) -> int | None:
+        """
+        Calculate new `number_of_successful_requests` for current Webpage object.
+        - :arg webpage: Webpage object for which calculation should happen.
+        - :arg status: String representing Http status from response.
+        """
+        current_number_of_successful_requests: int = webpage.number_of_successful_requests
+
+        if status is None:
+            return None
+
+        if status is not None and status[0] not in {'2', '3'}:
+            return None
+
+        if status is not None and status[0] in {'2', '3'}:
+            new_number_of_successful_requests: int = current_number_of_successful_requests + 1
+            return new_number_of_successful_requests
+
+    @staticmethod
+    def process_average_response_time(
+        *,
+        webpage: Webpage,
+        response_time: int,
+    ) -> float:
+        """
+        Calculate `average_response_time` for given Webpage object.
+        - :arg webpage: Webpage object for which calculation should happen.
+        - :arg response_time: Response time for Webpage.
+        """
+        current_average_response: float = webpage.average_response_time
+
+        if current_average_response == 0:
+            return float(response_time)
+
+        current_number_of_requests: int = webpage.number_of_requests
+        new_average: float = float((current_average_response + response_time) / current_number_of_requests)
+        return new_average
+
+    @staticmethod
+    def process_last_http_status_logs(
+        *,
+        webpage: Webpage,
+        status: str,
+        current_date_str: str,
+    ) -> dict | None:
+        """
+        Process Http status from last response.
+        Create a log from last Http response status.
+        Return an updated version of logs for a `last_http_status_logs`.
+        - :arg webpage: Webpage object that is currently being processed.
+        - :arg status: Http status from response.
+        - :arg current_date_str: String representing current date in desired format.
+        """
+        current_webpage_status_logs: dict = webpage.last_http_status_logs
+        logs_dates: set[str] = set([d['date'] for d in current_webpage_status_logs['status_logs']])
+
+        if current_date_str in logs_dates:
+            return None
+
+        new_log: dict = {'date': current_date_str, 'status': status}
+        updated_logs: dict = current_webpage_status_logs['status_logs'].append(new_log)
+        return updated_logs
+
     def create_data_for_webpage(
         self,
         *,
@@ -173,6 +291,7 @@ class WebpageAdapter(BaseAdapter):
         page_title: str | None = None,
         meta_title: str | None = None,
         meta_description: str | None = None,
+        content_type: str | None = None,
         raw_text: str | None = None,
         on_page_raw_urls: dict | None = None,
         on_page_processed_internal_urls: dict | None = None,
@@ -204,6 +323,9 @@ class WebpageAdapter(BaseAdapter):
 
         if meta_description is not None:
             creation_data['meta_description'] = meta_description
+
+        if content_type is not None:
+            creation_data['content_type'] = content_type
 
         if raw_text is not None:
             creation_data['raw_text'] = raw_text
@@ -238,6 +360,7 @@ class WebpageAdapter(BaseAdapter):
         page_title: str | None = None,
         meta_title: str | None = None,
         meta_description: str | None = None,
+        content_type: str | None = None,
         raw_text: str | None = None,
         on_page_raw_urls: dict | None = None,
         on_page_processed_internal_urls: dict | None = None,
@@ -274,6 +397,9 @@ class WebpageAdapter(BaseAdapter):
 
         if meta_description is not None:
             data.meta_description = meta_description
+
+        if content_type is not None:
+            data.content_type = content_type
 
         if raw_text is not None:
             data.raw_text = raw_text

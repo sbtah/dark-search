@@ -16,7 +16,8 @@ class Command(BaseCommand):
         agent = UserAgentAdapter().get_random_user_agent()
         proxy = 'http://search-privoxy:8118'
         wiki_url: Url = UrlAdapter.create_url_object(value=wiki_url_str)
-        probe = Probe(
+        probe = SyncSpider(
             initial_url=wiki_url, proxy=proxy, user_agent=agent.value
         )
-        probe.probe()
+        res = probe.get(wiki_url)
+        print(res[0].request)

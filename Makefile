@@ -27,6 +27,11 @@ run-crawl:
 	@sleep 5
 	docker compose run --rm search sh -c 'python manage.py crawl'
 
+run-probe:
+	@echo "Starting a Probing spider..."
+	@sleep 5
+	docker compose run --rm search sh -c 'python manage.py probe'
+
 run-manual:
 	@echo "Starting Manual crawling..."
 	@sleep 5

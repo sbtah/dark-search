@@ -71,7 +71,7 @@ class AsyncApiClient(BaseApiClient):
 
     async def run_request(
         self, request_type: str, url: Url, data: dict | None = None
-    ) -> tuple[Response | None, Url]:
+    ) -> tuple[Response, Url] | None:
         """
         Create an asyncio task for GET or POST request to endpoint specified via the Url object.
         - :arg type: String representing a request method. Ie: 'POST' or 'GET'

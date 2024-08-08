@@ -1,0 +1,67 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./compose/local/api/Dockerfile
+      network: host
+      args:
+        - DEV=true
+    image: api
+    container_name: api
+    command: /start
+    volumes:
+      - ./api:/api
+    ports:
+      - "127.0.0.1:9003:8000"
+    env_file:
+      - .env-dev
+    depends_on:
+      - api-db
+    networks:
+      - search-network
+
+  front:
+    build:
+      context: .
+      dockerfile: ./compose/local/front/Dockerfile
+      network: host
+      args:
+        - DEV=true
+    image: front
+    container_name: front
+    command: /start
+    volumes:
+      - ./front:/app
+    ports:
+      - "127.0.0.1:3000:3000"
+    env_file:
+      - .env-dev
+    depends_on:
+      - api
+    networks:
+      - search-network
+
+  api-db:
+    image: postgres:16.2
+    container_name: api-db
+    volumes:
+      - api-db-dev:/var/lib/postgresql/data/
+    ports:
+      - "127.0.0.1:55432:5432"
+    environment:
+      - POSTGRES_DB=hello_django
+      - POSTGRES_USER=hello_django
+      - POSTGRES_PASSWORD=hello_django
+    networks:
+      - search-network
+
+volumes:
+  api-db-dev:
+
+networks:
+  search-network:
+    name: search-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.95.0/24

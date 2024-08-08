@@ -4,6 +4,9 @@ build:
 run:
 	docker compose up -d
 
+run-front:
+	docker compose -f docker-compose-front.yml up -d
+
 stop:
 	docker compose down -t 3
 

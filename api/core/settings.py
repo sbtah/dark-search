@@ -128,7 +128,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'redis://redis:6379/0')
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", "redis://redis:6379/0")
 CELERY_BEAT_SCHEDULE = {}
-
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 CORS_ALLOWED_ORIGINS = [
     'http://search:8000'

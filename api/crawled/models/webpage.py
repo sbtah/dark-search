@@ -1,3 +1,4 @@
+
 from crawled.models.domain import Domain
 from crawled.models.tag import Tag
 from django.contrib.postgres.fields import ArrayField
@@ -23,9 +24,9 @@ class Webpage(models.Model):
     number_of_successful_requests = models.IntegerField(default=0)
     page_rank = models.FloatField(blank=True, null=True)
     is_active = models.BooleanField(default=False)
-    tags = models.ManyToManyField(Tag, blank=True, null=True)
+    tags = models.ManyToManyField(Tag, blank=True)
     linking_to_webpages = models.ManyToManyField(
-        'self', related_name='_linking_from_webpages', symmetrical=False, blank=True, null=True)
+        'self', related_name='_linking_from_webpages', symmetrical=False, blank=True)
     linking_to_webpages_logs = models.JSONField(blank=True, null=True)
     anchor_texts = ArrayField(models.CharField(max_length=2000), null=True, blank=True)
     translated_anchor_texts = ArrayField(models.CharField(max_length=2000), null=True, blank=True)

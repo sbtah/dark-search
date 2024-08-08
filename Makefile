@@ -37,8 +37,30 @@ run-manual:
 	@sleep 5
 	docker compose run --rm search sh -c 'python manage.py manual'
 
-
-trash-local-databases:
-	@echo "Warning this command will remove local databases!"
+trash-api:
+	@echo "Warning this command will remove local API volume!"
+	@docker compose run --rm api sh -c 'python clear_migrations.py'
+	@docker compose down
 	@sleep 5
-	sudo rm -rfv ./local/*
+	-@docker volume rm dark-search_api-db-dev
+
+trash-search:
+	@echo "Warning this command will remove local SEARCH volume!"
+	@docker compose run --rm search sh -c 'python clear_migrations.py'
+	@docker compose down
+	@sleep 5
+	-@docker volume rm dark-search_search-db-dev
+
+trash-redis:
+	@echo "Warning this command will remove local REDIS volume!"
+	@docker compose down
+	@sleep 5
+	-@docker volume rm dark-search_redis-dev
+
+trash-volumes:
+	@echo "Warning this command will remove ALL local volumes!"
+	@docker compose run --rm api sh -c 'python clear_migrations.py'
+	@docker compose run --rm search sh -c 'python clear_migrations.py'
+	@docker compose down
+	@sleep 5
+	-@docker volume rm $(shell docker volume ls --format '{{ .Name }}' | grep -E "dark-search_")

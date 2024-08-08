@@ -17,7 +17,7 @@ services:
       - .env-dev
     depends_on:
       - search-db
-      - search-redis
+      - redis
     networks:
       - search-network
 
@@ -39,6 +39,7 @@ services:
       - .env-dev
     depends_on:
       - api-db
+      - redis
     networks:
       - search-network
 
@@ -67,7 +68,7 @@ services:
     image: postgres:16.2
     container_name: search-db
     volumes:
-      - ./local/search/postgres:/var/lib/postgresql/data/
+      - search-db-dev:/var/lib/postgresql/data/
     ports:
       - "127.0.0.1:45432:5432"
     environment:
@@ -81,7 +82,7 @@ services:
     image: postgres:16.2
     container_name: api-db
     volumes:
-      - ./local/api/postgres:/var/lib/postgresql/data/
+      - api-db-dev:/var/lib/postgresql/data/
     ports:
       - "127.0.0.1:55432:5432"
     environment:
@@ -106,7 +107,7 @@ services:
       - .env-dev
     depends_on:
       - search-db
-      - search-redis
+      - redis
     networks:
       - search-network
 
@@ -125,15 +126,15 @@ services:
       - .env-dev
     depends_on:
       - api-db
-      - search-redis
+      - redis
     networks:
       - search-network
 
-  search-redis:
+  redis:
     image: redis:7.2.0-alpine
-    container_name: search-redis
+    container_name: redis
     volumes:
-      - ./local/redis:/data
+      - redis-dev:/data
     networks:
       - search-network
 
@@ -151,7 +152,7 @@ services:
       - .env-dev
     depends_on:
       - search-db
-      - search-redis
+      - redis
     networks:
       - search-network
 
@@ -169,7 +170,7 @@ services:
       - .env-dev
     depends_on:
       - api-db
-      - search-redis
+      - redis
     networks:
       - search-network
 
@@ -189,7 +190,7 @@ services:
       - "127.0.0.1:5559:5555"
     depends_on:
       - search-db
-      - search-redis
+      - redis
     networks:
       - search-network
 
@@ -209,7 +210,7 @@ services:
       - "127.0.0.1:5558:5555"
     depends_on:
       - api-db
-      - search-redis
+      - redis
     networks:
       - search-network
 
@@ -223,6 +224,11 @@ services:
       - "127.0.0.1:8118:8118" # Privoxy
     networks:
       - search-network
+
+volumes:
+  search-db-dev:
+  api-db-dev:
+  redis-dev:
 
 networks:
   search-network:

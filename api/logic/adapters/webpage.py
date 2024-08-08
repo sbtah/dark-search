@@ -33,6 +33,13 @@ class WebpageAdapter(BaseAdapter):
         """Return string representation of current date."""
         return self.now_date.strftime(settings.PROJECT_DATE_FORMAT)
 
+    def get_number_of_known_webpages(self) -> int:
+        """
+        Return number of all existing Webpage objects in database.
+        """
+        number_of_known_webpages: int = self.webpage.objects.count()
+        return number_of_known_webpages
+
     def get_or_create_webpage_by_url(
         self,
         *,

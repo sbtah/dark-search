@@ -27,6 +27,20 @@ class DomainAdapter(BaseAdapter):
         domain: str = urlsplit(url).netloc
         return domain
 
+    def get_number_of_known_domains(self) -> int:
+        """
+        Return number of all existing Domain objects in database.
+        """
+        number_of_known_domains: int = self.domain.objects.count()
+        return number_of_known_domains
+
+    def get_number_of_crawled_domains(self) -> int:
+        """
+        Return number of all already crawled Domains.
+        """
+        number_of_crawled_domains: int = self.domain.objects.filter(last_crawl_date__isnull=False).count()
+        return number_of_crawled_domains
+
     def get_or_create_domain_by_value(self, *, value: str) -> Domain:
         """
         Create a new Domain object or return existing one.

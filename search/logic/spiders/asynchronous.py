@@ -17,6 +17,7 @@ class AsyncSpider(BaseSpider):
     """
 
     def __init__(self, max_requests: int, sleep_time: float | int, *args, **kwargs) -> None:
+        # Async max connections with AsyncClient.
         self.max_requests: int = max_requests
         self.sleep_time: float | int = sleep_time
         self.client = AsyncApiClient()
@@ -44,7 +45,7 @@ class AsyncSpider(BaseSpider):
                 return res, url
         except Exception as exc:
             self.logger.error(
-                f'({AsyncSpider.get.__qualname__}): Some other exception="{exc.__class__}", '
+                f'({AsyncSpider.get.__qualname__}): exception="{exc.__class__}", '
                 f'message="{exc}"', exc_info=True
             )
             return None, url
@@ -64,7 +65,8 @@ class AsyncSpider(BaseSpider):
         request_end: int = self.now_timestamp()
         response_time: int = request_end - request_start
         # HtmlElement generated from the response text.
-        element: HtmlElement | None = self.html_extractor.page(response[0]) if response[0] is not None else None
+        element: HtmlElement | None = self.html_extractor.page(response[0]) if response[0] is not None else Noned
+
 
         try:
             if isinstance(response[0], Response):

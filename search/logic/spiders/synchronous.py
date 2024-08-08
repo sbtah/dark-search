@@ -30,7 +30,7 @@ class SyncSpider(BaseSpider):
                 return res, url
         except Exception as exc:
             self.logger.error(
-                f'({SyncSpider.get.__qualname__}): Some other exception="{exc.__class__}", '
+                f'({SyncSpider.get.__qualname__}): exception="{exc.__class__}", '
                 f'message="{exc}"', exc_info=True,
             )
             return None, url

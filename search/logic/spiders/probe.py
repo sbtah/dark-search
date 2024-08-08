@@ -1,67 +1,88 @@
-from collections import deque
-
-
-from logic.spiders.synchronous import SyncSpider
-
-import httpx
-from httpx import Response
+from logic.spiders.synchronousv2 import SyncSpider
+from httpx import Response, ConnectTimeout
 from logic.objects.url import Url
-from logic.spiders.base import BaseSpider
 from lxml.html import HtmlElement
 
 
-class Probe(BaseSpider):
+class Probe(SyncSpider):
     """
     Probing spider used for first request.
     Saves initial data for requested domain.
     Extracts urls that will be provided to Crawler.
     """
 
-    def __init__(self, max_retries: int = 4, *args, **kwargs) -> None:
-        self.max_retries: int = max_retries
-        self.queue: deque[Url] = deque()
-        super().__init__(*args, **kwargs)
+    def start_probing(self):
+        """Initiate a probing process."""
+        self.logger.info(f'Probe, initiated: domain="{self.domain}"')
+        result: dict = self.probe()
+        return result
 
-    def get(self, url: Url) -> tuple[Response | None, Url]:
-        """
-        Send request to Url.value.
-        Return tuple with Response object and Url object on success.
-        - :arg url: Url object.
-        """
-        headers: dict = self.prepare_headers()
-        url.number_of_requests += 1
-        try:
-            with httpx.Client(
-                verify=False,
-                timeout=httpx.Timeout(60.0),
-                follow_redirects=True,
-                proxy=self.proxy,
-            ) as client:
-                res = client.get(url.value, headers=headers)
-                return res, url
-        except Exception as exc:
-            self.logger.error(
-                f'({SyncSpider.get.__qualname__}): Some other exception="{exc.__class__}", '
-                f'message="{exc}"', exc_info=True,
-            )
-            return None, url
-
-    def run_request(self, url: Url | None = None) -> tuple[Response, Url] | None:
-        """
-        Send get request to provided url.
-        If response is not successful retry request up to max_retries.
-        - :arg url: Url object.
-        """
-        while True:
-            response: tuple[Response | None, Url] = self.get(url=url)
-            if response[0] is None and url.number_of_requests < self.max_retries:
-                continue
-            if response[0] is not None:
-                return response
-        else:
-            return
-
-    def probe(self, url: Url | None = None) -> dict:
+    def probe(self, ) -> dict:
         """"""
-        # Set url variable.
-        url: Url = url if url is not None else self.initial_url
+
+        # Sending requests.
+        response: tuple[Response, Url] | None = self.run_request(url=self.initial_url)
+
+        # Parsing response.
+        parsed_response: dict = self.parse_response(
+            response_object=response, url=self.initial_url, response_time=self.current_response_time
+        )
+
+        # Processing favicon url.
+        if parsed_response.get('favicon_url') is not None:
+            favicon_url: Url = parsed_response['favicon_url']
+            favicon_response = self.run_request(url=favicon_url)
+
+    def parse_response(self, *, response_object: Response | None, url: Url, response_time: int) -> dict:
+        """"""
+        try:
+            if response_object[0] is None:
+                self.logger.debug(
+                    f'Response: status="None", url="{url}", html="False"'
+                )
+                return {
+                    'requested_url': url,
+                    'status': None,
+                }
+
+            if str(response_object[0].status_code)[0] in {'2', '3'}:
+                # Extracting html early.
+                element: HtmlElement | None = self.html_extractor.page(response_object[0])
+
+                # Extracting favicon url.
+                favicon_url: str | None = self.html_extractor.extract_favicon_url(element)
+                favicon_url_obj: Url | None = self.url_extractor.parse_favicon_url(favicon_url)
+
+                self.logger.debug(
+                    f'Parsing response: status="{response_object[0].status_code}", '
+                    f'url="{url}", html="{True if element is not None else False}"'
+                )
+
+                prepared_response: dict = {
+                    'requested_url': url,
+                    'status': str(response_object[0].status_code),
+                    'bytes_downloaded': response_object[0].num_bytes_downloaded,
+                    'responded_url': str(response_object[0].url),
+                    'server': response_object[0].headers.get('server', None),
+                    'content_type': str(response_object[0].headers.get('content-type')),
+                    'response_time': int(response_time),
+                    'visited': int(self.now_timestamp()),
+                    'favicon_url': favicon_url_obj,
+                }
+                return prepared_response
+
+            if str(response_object[0].status_code)[0] not in {'2', '3'}:
+                pass
+
+        except Exception as e:
+            self.logger.error(
+                f'Parsing response: status="Exception", class="{e.__class__}", message="{e}", '
+                f'url="{url}"', exc_info=True
+            )
+            return {
+                'requested_url': url,
+                'status': None,
+            }
+
+    def serialized_response(self):
+        ...

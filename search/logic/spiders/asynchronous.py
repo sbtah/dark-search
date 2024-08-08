@@ -65,8 +65,7 @@ class AsyncSpider(BaseSpider):
         request_end: int = self.now_timestamp()
         response_time: int = request_end - request_start
         # HtmlElement generated from the response text.
-        element: HtmlElement | None = self.html_extractor.page(response[0]) if response[0] is not None else Noned
-
+        element: HtmlElement | None = self.html_extractor.page(response[0]) if response[0] is not None else None
 
         try:
             if isinstance(response[0], Response):

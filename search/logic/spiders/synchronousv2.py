@@ -21,7 +21,7 @@ class SyncSpider(BaseSpider):
         headers: dict = self.prepare_headers()
         url.number_of_requests += 1
 
-        # Ensuring that values used for calculation will always be None before request.
+        # Setting initial variables for calculating response time.
         request_start: int | None = None
         request_end: int | None = None
         current_response_time: int | None = None
@@ -43,10 +43,8 @@ class SyncSpider(BaseSpider):
                 request_end = self.now_timestamp()
                 current_response_time = request_end - request_start
 
-                # Attaching/monkeypatching Response with needed values.
-                res._request_start = request_start
-                res._request_end = request_end
-                res._current_response_time = current_response_time
+                # Attaching/monkeypatching response time value to Response object.
+                res.current_response_time = current_response_time
 
                 return res, url
         except ConnectTimeout as cxc:
@@ -65,7 +63,7 @@ class SyncSpider(BaseSpider):
             )
             return None, url
 
-    def run_request(self, *, url: Url | None = None) -> tuple[Response, Url] | None:
+    def run_request(self, *, url: Url) -> tuple[Response | None, Url]:
         """
         Send get request to provided url.
         If response is not successful retry request up to self.max_retries.
@@ -83,6 +81,7 @@ class SyncSpider(BaseSpider):
                 )
                 time.sleep(self.sleep_time)
                 continue
+
             if response[0] is not None and isinstance(response[0], Response):
                 self.logger.debug(
                     f'({SyncSpider.run_request.__qualname__}): success="True", '
@@ -90,4 +89,4 @@ class SyncSpider(BaseSpider):
                 )
                 return response
         else:
-            return None
+            return None, url

@@ -1,4 +1,3 @@
-import copy
 import time
 from logging import Logger
 from urllib.parse import urlsplit

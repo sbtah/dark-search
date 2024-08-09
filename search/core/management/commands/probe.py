@@ -30,5 +30,5 @@ class Command(BaseCommand):
         res = spider.run_request(url=wiki_url)
         print(res)
         print(res[0].num_bytes_downloaded)
-        print(res[0].reason_phrase)
+        print(res[0].is_success)
         print(dir(res[0]))

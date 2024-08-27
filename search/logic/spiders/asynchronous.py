@@ -20,8 +20,15 @@ class AsyncSpider(BaseSpider):
         # Async max connections with AsyncClient.
         self.max_requests: int = max_requests
         self.sleep_time: float | int = sleep_time
-        self.client = AsyncApiClient()
+        self._client: httpx.AsyncClient | None = None
+        self.api_client: AsyncApiClient = AsyncApiClient()
         super().__init__(*args, **kwargs)
+
+    @property
+    def client(self) -> httpx.AsyncClient:
+        if self._client is None:
+            self._client: httpx.AsyncClient = httpx.AsyncClient
+        return self._client
 
     async def get(self, url: Url) -> tuple[Response | None, Url]:
         """
@@ -32,7 +39,7 @@ class AsyncSpider(BaseSpider):
         headers: dict = self.prepare_headers()
         url.number_of_requests += 1
         try:
-            async with httpx.AsyncClient(
+            async with self.client(
                 verify=False,
                 limits=httpx.Limits(max_connections=self.max_requests),
                 timeout=httpx.Timeout(60.0),
@@ -46,7 +53,7 @@ class AsyncSpider(BaseSpider):
         except Exception as exc:
             self.logger.error(
                 f'({AsyncSpider.get.__qualname__}): exception="{exc.__class__}", '
-                f'message="{exc}"', exc_info=True
+                f'message="{exc}", url="{url.value}"', exc_info=True
             )
             return None, url
 

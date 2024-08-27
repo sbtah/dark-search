@@ -28,7 +28,7 @@ class AsyncApiClient(BaseApiClient):
         Return tuple with Response object and Url object on success.
         - :arg url: Url object representing requested endpoint.
         """
-        headers: dict = self.prepare_auth_headers()
+        headers: dict = self.prepare_headers()
         url.number_of_requests += 1
         try:
             async with self.client(
@@ -51,7 +51,7 @@ class AsyncApiClient(BaseApiClient):
         - :arg url: Url object.
         - :data: Dictionary with data payload.
         """
-        headers: dict = self.prepare_auth_headers()
+        headers: dict = self.prepare_headers()
         url.number_of_requests += 1
         try:
             async with self.client(

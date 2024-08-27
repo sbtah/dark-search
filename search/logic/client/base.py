@@ -24,7 +24,7 @@ class BaseApiClient:
             f'{self.base_url}{settings.API_POST_SUMMARY_ENDPOINT}'
         )
 
-    def prepare_auth_headers(self) -> dict:
+    def prepare_headers(self) -> dict:
         """Prepare authorization headers for the next request."""
         return {
             'Authorization': f'Token {self.api_key}',

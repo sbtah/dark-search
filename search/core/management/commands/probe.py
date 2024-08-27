@@ -3,7 +3,7 @@ from logic.adapters.agents import UserAgentAdapter
 from logic.adapters.url import UrlAdapter
 from logic.objects.url import Url
 from logic.spiders.synchronousv2 import SyncSpider
-
+from logic.spiders.probe import Probe
 
 
 
@@ -18,7 +18,7 @@ class Command(BaseCommand):
         proxy = 'http://search-privoxy:8118'
         wiki_url: Url = UrlAdapter.create_url_object(value=wiki_url_str)
 
-        spider = SyncSpider(
+        spider = Probe(
             initial_url=wiki_url,
             proxy=proxy,
             user_agent=agent.value,
@@ -27,8 +27,10 @@ class Command(BaseCommand):
             timeout_time=60,
         )
 
-        res = spider.run_request(url=wiki_url)
+        res = spider.start_probing()
+
+
         print(res)
-        print(res[0].num_bytes_downloaded)
-        print(res[0].is_success)
-        print(dir(res[0]))
+        # print(res[0].num_bytes_downloaded)
+        # print(res[0].is_success)
+        # print(dir(res[0]))

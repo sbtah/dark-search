@@ -33,7 +33,7 @@ run-crawl:
 run-probe:
 	@echo "Starting a Probing spider..."
 	@sleep 5
-	docker compose run --rm search sh -c 'python manage.py probe'
+	@docker compose run --rm search sh -c 'python manage.py probe'
 
 run-manual:
 	@echo "Starting Manual crawling..."
@@ -45,20 +45,20 @@ trash-api:
 	@docker compose run --rm api sh -c 'python clear_migrations.py'
 	@docker compose down
 	@sleep 5
-	-@docker volume rm dark-search_api-db-dev
+	@docker volume rm dark-search_api-db-dev
 
 trash-search:
 	@echo "Warning this command will remove local SEARCH volume!"
 	@docker compose run --rm search sh -c 'python clear_migrations.py'
 	@docker compose down
 	@sleep 5
-	-@docker volume rm dark-search_search-db-dev
+	@docker volume rm dark-search_search-db-dev
 
 trash-redis:
 	@echo "Warning this command will remove local REDIS volume!"
 	@docker compose down
 	@sleep 5
-	-@docker volume rm dark-search_redis-dev
+	@docker volume rm dark-search_redis-dev
 
 trash-volumes:
 	@echo "Warning this command will remove ALL local volumes!"
@@ -66,4 +66,4 @@ trash-volumes:
 	@docker compose run --rm search sh -c 'python clear_migrations.py'
 	@docker compose down
 	@sleep 5
-	-@docker volume rm $(shell docker volume ls --format '{{ .Name }}' | grep -E "dark-search_")
+	@docker volume rm $(shell docker volume ls --format '{{ .Name }}' | grep -E "dark-search_")

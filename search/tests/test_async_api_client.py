@@ -30,12 +30,12 @@ class TestAsyncApiClient:
     Tests for AsyncApiClient functionality.
     """
 
-    def test_prepare_auth_headers_method(self, example_token, client) -> None:
+    def test_prepare_headers_method(self, example_token, client) -> None:
         """
         Test that prepare_auth_headers method is creating expected dictionary.
         """
         client.api_key = example_token
-        headers = client.prepare_auth_headers()
+        headers = client.prepare_headers()
         assert headers['Authorization'] == 'Token TEST_AUTH_TOKEN'
 
     @pytest.mark.asyncio

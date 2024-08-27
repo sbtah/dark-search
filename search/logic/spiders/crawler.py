@@ -62,7 +62,7 @@ class Crawler(AsyncSpider):
                 # Serialize and send response to API service.
                 serialized_response: dict = self.serialized_response(response)
                 print(serialized_response)
-                await self.client.post_response_data(data=serialized_response)
+                await self.api_client.post_response_data(data=serialized_response)
 
                 # If the response does not contain results for urls parsing, we move to the next response.
                 if response.get('processed_urls') is None:
@@ -98,7 +98,7 @@ class Crawler(AsyncSpider):
                 'time': int(self.crawl_end - self.crawl_start),
                 'date': self.now_timestamp()
             }
-            await self.client.post_summary_data(data=result_data)
+            await self.api_client.post_summary_data(data=result_data)
             return result_data
 
     def prepare_urls_queue(self) -> None:

@@ -1,67 +1,97 @@
-from logic.spiders.synchronousv2 import SyncSpider
-from httpx import Response, ConnectTimeout
-from logic.objects.url import Url
-from lxml.html import HtmlElement
 import copy
+
+from httpx import Response
+from logic.objects.url import Url
 from logic.schemas.url import UrlSchema
+from logic.spiders.synchronousv2 import SyncSpider
+from lxml.html import HtmlElement
 
 
 class Probe(SyncSpider):
     """
     Probing spider used for first request.
     Saves initial data for requested domain.
-    Extracts urls that will be provided to Crawler.
     """
+
+    def prepare_headers(self) -> dict:
+        """Prepare request headers for next request."""
+        assert self.user_agent is not None, f'Failed at preparing request headers: User Agent is: {self.user_agent}'
+        return {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+            'Upgrade-Insecure-Requests': '1',
+            'Connection': 'close',
+            'User-Agent': self.user_agent,
+        }
 
     def start_probing(self):
         """Initiate a probing process."""
-        self.logger.info(f'Probe, initiated: domain="{self.domain}"')
+        self.logger.info(f'Probe, initiated: task_id="{self.task_id}", domain="{self.domain}"')
         result: dict = self.probe()
         return result
 
     def probe(self) -> dict:
-        """"""
+        """
+        Send request to initial Url.
+        Send post request to dedicated API endpoint with necessary data.
+        Return dict with extracted data.
+        """
         # Send request to Url object that spider was initialed with.
         response: tuple[Response, Url] | None = self.run_request(url=self.initial_url)
 
         # Parse received response, extract data.
         parsed_response: dict = self.parse_response(response=response)
 
+        # TODO:
         # Serialize objects, prepare data to be sent to the API.
-        serialized_response: dict = self.serialize_response()
+        serialized_response: dict = self.serialize_response(response_dict=parsed_response)
 
         if parsed_response.get('favicon_url') is None:
+            self.logger.info(
+                f'Probe, finished: task_id={self.task_id}, domain="{self.domain}"'
+            )
             # TODO: Send data to the API.
             return parsed_response
 
-        # Extracting favicon url.
+        # Extract favicon url, run request for it. Parse response to base64 string.
         favicon_url: Url = parsed_response['favicon_url']
-
         favicon_response: tuple[Response | None, Url] = self.run_request(url=favicon_url)
         parsed_favicon_response: dict = self.parse_favicon_response(response=favicon_response)
 
+        # Add data extracted from favicon parsing to serialized data.
         extended_serialized_response: dict = {
             **serialized_response,
             **parsed_favicon_response,
         }
         # TODO: Send extended data to the API.
 
+        # Extend response with favicon in base64.
         extended_response: dict = {
             **parsed_response,
             **parsed_favicon_response,
         }
+        self.logger.info(
+            f'Probe, finished: task_id="{self.task_id}", domain="{self.domain}"'
+        )
         return extended_response
 
     def parse_response(self, *, response: tuple[Response | None, Url]) -> dict:
-        """"""
-
-        # Saving Url object from response.
+        """
+        Parse response object and extract needed data.
+        """
+        # Save Url object from response.
         url: Url = response[1]
 
         try:
             if response[0] is None:
                 self.logger.debug(
-                    f'Parsing response: status="None", url="{url}", html="False"'
+                    f'({Probe.parse_response.__qualname__}): status="None", task_id="{self.task_id}", '
+                    f'url="{url}", html="False"'
                 )
                 return {
                     'requested_url': url,
@@ -84,24 +114,26 @@ class Probe(SyncSpider):
                 return prepared_response
 
             if str(response[0].status_code)[0] in {'2', '3'}:
-                # Extracting html element.
+                # Extract html element.
                 element: HtmlElement | None = self.html_extractor.page(response[0])
 
-                # Extracting favicon url.
+                # Extract favicon url.
                 favicon_url: str | None = self.html_extractor.extract_favicon_url(element)
                 favicon_url_obj: Url | None = self.url_extractor.parse_favicon_url(favicon_url)
 
                 self.logger.debug(
-                    f'Parsing response: status="{response[0].status_code}", '
+                    f'({Probe.parse_response.__qualname__}): status="{response[0].status_code}", '
+                    f'task_id="{self.task_id}", '
                     f'url="{url}", html="{True if element is not None else False}"'
                 )
 
-                prepared_response['favicon_url'] = favicon_url_obj,
+                prepared_response['favicon_url'] = favicon_url_obj
                 return prepared_response
 
         except Exception as e:
             self.logger.error(
-                f'Parsing response: status="Exception", class="{e.__class__}", message="{e}", '
+                f'({Probe.parse_response.__qualname__}): exception="{e.__class__}", message="{e}", '
+                f'task_id="{self.task_id}", '
                 f'url="{url}"', exc_info=True
             )
             return {
@@ -110,9 +142,12 @@ class Probe(SyncSpider):
             }
 
     def parse_favicon_response(self, *, response: tuple[Response | None, Url]) -> dict:
-        """"""
-
-        # Saving Url object from response.
+        """
+        Process response received from requesting favicon url.
+        Convert response content to base64 string for archiving.
+        - :arg response: Returned result from calling run_request method.
+        """
+        # Save Url object from response.
         url: Url = response[1]
         base_response: dict = {
             'favicon_base64': None,
@@ -120,28 +155,43 @@ class Probe(SyncSpider):
         try:
             if response[0] is None:
                 self.logger.debug(
-                    f'Parsing favicon response: status="None", url="{url}"'
+                    f'({Probe.parse_favicon_response.__qualname__}): status="None", url="{url}", '
+                    f'task_id="{self.task_id}"'
                 )
                 return base_response
 
             if response[0].is_success is True:
+                # Convert response content to expected string.
+                base_64_str: str = self.converter.convert_bytes_to_base64(response[0].content)
                 prepared_response: dict = {
-                    'favicon_base64': self.converter.convert(response[0].content),
+                    'favicon_base64': base_64_str,
                 }
+
+                self.logger.debug(
+                    f'({Probe.parse_favicon_response.__qualname__}): status="{response[0].status_code}", '
+                    f'task_id="{self.task_id}", '
+                    f'url="{url}"'
+                )
                 return prepared_response
             else:
                 return base_response
 
         except Exception as e:
             self.logger.error(
-                f'Parsing favicon response: status="Exception", class="{e.__class__}", message="{e}", '
+                f'({Probe.parse_favicon_response.__qualname__}): status="Exception", '
+                f'class="{e.__class__}", message="{e}", '
+                f'task_id="{self.task_id}", '
                 f'url="{url}"', exc_info=True
             )
             return base_response
 
-    def serialize_response(self, response_dict: dict) -> dict:
+    @staticmethod
+    def serialize_response(*, response_dict: dict) -> dict:
         """
-
+        Serialize response in order to send it the Api.
+        Convert Url objects to dictionaries.
+        Ensure proper structure and types.
+        - :arg response_dict: Dictionary with parsed/extracted data from responses.
         """
         copied_response: dict = copy.deepcopy(response_dict)
         url: Url = copied_response.pop('requested_url')

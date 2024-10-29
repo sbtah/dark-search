@@ -1,8 +1,9 @@
 import asyncio
 
 from django.core.management.base import BaseCommand
-from logic.parsers.objects.url import Url
+from logic.objects.url import Url
 from logic.spiders.crawler import Crawler
+
 
 # Url to crawl.
 str_url = 'http://wiki6dtqpuvwtc5hopuj33eeavwa6sik7sy57cor35chkx5nrbmmolqd.onion' # noqa
@@ -11,6 +12,9 @@ str_url = 'http://wiki6dtqpuvwtc5hopuj33eeavwa6sik7sy57cor35chkx5nrbmmolqd.onion
 class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
+        self.stdout.write(
+            self.style.SUCCESS(f'Launching crawl to manually defined url: {str_url}')
+        )
         agent = 'Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0' # noqa
         proxy = 'http://search-privoxy:8118'
         _url = Url(value=str_url)

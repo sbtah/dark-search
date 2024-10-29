@@ -94,11 +94,13 @@ class Probe(SyncSpider):
                     f'url="{url}", html="False"'
                 )
                 return {
+                    'domain': self.domain,
                     'requested_url': url,
                     'status': None,
                 }
 
             prepared_response: dict = {
+                'domain': self.domain,
                 'requested_url': url,
                 'status': str(response[0].status_code),
                 'bytes_downloaded': response[0].num_bytes_downloaded,
@@ -137,6 +139,7 @@ class Probe(SyncSpider):
                 f'url="{url}"', exc_info=True
             )
             return {
+                'domain': self.domain,
                 'requested_url': url,
                 'status': None,
             }

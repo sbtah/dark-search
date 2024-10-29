@@ -44,7 +44,7 @@ class ResponseProcessor(BaseProcessor):
         # Extract value of domain from requested url.
         domain_value: str = self.domain_adapter.extract_domain(url=href)
 
-        # Create Domain object for further processing.
+        # Create or fetch Domain object for further processing.
         current_domain: Domain = self.domain_adapter.get_or_create_domain_by_value(
             value=domain_value,
         )

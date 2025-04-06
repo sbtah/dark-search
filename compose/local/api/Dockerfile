@@ -1,52 +1,64 @@
-FROM python:3.12.4-alpine
+FROM python:3.13.2-bullseye
 LABEL maintainer='Grzegorz Zygan'
+
 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 
+
 ARG DEV=false
+
 
 COPY ./api/requirements.txt /tmp/requirements.txt
 COPY ./api/requirements.dev.txt /tmp/requirements.dev.txt
 
-
-COPY ./compose/local/api/start /start
+COPY ./compose/local/search/start /start
+RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
 
-COPY ./compose/local/api/cstart /cstart
+COPY ./compose/local/search/cstart /cstart
+RUN sed -i 's/\r$//g' /cstart
 RUN chmod +x /cstart
 
-COPY ./compose/local/api/fstart /fstart
+COPY ./compose/local/search/fstart /fstart
+RUN sed -i 's/\r$//g' /fstart
 RUN chmod +x /fstart
 
-COPY ./compose/local/api/bstart /bstart
+COPY ./compose/local/search/bstart /bstart
+RUN sed -i 's/\r$//g' /bstart
 RUN chmod +x /bstart
 
-COPY ./compose/local/api/entrypoint /entrypoint
+COPY ./compose/local/search/entrypoint /entrypoint
+RUN sed -i 's/\r$//g' /entrypoint
 RUN chmod +x /entrypoint
 
+
+RUN mkdir -p /api/media && \
+    mkdir -p /api/static && \
+    mkdir -p /api/staticfiles
+
+
+RUN apt-get update \
+  && apt-get install ca-certificates -y \
+  # dependencies for building Python packages
+  && apt-get install -y build-essential \
+  # psycopg2 dependencies
+  && apt-get install -y libpq-dev \
+  # Translations dependencies
+  && apt-get install -y gettext \
+  # cleaning up unused files
+  && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+  && rm -rf /var/lib/apt/lists/*
+
+
 RUN pip install --upgrade pip && \
-    apk add --update --no-cache postgresql-client jpeg-dev && \
-    apk add --update --no-cache --virtual .tmp-build-deps \
-    build-base postgresql-dev musl-dev zlib zlib-dev linux-headers && \
     pip install -r /tmp/requirements.txt && \
     if [ $DEV = "true" ]; \
     then pip install -r /tmp/requirements.dev.txt ; \
-    fi && \
-    rm -rf /tmp && \
-    apk del .tmp-build-deps && \
-    adduser \
-    --disabled-password \
-    --no-create-home \
-    api-user && \
-    mkdir -p /api/media && \
-    mkdir -p /api/static && \
-    mkdir -p /api/staticfiles && \
-    chown -R api-user:api-user /api && \
-    chmod -R 644 /api
+    fi
 
-USER api-user
 
 WORKDIR /api
+
 
 ENTRYPOINT ["/entrypoint"]

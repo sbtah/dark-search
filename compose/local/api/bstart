@@ -4,4 +4,5 @@ set -o errexit
 set -o nounset
 
 rm -rf './celerybeat.pid'
-celery -A core beat -l INFO
+#celery -A core beat -l INFO
+#celery -A core beat -s /celerybeat-schedule -l INFO

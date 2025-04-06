@@ -43,7 +43,7 @@ RUN pip install --upgrade pip && \
     mkdir -p /api/static && \
     mkdir -p /api/staticfiles && \
     chown -R api-user:api-user /api && \
-    chmod -R 755 /api
+    chmod -R 644 /api
 
 USER api-user
 

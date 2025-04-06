@@ -42,7 +42,7 @@ RUN pip install --upgrade pip && \
     mkdir -p /search/static && \
     mkdir -p /search/staticfiles && \
     chown -R search-user:search-user /search && \
-    chmod -R 755 /search
+    chmod -R 644 /search
 
 USER search-user
 

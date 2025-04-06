@@ -78,7 +78,7 @@ class Data(models.Model):
     page_title = models.CharField(max_length=2000, blank=True, null=True, db_index=True)
     meta_title = models.CharField(max_length=2000, blank=True, null=True, db_index=True)
     meta_description = models.TextField(blank=True, null=True, db_index=True)
-    content_type = models.CharField(null=True, blank=True)
+    content_type = models.CharField(max_length=100, null=True, blank=True)
     raw_text = models.TextField(blank=True, null=True)
     on_page_raw_urls = models.JSONField(blank=True, null=True)
     on_page_processed_internal_urls = models.JSONField(blank=True, null=True)

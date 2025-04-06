@@ -37,7 +37,12 @@ RUN pip install --upgrade pip && \
     adduser \
     --disabled-password \
     --no-create-home \
-    search-user
+    search-user && \
+    mkdir -p /search/media && \
+    mkdir -p /search/static && \
+    mkdir -p /search/staticfiles && \
+    chown -R search-user:search-user /search && \
+    chmod -R 755 /search
 
 USER search-user
 

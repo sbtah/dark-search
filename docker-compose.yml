@@ -11,34 +11,52 @@ services:
     command: /start
     volumes:
       - ./search:/search
+      - search-static-data:/search/staticfiles
     ports:
       - "127.0.0.1:9002:8000"
-    env_file:
-      - .env-dev
+    environment:
+      - DB_HOST=${SEARCH_HOST}
+      - DB_NAME=${SEARCH_DATABASE}
+      - DB_USER=${SEARCH_USER}
+      - DB_PASS=${SEARCH_PASSWORD}
+      - DB_PORT=${SEARCH_PORT}
+      - SECRET_KEY=${DJANGO_SECRET_KEY}
+      - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - CELERY_BROKER=${CELERY_BROKER}
+      - CELERY_BACKEND=${CELERY_BACKEND}
     depends_on:
       - search-db
       - redis
     networks:
       - search-network
 
-  api:
+  search-api:
     build:
       context: .
       dockerfile: ./compose/local/api/Dockerfile
       network: host
       args:
         - DEV=true
-    image: api
-    container_name: api
+    image: search-api
+    container_name: search-api
     command: /start
     volumes:
       - ./api:/api
+      - search-api-static-data:/api/staticfiles
     ports:
-      - "127.0.0.1:9003:8000"
-    env_file:
-      - .env-dev
+      - "127.0.0.1:8000:8000"
+    environment:
+      - DB_HOST=${API_HOST}
+      - DB_NAME=${API_DATABASE}
+      - DB_USER=${API_USER}
+      - DB_PASS=${API_PASSWORD}
+      - DB_PORT=${API_PORT}
+      - SECRET_KEY=${DJANGO_SECRET_KEY}
+      - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - CELERY_BROKER=${CELERY_BROKER}
+      - CELERY_BACKEND=${CELERY_BACKEND}
     depends_on:
-      - api-db
+      - search-api-db
       - redis
     networks:
       - search-network
@@ -58,9 +76,9 @@ services:
     ports:
       - "127.0.0.1:3000:3000"
     env_file:
-      - .env-dev
+      - .env
     depends_on:
-      - api
+      - search-api
     networks:
       - search-network
 
@@ -72,23 +90,23 @@ services:
     ports:
       - "127.0.0.1:45432:5432"
     environment:
-      - POSTGRES_DB=hello_django
-      - POSTGRES_USER=hello_django
-      - POSTGRES_PASSWORD=hello_django
+      - POSTGRES_DB=${SEARCH_DATABASE}
+      - POSTGRES_USER=${SEARCH_USER}
+      - POSTGRES_PASSWORD=${SEARCH_PASSWORD}
     networks:
       - search-network
 
-  api-db:
+  search-api-db:
     image: postgres:16.2
-    container_name: api-db
+    container_name: search-api-db
     volumes:
-      - api-db-dev:/var/lib/postgresql/data/
+      - search-api-db-dev:/var/lib/postgresql/data/
     ports:
       - "127.0.0.1:55432:5432"
     environment:
-      - POSTGRES_DB=hello_django
-      - POSTGRES_USER=hello_django
-      - POSTGRES_PASSWORD=hello_django
+      - POSTGRES_DB=${API_DATABASE}
+      - POSTGRES_USER=${API_USER}
+      - POSTGRES_PASSWORD=${API_PASSWORD}
     networks:
       - search-network
 
@@ -103,8 +121,16 @@ services:
     command: /cstart
     volumes:
       - ./search:/search
-    env_file:
-      - .env-dev
+    environment:
+      - DB_HOST=${SEARCH_HOST}
+      - DB_NAME=${SEARCH_DATABASE}
+      - DB_USER=${SEARCH_USER}
+      - DB_PASS=${SEARCH_PASSWORD}
+      - DB_PORT=${SEARCH_PORT}
+      - SECRET_KEY=${DJANGO_SECRET_KEY}
+      - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - CELERY_BROKER=${CELERY_BROKER}
+      - CELERY_BACKEND=${CELERY_BACKEND}
     depends_on:
       - search-db
       - redis
@@ -122,10 +148,18 @@ services:
     command: /cstart
     volumes:
       - ./api:/api
-    env_file:
-      - .env-dev
+    environment:
+      - DB_HOST=${API_HOST}
+      - DB_NAME=${API_DATABASE}
+      - DB_USER=${API_USER}
+      - DB_PASS=${API_PASSWORD}
+      - DB_PORT=${API_PORT}
+      - SECRET_KEY=${DJANGO_SECRET_KEY}
+      - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - CELERY_BROKER=${CELERY_BROKER}
+      - CELERY_BACKEND=${CELERY_BACKEND}
     depends_on:
-      - api-db
+      - search-api-db
       - redis
     networks:
       - search-network
@@ -148,28 +182,44 @@ services:
     command: /bstart
     volumes:
       - ./search:/search
-    env_file:
-      - .env-dev
+    environment:
+      - DB_HOST=${SEARCH_HOST}
+      - DB_NAME=${SEARCH_DATABASE}
+      - DB_USER=${SEARCH_USER}
+      - DB_PASS=${SEARCH_PASSWORD}
+      - DB_PORT=${SEARCH_PORT}
+      - SECRET_KEY=${DJANGO_SECRET_KEY}
+      - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - CELERY_BROKER=${CELERY_BROKER}
+      - CELERY_BACKEND=${CELERY_BACKEND}
     depends_on:
       - search-db
       - redis
     networks:
       - search-network
 
-  api-beat:
+  search-api-beat:
     build:
       context: .
       dockerfile: ./compose/local/api/Dockerfile
       network: host
-    image: api-beat
-    container_name: api-beat
+    image: search-api-beat
+    container_name: search-api-beat
     command: /bstart
     volumes:
       - ./api:/api
-    env_file:
-      - .env-dev
+    environment:
+      - DB_HOST=${API_HOST}
+      - DB_NAME=${API_DATABASE}
+      - DB_USER=${API_USER}
+      - DB_PASS=${API_PASSWORD}
+      - DB_PORT=${API_PORT}
+      - SECRET_KEY=${DJANGO_SECRET_KEY}
+      - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - CELERY_BROKER=${CELERY_BROKER}
+      - CELERY_BACKEND=${CELERY_BACKEND}
     depends_on:
-      - api-db
+      - search-api-db
       - redis
     networks:
       - search-network
@@ -184,8 +234,16 @@ services:
     command: /fstart
     volumes:
       - ./search:/search
-    env_file:
-      - .env-dev
+    environment:
+      - DB_HOST=${SEARCH_HOST}
+      - DB_NAME=${SEARCH_DATABASE}
+      - DB_USER=${SEARCH_USER}
+      - DB_PASS=${SEARCH_PASSWORD}
+      - DB_PORT=${SEARCH_PORT}
+      - SECRET_KEY=${DJANGO_SECRET_KEY}
+      - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - CELERY_BROKER=${CELERY_BROKER}
+      - CELERY_BACKEND=${CELERY_BACKEND}
     ports:
       - "127.0.0.1:5559:5555"
     depends_on:
@@ -194,22 +252,30 @@ services:
     networks:
       - search-network
 
-  api-flower:
+  search-api-flower:
     build:
       context: .
       dockerfile: ./compose/local/api/Dockerfile
       network: host
-    image: api-flower
-    container_name: api-flower
+    image: search-api-flower
+    container_name: search-api-flower
     command: /fstart
     volumes:
       - ./api:/api
-    env_file:
-      - .env-dev
+    environment:
+      - DB_HOST=${API_HOST}
+      - DB_NAME=${API_DATABASE}
+      - DB_USER=${API_USER}
+      - DB_PASS=${API_PASSWORD}
+      - DB_PORT=${API_PORT}
+      - SECRET_KEY=${DJANGO_SECRET_KEY}
+      - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - CELERY_BROKER=${CELERY_BROKER}
+      - CELERY_BACKEND=${CELERY_BACKEND}
     ports:
       - "127.0.0.1:5558:5555"
     depends_on:
-      - api-db
+      - search-api-db
       - redis
     networks:
       - search-network
@@ -225,10 +291,27 @@ services:
     networks:
       - search-network
 
+  search-api-nginx:
+    build:
+      context: .
+      dockerfile: ./compose/local/nginx/Dockerfile
+    image: search-api-nginx
+    container_name: search-api-nginx
+    ports:
+      - 80:80
+    volumes:
+      - search-api-static-data:/api/staticfiles
+    depends_on:
+      - search-api
+    networks:
+      - search-network
+
 volumes:
   search-db-dev:
-  api-db-dev:
+  search-api-db-dev:
   redis-dev:
+  search-static-data:
+  search-api-static-data:
 
 networks:
   search-network:

@@ -38,7 +38,12 @@ RUN pip install --upgrade pip && \
     adduser \
     --disabled-password \
     --no-create-home \
-    api-user
+    api-user && \
+    mkdir -p /api/media && \
+    mkdir -p /api/static && \
+    mkdir -p /api/staticfiles && \
+    chown -R api-user:api-user /api && \
+    chmod -R 755 /api
 
 USER api-user
 

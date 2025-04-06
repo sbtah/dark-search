@@ -13,11 +13,11 @@ import sys
 import psycopg2
 try:
     psycopg2.connect(
-        dbname="${SEARCH_DATABASE}",
-        user="${SEARCH_USER}",
-        password="${SEARCH_PASSWORD}",
-        host="${SEARCH_HOST}",
-        port="${SEARCH_PORT}",
+        dbname="${DB_NAME}",
+        user="${DB_USER}",
+        password="${DB_PASS}",
+        host="${DB_HOST}",
+        port="${DB_PORT}",
     )
 except psycopg2.OperationalError:
     sys.exit(-1)

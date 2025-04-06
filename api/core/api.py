@@ -8,7 +8,8 @@ from logic.adapters.webpage import WebpageAdapter
 api = NinjaAPI(
     title='Dark Search API',
     description='API for Dark Search Service',
-    version='0.0.1',)
+    version='0.0.1',
+)
 
 
 @api.get('/')
